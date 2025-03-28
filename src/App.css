@@ -1,0 +1,7 @@
+.background{
+    background-image: url('./assets/products/BG.png');
+    background-size:contain ;
+    background-repeat: no-repeat;
+    padding: 10%
+
+}

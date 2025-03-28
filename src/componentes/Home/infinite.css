@@ -1,0 +1,25 @@
+/* :root {
+  --scroll-speed: 5s;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  display: flex;
+  white-space: nowrap;
+  animation: scroll var(--scroll-speed) linear infinite;
+}
+
+.logos-container {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+ */
