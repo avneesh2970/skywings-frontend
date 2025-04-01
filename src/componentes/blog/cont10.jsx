@@ -1,12 +1,23 @@
-import mountain from "../../assets/products/image(10).png";
-import tech from "../../assets/products/image(11).png";
 import desktop from "../../assets/products/image(3).png";
 import podcast from "../../assets/products/image(6).png";
 import singleman from "../../assets/products/image(4).png";
-import img33 from '../../assets/service/image33.png'
-import img36 from '../../assets/service/image36.png'
 import img49 from '../../assets/service/image49.png'
-import concentration from "../../assets/products/image(5).png";
+import img42 from '../../assets/service/image42.png'
+import img50 from '../../assets/service/image50.png'
+import img37 from '../../assets/service/image37.png'
+import img43 from '../../assets/service/image43.png'
+import img11 from '../../assets/products/img11.jpg'
+import img101 from '../../assets/products/img101.jpg'
+import img102 from '../../assets/products/img102.jpg'
+import img103 from '../../assets/products/img103.jpg'
+import img104 from '../../assets/products/img104.jpg'
+import img105 from '../../assets/products/img105.jpg'
+import img106 from '../../assets/products/img106.jpg'
+import img107 from '../../assets/products/img107.jpg'
+import img108 from '../../assets/products/img108.jpg'
+import img109 from '../../assets/products/img109.jpg'
+import img110 from '../../assets/products/img110.jpg'
+
 import { MdArrowOutward } from "react-icons/md";
 import { Link } from "react-router-dom";
 
@@ -17,9 +28,9 @@ const Cont10 = () => {
   const articles = [
     {
       id: 1,
-      image: mountain,
+      image: img11,
       author: "Admin",
-      date: "March 25, 2025",
+      date: "Feb 25, 2025",
       jobtype: "Recruitment",
       title: "Busted No Show Reasons ",
       description:
@@ -30,7 +41,7 @@ const Cont10 = () => {
       id: 2,
       image: podcast,
       author: "Admin",
-      date: "march 25, 2025",
+      date: "Feb 20, 2025",
       jobtype: "Interview Tips",
       title: "The One Thing Every Employer Wants to See On Your Resume",
       description:
@@ -41,51 +52,20 @@ const Cont10 = () => {
 
     {
       id: 3,
-      image: tech,
+      image: img107,
       author: "Admin",
-      date: "March 25, 2025",
+      date: "Feb 5,, 2025",
       jobtype: "Company Culter ",
       title: "How to create a culture of leadership",
       description:
         "Culture is a composition of 'Intellectual Activity'. In this competitive world, a key factor behind a company's success, apart from .",
 
-      descriptionA:
-        "Culture is a composition of 'Intellectual Activity'. In this competitive world, a key factor behind a company's success, apart from product differentiation and quality of service, is its culture. One of the most important aspects of culture is the pursuit of transforming employees into leaders. So, how does a company go about achieving this?",
-
-      txt4: "Give Ownership-",
-      txt5: "Ownership plays a big role here. Believe and let employees own their role, make them accountable for the tasks in hand and see how they develop. Responsibility imposes the mind to think beyond the visible horizon. It enhances productivity since bringing the outcome is in the hands of the owner which necessarily mean it has to be the best.",
-
-      txt6: "Role Rotation-",
-      txt7: "Role rotation or switch is another feature in transforming employees into leaders. This would essentially mean that high potential employees should be exposed to a set of functions and not just one. What is expected of a leader is that he should be abreast of all the nuts and bolts of the company. He should hold a holistic view of the company and be able to examine the different facets of the business through his knowledge and understanding and therefore, it is important that employees of the organization are allowed exposure to all inter-linked functions.",
-
-      txt8: "For instance,",
-      txt9: " an employee in product development should also be exposed to product marketing to understand the market trends, competition and in turn use that information for enhancements. It will prepare him for an elevated role by making him a better developer.",
-
-      txt10: "Find Your Core- ",
-      txt11:
-        "However, giving opportunities like these cannot be random for there are possible chances of confusion and unilateral decision-making. Hence, this should be properly planned and structured keeping the Vision of the company and most importantly the core business in range. So, if you are in the business of developing software for the hospitality industry, every person in the product team must feel responsible towards the design and the product getting developed. Focus cannot just shift away from the nucleus of the company and the culture should thoroughly imbibe it.",
-
-      txt14: "Leader Shows the Way- ",
-      txt15:
-        "Having emphasized on the theme of empowerment, it must be evident that we rule out the process of 'micro-management' completely in the company. What works is leadership of participative style, which is to say that leaders show the path, trust and delegate responsibilities, create ownership in roles and stay juxtapose to guide if required. He must see the picture through the company's eyes.",
-
-      txt16: "Liberty to Speak Your Mind- ",
-      txt17:
-        "When you say you have a workforce who is empowered there is a level of liberty which is a must and should be bestowed upon them to make an expression of their thoughts.",
-
-      txt18: "Define Clarity of Purpose- ",
-      txt19:
-        "Creating a culture of leadership comes naturally for a startup when the team is small and everyone swims together. It is only when you start reaching scale that you need to start talking about creating a culture of leadership. The clarity of purpose as to why it is important to create such a culture must be established.",
-
-      txt20: "Walk the Talk- ",
-      txt21:
-        "Merely defining and laying down components of a successful culture is not sufficient. In fact following and believing in it is very crucial for its success, which is why should be - 'Walk the Talk'. A culture of leadership thrives best when employees are recognized for their contribution and where applauses and rewards follow suit.",
     },
     {
       id: 4,
       image: desktop,
       author: "Admin",
-      date: "March 25, 2025",
+      date: "Jan 2, 2025",
       jobtype: "Interview Tips",
       title: "Basic questions asked in any job Interview",
       description:
@@ -96,7 +76,7 @@ const Cont10 = () => {
     id: 5,
       image: singleman,
       author: "Admin",
-      date: "March 25, 2025",
+      date: "Jan 10, 2025",
       jobtype: "Placement",
       title: "How College Placement Cells Can Improve Student Employability ",
       description:
@@ -104,9 +84,9 @@ const Cont10 = () => {
   },
     {
     id: 6,
-      image: concentration ,
+      image: img106 ,
       author: "Admin",
-      date: "March 26, 2025",
+      date: "Feb 19, 2025",
       jobtype: "Internship",
       title: "Internship Programs: Why They Are Essential for Career Growth ",
       description:
@@ -114,9 +94,9 @@ const Cont10 = () => {
   },
     {
     id: 7,
-      image: img33,
+      image: img109,
       author: "Admin",
-      date: "March 25, 2025",
+      date: "Feb 5, 2025",
       jobtype: "Skill Gap",
       title: " Skill Gap in India: How to Bridge It Through Training & Recruitment ",
       description:
@@ -124,9 +104,9 @@ const Cont10 = () => {
   },
     {
     id: 8,
-      image: img36,
+      image: img105,
       author: "Admin",
-      date: "March 22, 2025",
+      date: "Jan 17, 2025",
       jobtype: "Resume",
       title: "How to Optimize Your Resume for ATS  ",
       description:
@@ -136,7 +116,7 @@ const Cont10 = () => {
     id: 9,
       image: img49,
       author: "Admin",
-      date: "March 20, 2025",
+      date: "Feb 18, 2025",
       jobtype: " Hiring ",
       title: "How Staffing Companies Can Improve Diversity & Inclusion Hiring  ",
       description:
@@ -144,9 +124,9 @@ const Cont10 = () => {
   },
     {
     id: 10,
-      image: mountain,
+      image:img104,
       author: "Admin",
-      date: "March 20, 2025",
+      date: "Jan 24, 2025",
       jobtype: " Pre-Placement ",
       title: "How Pre-Placement Offers (PPOs) Are Changing Campus Hiring",
       description:
@@ -154,7 +134,7 @@ const Cont10 = () => {
   },
     {
     id: 11,
-      image: mountain,
+      image: img43,
       author: "Admin",
       date: "March 18, 2025",
       jobtype: "Staffing  ",
@@ -164,7 +144,7 @@ const Cont10 = () => {
   },
     {
     id: 12,
-      image: mountain,
+      image: img42,
       author: "Admin",
       date: "March 17, 2025",
       jobtype: "Recruitment  ",
@@ -174,7 +154,7 @@ const Cont10 = () => {
   },
     {
     id: 13,
-      image: mountain,
+      image:img103,
       author: "Admin",
       date: "March 11, 2025",
       jobtype: "AI  ",
@@ -184,9 +164,9 @@ const Cont10 = () => {
   },
     {
     id: 14,
-      image: mountain,
+      image: img108,
       author: "Admin",
-      date: "March 11, 2025",
+      date: "Jan 8, 2025",
       jobtype: "Businesses ",
       title: "Understanding Whitepapers: A Comprehensive Guide for Businesses",
       description:
@@ -194,7 +174,7 @@ const Cont10 = () => {
   },
     {
     id: 15,
-      image: mountain,
+      image:img102,
       author: "Admin",
       date: "March 11, 2025",
       jobtype: "Success ",
@@ -204,9 +184,9 @@ const Cont10 = () => {
   },
     {
     id: 16,
-      image: mountain,
+      image: img110,
       author: "Admin",
-      date: "March 15, 2025",
+      date: "Feb 16, 2025",
       jobtype: "W2 & C2C ",
       title: "Understanding W2 and C2C Employment Arrangements",
       description:
@@ -214,9 +194,9 @@ const Cont10 = () => {
   },
   {
     id: 17,
-      image: mountain,
+      image: img37,
       author: "Admin",
-      date: "March 15, 2025",
+      date: "Feb 7, 2025",
       jobtype: "Freshers ",
       title: "How to source freshers",
       description:
@@ -224,7 +204,7 @@ const Cont10 = () => {
   },
   {
     id: 18,
-      image: mountain,
+      image: img101,
       author: "Admin",
       date: "March 15, 2025",
       jobtype: " FreelanceRecruiter.",
@@ -234,9 +214,9 @@ const Cont10 = () => {
   },
   {
     id: 19,
-      image: mountain,
+      image: img50,
       author: "Admin",
-      date: "March 15, 2025",
+      date: "March 26, 2025",
       jobtype: " FreelanceRecruiter.",
       title: "How can i become Freelance Recruiter",
       description:
@@ -281,7 +261,7 @@ const Cont10 = () => {
               <div className="p-4 relative">
                 {" "}
                 {/* relative for arrow*/}
-                <MdArrowOutward className="absolute right-3 top-5" />
+                <MdArrowOutward className="absolute right-3 top-5 md:block hidden" />
                 <h3 className="text-lg font-semibold mb-2 w-80">
                   {article.title}
                 </h3>
