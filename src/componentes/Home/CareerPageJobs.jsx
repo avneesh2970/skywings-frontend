@@ -1,63 +1,63 @@
-"use client"
+"use client";
 
-import { useNavigate } from "react-router-dom"
-import { MdLocationOn } from "react-icons/md"
-import bag from "../../assets/products/Vector.png"
-import { Link } from "react-router-dom"
-import { CalendarDays } from "lucide-react"
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa"
+import { useNavigate } from "react-router-dom";
+import { MdLocationOn } from "react-icons/md";
+import bag from "../../assets/products/Vector.png";
+import { Link } from "react-router-dom";
+import { CalendarDays } from "lucide-react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react";
 
 function CareerPageJobs() {
-  const navigate = useNavigate()
-  const [jobSearch, setJobSearch] = useState("")
-  const [locationSearch, setLocationSearch] = useState("")
-  const [currentLocation, setCurrentLocation] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [jobs, setJobs] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const navigate = useNavigate();
+  const [jobSearch, setJobSearch] = useState("");
+  const [locationSearch, setLocationSearch] = useState("");
+  const [currentLocation, setCurrentLocation] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [screenSize, setScreenSize] = useState({
     isMobile: false,
     isTablet: false,
     isDesktop: true,
-  })
-  const [visibleJobsCount, setVisibleJobsCount] = useState(5)
+  });
+  const [visibleJobsCount, setVisibleJobsCount] = useState(5);
 
-  const carouselRef = useRef(null)
+  const carouselRef = useRef(null);
 
   // Check screen size with more granular breakpoints
   useEffect(() => {
     const checkScreenSize = () => {
-      const width = window.innerWidth
+      const width = window.innerWidth;
       setScreenSize({
         isMobile: width < 640,
         isTablet: width >= 640 && width < 1024,
         isDesktop: width >= 1024,
-      })
-    }
+      });
+    };
 
-    checkScreenSize()
-    window.addEventListener("resize", checkScreenSize)
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
 
     return () => {
-      window.removeEventListener("resize", checkScreenSize)
-    }
-  }, [])
+      window.removeEventListener("resize", checkScreenSize);
+    };
+  }, []);
 
   const handleGetCurrentLocation = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
             // Reverse geocoding to get location name from coordinates
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`,
-            )
-            const data = await response.json()
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
+            );
+            const data = await response.json();
 
             // Extract city name or area from the response
             const locationName =
@@ -65,45 +65,45 @@ function CareerPageJobs() {
               data.address.town ||
               data.address.village ||
               data.address.suburb ||
-              "Current Location"
+              "Current Location";
 
-            setCurrentLocation(locationName)
-            setLocationSearch(locationName)
-            setIsLoading(false)
+            setCurrentLocation(locationName);
+            setLocationSearch(locationName);
+            setIsLoading(false);
           } catch (error) {
-            console.error("Error getting location name:", error)
-            setCurrentLocation("Unable to get location")
-            setIsLoading(false)
+            console.error("Error getting location name:", error);
+            setCurrentLocation("Unable to get location");
+            setIsLoading(false);
           }
         },
         (error) => {
-          console.error("Error getting location:", error)
-          setCurrentLocation("Location access denied")
-          setIsLoading(false)
-        },
-      )
+          console.error("Error getting location:", error);
+          setCurrentLocation("Location access denied");
+          setIsLoading(false);
+        }
+      );
     } else {
-      setCurrentLocation("Geolocation not supported")
-      setIsLoading(false)
+      setCurrentLocation("Geolocation not supported");
+      setIsLoading(false);
     }
-  }
+  };
 
   // Carousel navigation
   const nextSlide = () => {
     if (currentSlide < filteredJobs.length - 1) {
-      setCurrentSlide(currentSlide + 1)
+      setCurrentSlide(currentSlide + 1);
     } else {
-      setCurrentSlide(0) // Loop back to first slide
+      setCurrentSlide(0); // Loop back to first slide
     }
-  }
+  };
 
   const prevSlide = () => {
     if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1)
+      setCurrentSlide(currentSlide - 1);
     } else {
-      setCurrentSlide(filteredJobs.length - 1) // Loop to last slide
+      setCurrentSlide(filteredJobs.length - 1); // Loop to last slide
     }
-  }
+  };
 
   // Update carousel position when currentSlide changes
   useEffect(() => {
@@ -111,69 +111,83 @@ function CareerPageJobs() {
       carouselRef.current.scrollTo({
         left: currentSlide * carouselRef.current.offsetWidth,
         behavior: "smooth",
-      })
+      });
     }
-  }, [currentSlide, screenSize.isDesktop])
+  }, [currentSlide, screenSize.isDesktop]);
 
   // Fetch jobs data
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        setLoading(true)
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/skywingsjobs`)
+        setLoading(true);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/skywingsjobs`,
+          {
+            method: "GET",
+            credentials: "include", // Ensure cookies or authentication headers are sent
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const data = await response.json()
-        console.log("skywings jobs: ", data)
-        setJobs(data)
-        setError(null)
+        const data = await response.json();
+        console.log("skywings jobs: ", data);
+        setJobs(data);
+        setError(null);
       } catch (err) {
-        console.error("Error fetching jobs:", err)
-        setError("Failed to load jobs. Please try again later.")
+        console.error("Error fetching jobs:", err);
+        setError("Failed to load jobs. Please try again later.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchJobs()
-  }, [])
+    fetchJobs();
+  }, []);
 
   // Determine number of columns based on screen size
   const getGridCols = () => {
-    if (screenSize.isDesktop) return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
-    if (screenSize.isTablet) return "grid-cols-1 sm:grid-cols-2"
-    return "grid-cols-1"
-  }
+    if (screenSize.isDesktop)
+      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5";
+    if (screenSize.isTablet) return "grid-cols-1 sm:grid-cols-2";
+    return "grid-cols-1";
+  };
 
   // Filter jobs for Skywings Advisors Pvt. Ltd. and apply search filters
   const filteredJobs = jobs?.results
     ?.filter((job) => job.client === "Skywings Advisors Pvt. Ltd.")
     ?.filter((job) => {
-      const jobTitleMatch = job.job_title?.toLowerCase().includes(jobSearch.toLowerCase())
+      const jobTitleMatch = job.job_title
+        ?.toLowerCase()
+        .includes(jobSearch.toLowerCase());
       const companyMatch =
         job.client && typeof job.client === "string"
           ? job.client.toLowerCase().includes(jobSearch.toLowerCase())
-          : false
+          : false;
 
-      return jobTitleMatch || companyMatch
+      return jobTitleMatch || companyMatch;
     })
     ?.filter((job) => {
-      const cityMatch = job.city?.toLowerCase().includes(locationSearch.toLowerCase())
+      const cityMatch = job.city
+        ?.toLowerCase()
+        .includes(locationSearch.toLowerCase());
 
-      const postalCodeMatch = job.zip_code?.toString().includes(locationSearch)
+      const postalCodeMatch = job.zip_code?.toString().includes(locationSearch);
 
       // Match either city or postal code (or both)
-      return cityMatch || postalCodeMatch
-    })
-console.log("filteredJobs: ", filteredJobs)
+      return cityMatch || postalCodeMatch;
+    });
+  console.log("filteredJobs: ", filteredJobs);
   // Get visible jobs based on the current count
-  const visibleJobs = filteredJobs?.slice(0, visibleJobsCount)
+  const visibleJobs = filteredJobs?.slice(0, visibleJobsCount);
 
   // Handle "Show More" button click
   const handleShowMore = () => {
-    setVisibleJobsCount((prevCount) => prevCount + 5)
-  }
+    setVisibleJobsCount((prevCount) => prevCount + 5);
+  };
 
   return (
     <>
@@ -187,10 +201,14 @@ console.log("filteredJobs: ", filteredJobs)
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : error ? (
-              <div className="text-red-500 bg-red-100 p-4 rounded-lg">{error}</div>
+              <div className="text-red-500 bg-red-100 p-4 rounded-lg">
+                {error}
+              </div>
             ) : (
               <>
-                <div className={`grid ${getGridCols()} gap-2 mt-6 w-full max-w-6xl`}>
+                <div
+                  className={`grid ${getGridCols()} gap-2 mt-6 w-full max-w-6xl`}
+                >
                   {visibleJobs?.map((job, index) => (
                     <div
                       key={index}
@@ -244,7 +262,10 @@ console.log("filteredJobs: ", filteredJobs)
                   className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-3 z-10 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100"
                   aria-label="Previous job"
                 >
-                  <FaChevronLeft className="text-purple-500" size={screenSize.isMobile ? 12 : 16} />
+                  <FaChevronLeft
+                    className="text-purple-500"
+                    size={screenSize.isMobile ? 12 : 16}
+                  />
                 </button>
               )}
 
@@ -255,8 +276,12 @@ console.log("filteredJobs: ", filteredJobs)
                     <div className="min-w-full p-2">
                       <div className="bg-white shadow-md rounded-2xl p-4 md:p-6 border border-gray-200">
                         <div>
-                          <h3 className="text-base md:text-lg font-semibold">{filteredJobs[currentSlide].job_title}</h3>
-                          <p className="text-gray-500 text-sm md:text-base">{filteredJobs[currentSlide].client}</p>
+                          <h3 className="text-base md:text-lg font-semibold">
+                            {filteredJobs[currentSlide].job_title}
+                          </h3>
+                          <p className="text-gray-500 text-sm md:text-base">
+                            {filteredJobs[currentSlide].client}
+                          </p>
                         </div>
 
                         <div className="mt-3 md:mt-4 text-gray-600 space-y-2">
@@ -265,18 +290,28 @@ console.log("filteredJobs: ", filteredJobs)
                               <MdLocationOn className="text-gray-400" />
                             </span>{" "}
                             <span>
-                              {filteredJobs[currentSlide].city} {!filteredJobs[currentSlide].city ? "" : ","}{" "}
+                              {filteredJobs[currentSlide].city}{" "}
+                              {!filteredJobs[currentSlide].city ? "" : ","}{" "}
                               {filteredJobs[currentSlide].country}
                             </span>
                           </p>
                           <p className="flex items-center text-xs md:text-sm space-x-2">
                             <span>
-                              <img src={bag || "/placeholder.svg"} alt="" className="w-4 h-4" />
+                              <img
+                                src={bag || "/placeholder.svg"}
+                                alt=""
+                                className="w-4 h-4"
+                              />
                             </span>{" "}
-                            <span>Experience: {filteredJobs[currentSlide].experience} yr</span>
+                            <span>
+                              Experience:{" "}
+                              {filteredJobs[currentSlide].experience} yr
+                            </span>
                           </p>
                         </div>
-                        <Link to={`/jobdetails/${filteredJobs[currentSlide].id}`}>
+                        <Link
+                          to={`/jobdetails/${filteredJobs[currentSlide].id}`}
+                        >
                           <button className="mt-3 md:mt-4 w-full py-1.5 md:py-2 border-2 border-purple-500 text-purple-500 font-semibold rounded-lg hover:bg-[#647DE7] hover:text-white transition cursor-pointer text-sm md:text-base">
                             View Details
                           </button>
@@ -284,7 +319,9 @@ console.log("filteredJobs: ", filteredJobs)
                       </div>
                     </div>
                   ) : (
-                    <p className="text-center p-6 text-sm md:text-base">No jobs found matching your search criteria.</p>
+                    <p className="text-center p-6 text-sm md:text-base">
+                      No jobs found matching your search criteria.
+                    </p>
                   )}
                 </div>
               </div>
@@ -296,7 +333,10 @@ console.log("filteredJobs: ", filteredJobs)
                   className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-3 z-10 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100"
                   aria-label="Next job"
                 >
-                  <FaChevronRight className="text-purple-500" size={screenSize.isMobile ? 12 : 16} />
+                  <FaChevronRight
+                    className="text-purple-500"
+                    size={screenSize.isMobile ? 12 : 16}
+                  />
                 </button>
               )}
             </div>
@@ -309,7 +349,9 @@ console.log("filteredJobs: ", filteredJobs)
                     key={index}
                     onClick={() => setCurrentSlide(index)}
                     className={`h-1.5 w-1.5 rounded-full transition-all ${
-                      currentSlide === index ? "bg-purple-500 w-3" : "bg-gray-300"
+                      currentSlide === index
+                        ? "bg-purple-500 w-3"
+                        : "bg-gray-300"
                     }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
@@ -329,11 +371,13 @@ console.log("filteredJobs: ", filteredJobs)
         {/* Show "No results" message if no jobs match the filters */}
         {filteredJobs?.length === 0 && !loading && (
           <div className="text-center p-6 bg-white rounded-lg shadow mt-6 w-full max-w-md">
-            <p className="text-gray-600 text-sm md:text-base">No jobs found matching your search criteria.</p>
+            <p className="text-gray-600 text-sm md:text-base">
+              No jobs found matching your search criteria.
+            </p>
             <button
               onClick={() => {
-                setJobSearch("")
-                setLocationSearch("")
+                setJobSearch("");
+                setLocationSearch("");
               }}
               className="mt-3 px-4 py-2 bg-purple-500 text-white rounded-lg text-sm md:text-base"
             >
@@ -353,8 +397,7 @@ console.log("filteredJobs: ", filteredJobs)
         )}
       </div>
     </>
-  )
+  );
 }
 
-export default CareerPageJobs
-
+export default CareerPageJobs;

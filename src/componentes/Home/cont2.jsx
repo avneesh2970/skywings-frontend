@@ -131,7 +131,13 @@ function Cont2() {
       try {
         setLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/jobs`
+          `${import.meta.env.VITE_API_URL}/api/jobs`, {
+            method: "GET",
+            credentials: "include", // Ensure cookies or authentication headers are sent
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);

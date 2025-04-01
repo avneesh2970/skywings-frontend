@@ -108,7 +108,13 @@ function Job() {
           `${import.meta.env.VITE_API_URL}/api/jobs${
             initialPage > 1 ? `?page=${initialPage}` : ""
           }`,
-          { signal }
+          {
+            signal,
+            credentials: "include", // Enables sending cookies/auth headers
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (signal.aborted) return;
