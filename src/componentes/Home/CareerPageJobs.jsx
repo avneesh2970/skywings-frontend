@@ -120,11 +120,12 @@ function CareerPageJobs() {
     const fetchJobs = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`)
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/skywingsjobs`)
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)
         }
         const data = await response.json()
+        console.log("skywings jobs: ", data)
         setJobs(data)
         setError(null)
       } catch (err) {
