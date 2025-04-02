@@ -1826,7 +1826,33 @@ export const list = [
     title: "HR Consulting and Strategy",
     image: img18,
     content:
-      "Skywings Advisors helps Indian businesses build stable, long-term workforces. Our permanent staffing solutions are designed to match candidates committed to long-term  growth with your company’s values and goals. We handle the entire recruitment cycle,  allowing you to focus on growth while we ensure a smooth onboarding experience for quality   We handle the entire recruitment cycle,  allowing you to focus on growth while we ensure a smooth onboarding experience for quality  hires.m",
+      `<body class="bg-gray-100 text-gray-900">
+    <div class="max-w-4xl mx-auto p-6 shadow-lg rounded-lg mt-10">
+        <h1 class="text-2xl font-bold text-center text-gray-600">Welcome to AssuredJob.com</h1>
+        <p class="mt-4 text-lg text-gray-700 text-center">
+            We offer end-to-end HR consulting solutions tailored to help companies streamline their people strategy and align it with business objectives.
+        </p>
+        
+        <h2 class="text-xl font-semibold mt-6">Our Key Offerings:</h2>
+        <ul class="list-disc list-inside space-y-2 mt-4 text-gray-700">
+            <li><strong>HR Process Audit & Design:</strong> Assess and restructure HR systems for compliance, performance, and scalability.</li>
+            <li><strong>Organization Structure & Policy Frameworks:</strong> Define hierarchies, roles, and policies for clarity and efficiency.</li>
+            <li><strong>Talent Strategy & Workforce Planning:</strong> Align talent acquisition, retention, and development with business goals.</li>
+            <li><strong>Performance Management Systems:</strong> Implement KPIs, appraisal systems, and employee engagement strategies.</li>
+            <li><strong>Compensation Benchmarking & Structuring:</strong> Develop competitive compensation strategies.</li>
+            <li><strong>Change Management & HR Transformation:</strong> Expert-led restructuring, mergers, and digital HR transformation.</li>
+            <li><strong>Compliance & Risk Advisory:</strong> Stay updated with Indian labor laws and regulatory requirements.</li>
+        </ul>
+        
+        <h2 class="text-xl font-semibold mt-6">Why Choose AssuredJob.com?</h2>
+        <ul class="list-disc list-inside space-y-2 mt-4 text-gray-700">
+            <li>Industry-Specific HR Insights</li>
+            <li>Proven HR Frameworks & Tools</li>
+            <li>Customized Solutions for MSMEs, Startups & Enterprises</li>
+            <li>On-demand HR Consultants & Strategy Advisors</li>
+        </ul>
+    </div>
+</body>`,
     button: " Contact Us",
   },
   {
