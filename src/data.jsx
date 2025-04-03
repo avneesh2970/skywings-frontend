@@ -16,6 +16,7 @@ import img16 from "./assets/service/image49.png";
 import img17 from "./assets/service/image50.png";
 import img19 from "./assets/service/image52.png";
 import img20 from "./assets/service/image41.png";
+import img21 from './assets/service/diversity.webp'
 
 export const jobs = [
   {
@@ -1135,7 +1136,7 @@ export const list = [
   {
     id: 8,
     title: "Diversity & Inclusion Hiring Initiatives | AssuredJob",
-    image: img7,
+    image: img21,
     content: `<header class=" text-gray-600 text-center p-6 text-2xl font-bold">
         Build a Diverse & Inclusive Workforce with AssuredJob
     </header>
@@ -1825,10 +1826,9 @@ export const list = [
     id: 16,
     title: "HR Consulting and Strategy",
     image: img18,
-    content:
-      `<body class="bg-gray-100 text-gray-900">
-    <div class="max-w-4xl mx-auto p-6 shadow-lg rounded-lg mt-10">
-        <h1 class="text-2xl font-bold text-center text-gray-600">Welcome to AssuredJob.com</h1>
+    content:`<body class="bg-gray-100 text-gray-800">
+    <div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+        <h1 class="text-2xl font-bold text-center text-blue-600">Welcome to AssuredJob.com</h1>
         <p class="mt-4 text-lg text-gray-700 text-center">
             We offer end-to-end HR consulting solutions tailored to help companies streamline their people strategy and align it with business objectives.
         </p>
@@ -1852,7 +1852,8 @@ export const list = [
             <li>On-demand HR Consultants & Strategy Advisors</li>
         </ul>
     </div>
-</body>`,
+</body>`
+      ,
     button: " Contact Us",
   },
   {
