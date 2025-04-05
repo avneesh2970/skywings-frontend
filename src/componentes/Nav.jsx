@@ -78,12 +78,12 @@ const Nav = ({toggle, fun}) => {
       label: "Innovations",
       items: [
         {
-          name: "pool-campus.com",
+          name: "Pool-Campus.com",
           path: "https://pool-campus.com/",
           external: true,
         },
         {
-          name: "freelancerecruiter.in",
+          name: "Freelancerecruiter.in",
           path: "https://www.freelancerecruiter.in/",
           external: true,
         },

@@ -36,7 +36,7 @@ function SocialmediaConn() {
         <FaLinkedin className='w-9 h-9'/>
       </Link>
       <Link
-        to="https://www.youtube.com/in/in/YOUR_PROFILE_NAME_HERE"
+        to=""
         target="_blank"
         rel="noopener noreferrer"
        className="text-red-500 rounded-lg  bg-transparent text-3xl hover:scale-110 duration-300 hover:shadow-[0_0_20px_5px] hover:shadow-red-500/50"
