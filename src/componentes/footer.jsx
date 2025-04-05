@@ -108,7 +108,7 @@ const Footer = () => {
                 }}
                 className="text-gray-600 mb-1 hover:text-gray-800 cursor-pointer"
               >
-                Terms & Conditions
+                disclaimer
               </li>
             </ul>
           </div>
