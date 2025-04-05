@@ -288,8 +288,16 @@ const Footer = () => {
                   }}
                   className="text-gray-600 mb-1 hover:text-gray-800 cursor-pointer"
                 >
-                  Terms & Conditions
-                </li>
+                  Disclaimer
+                  </li>
+                {/* </li><li
+                  onClick={() => {
+                    navigate("/disclaimer"), window.scrollTo(0, 0);
+                  }}
+                  className="text-gray-600 mb-1 hover:text-gray-800 cursor-pointer"
+                >
+                  Disclaimer
+                </li> */}
               </ul>
             </div>
 
