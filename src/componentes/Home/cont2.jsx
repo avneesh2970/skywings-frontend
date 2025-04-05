@@ -398,6 +398,7 @@ function Cont2() {
                 isSearching ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
+            {console.log("initial jobs count: ", initialJobs)}
               <p>
                 {isSearching
                   ? "Searching..."
@@ -465,7 +466,6 @@ function Cont2() {
                         } jobs`}
                   </h2>
                 </div>
-                {console.log("filtered jobs: ", filteredJobs)}
                 {filteredJobs?.length > 0 ? (
                   <div
                     className={`grid ${getGridCols()} gap-2 mt-6 w-full max-w-6xl`}
