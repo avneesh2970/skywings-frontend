@@ -117,21 +117,21 @@ function Contact() {
                 <h3 className="text-xl font-semibold text-gray-500">Email</h3>
                 <div className="flex flex-col space-y-3">
                   {/* Email Section */}
-                  <div className="flex  items-center space-x-3">
+                  {/* <div className="flex  items-center space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
                     <li className="list-none">hiring@assuredjob.com</li>
-                  </div>
+                  </div> */}
                   <div className="flex items-center space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none">careers@assuredjob.com</li>
+                    <li className="list-none"><span className="font-bold">c</span>areers@assuredjob.com</li>
                   </div>
-                  <div className="flex items-center space-x-3">
+                  {/* <div className="flex items-center space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
                     <li className="list-none">business@assuredjob.com</li>
-                  </div>
+                  </div> */}
                   <div className="flex items-center  space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none">hr@assurejob.com</li>
+                    <li className="list-none"><span className="font-bold">h</span>r@assurejob.com</li>
                   </div>
 
                   {/* <p className="text-lg font-semibold text-zinc-800">hr@assuredjob.com</p>

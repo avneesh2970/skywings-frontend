@@ -133,7 +133,16 @@ const Footer = () => {
                 </a>
               </li>
 
-              {["hr", "careers", "hiring", "business"].map((email, index) => (
+
+             <div className="flex ">
+             <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center"/><p><span className="font-bold">h</span>r@assuredjob.com</p>
+             </div>
+             <div className="flex ">
+             <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center"/><p><span className="font-bold">c</span>areers@assuredjob.com</p>
+             </div>
+              
+
+              {/* {["hr", "careers", "hiring ", "Business "].map((email, index) => (
                 <li
                   key={index}
                   className="text-gray-600 mb-1 flex items-center"
@@ -146,7 +155,7 @@ const Footer = () => {
                     {email}@assuredjob.com
                   </a>
                 </li>
-              ))}
+              ))} */}
             </ul>
           </div>
         </div>
@@ -301,7 +310,13 @@ const Footer = () => {
                     +91 8368002731
                   </a>
                 </li>
-                {["hr", "careers", "hiring", "business"].map((email, index) => (
+                <div className="flex ">
+             <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center"/><p><span className="font-bold">h</span>r@assuredjob.com</p>
+             </div>
+             <div className="flex ">
+             <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center"/><p><span className="font-bold">c</span>areers@assuredjob.com</p>
+             </div>
+                {/* {["hr", "careers", "hiring", "business"].map((email, index) => (
                   <li
                     key={index}
                     className="text-gray-600 mb-1 flex items-center w-full"
@@ -314,7 +329,7 @@ const Footer = () => {
                       {email}@assuredjob.com
                     </a>
                   </li>
-                ))}
+                ))} */}
               </ul>
             </div>
           </div>

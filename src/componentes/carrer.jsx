@@ -16,6 +16,7 @@ import linkedin from "../assets/linkedincarr.png";
 import insta from "../assets/instacarr.png";
 import what from "../assets/whatappcarr.png";
 import CareerPageJobs from "./Home/CareerPageJobs";
+import Resume from "./Carrier/Resume";
 
 const cards = [
   {
@@ -236,6 +237,9 @@ const Career = () => {
                     <Arrows nextSlide={nextJobSlide} prevSlide={prevJobSlide} />
                 </div>
             </div> */}
+
+
+      <Resume/>
 
       <h3 className="text-center text-2xl text-[#667085] mt-11">
         “Join 100K+ professionals who trust AssuredJob for career growth.”
