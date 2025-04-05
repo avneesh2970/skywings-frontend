@@ -84,7 +84,7 @@ const Nav = ({toggle, fun}) => {
         },
         {
           name: "Freelancerecruiter.in",
-          path: "https://www.freelancerecruiter.in/",
+          path: "https://www.freelanceRecruiter.in/",
           external: true,
         },
       ],
