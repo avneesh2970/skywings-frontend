@@ -47,49 +47,57 @@ function Upload() {
                 <input
                   type="email"
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400  outline-none"
-                  placeholder="enter your email"
+                  placeholder="Enter Your Email"
                 />
               </div>
 
               {/* Contact Number */}
-<div>
-  <label className="block text-gray-800 text-base mb-1">Contact Number</label>
-  <input
-    type="tel"
-    className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
-    placeholder="enter your contact number"
-  />
-</div>
+              <div>
+                <label className="block text-gray-800 text-base mb-1">
+                  Contact Number
+                </label>
+                <input
+                  type="tel"
+                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  placeholder="Enter Your Contact Number"
+                />
+              </div>
 
-{/* Job Applied For */}
-<div>
-  <label className="block text-gray-800 text-base mb-1">Job Applied For</label>
-  <input
-    type="text"
-    className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
-    placeholder="Enter Job Title"
-  />
-</div>
+              {/* Job Applied For */}
+              <div>
+                <label className="block text-gray-800 text-base mb-1">
+                  Job Applied For
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  placeholder="Enter Job Title"
+                />
+              </div>
+              {/* State */}
+              <div>
+                <label className="block text-gray-800 text-base mb-1">
+                  State
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  placeholder="Enter State"
+                />
+              </div>
 
-{/* City */}
-<div>
-  <label className="block text-gray-800 text-base mb-1">City</label>
-  <input
-    type="text"
-    className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
-    placeholder="Enter City"
-  />
-</div>
+              {/* City */}
+              <div>
+                <label className="block text-gray-800 text-base mb-1">
+                  City
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  placeholder="Enter City"
+                />
+              </div>
 
-{/* State */}
-<div>
-  <label className="block text-gray-800 text-base mb-1">State</label>
-  <input
-    type="text"
-    className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
-    placeholder="Enter State"
-  />
-</div>
 
               {/* Upload Resume */}
               <div>

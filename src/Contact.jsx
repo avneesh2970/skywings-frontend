@@ -4,7 +4,7 @@ import img from "./assets/gmail.jpg";
 import { Phone } from "lucide-react";
 import { HiPhone, HiMail } from "react-icons/hi";
 import React, { useState } from "react";
-import emailjs from '@emailjs/browser';
+import emailjs from "@emailjs/browser";
 
 function Contact() {
   const [selectedCountry, setSelectedCountry] = useState("");
@@ -143,17 +143,17 @@ function Contact() {
       const publicKey = import.meta.env.VITE_PUBLIC_KEY;
       console.log("Form submitted", contactData);
       emailjs
-      .send(serviceId, templateId, contactData, {
-        publicKey,
-      })
-      .then(
-        () => {
-          console.log('SUCCESS!');
-        },
-        (error) => {
-          console.log('FAILED...', error.text);
-        },
-      );
+        .send(serviceId, templateId, contactData, {
+          publicKey,
+        })
+        .then(
+          () => {
+            console.log("SUCCESS!");
+          },
+          (error) => {
+            console.log("FAILED...", error.text);
+          }
+        );
     } catch (error) {
       console.log(error);
     }
@@ -271,7 +271,7 @@ function Contact() {
               <input
                 type="text"
                 id="name"
-                placeholder="Abhinav Kumar"
+                placeholder="Enter Your Name"
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 onChange={onChangeHandler}
                 value={contactData.name}
@@ -289,7 +289,7 @@ function Contact() {
               <input
                 type="tel"
                 id="contact"
-                placeholder="9547646378"
+                placeholder="Enter Your Contact Number"
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 onChange={onChangeHandler}
                 value={contactData.contact}
@@ -307,7 +307,7 @@ function Contact() {
               <input
                 type="email"
                 id="email"
-                placeholder="abc@example.com"
+                placeholder="Enter Your Email"
                 className="w-full px-4 py-2 text-black mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 onChange={onChangeHandler}
                 value={contactData.email}
@@ -352,7 +352,7 @@ function Contact() {
                 </label>
                 <select
                   id="state"
-                  className="w-full px-4 py-2 mt-2 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
+                  className="w-full px-4 py-2 mt-2 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-400"
                   onChange={onChangeHandler}
                   value={contactData.state}
                   // disabled={!selectedCountry}
@@ -362,7 +362,7 @@ function Contact() {
                       ? "Select a city"
                       : "Select a country first"}
                   </option> */}
-                  <option value="" disabled>
+                  <option value="" disabled className="text-gray-800">
                     Select a state
                   </option>
                   {/* {selectedCountry &&
@@ -372,7 +372,7 @@ function Contact() {
                       </option>
                     ))} */}
                   {countryCityMap["india"].map((city) => (
-                    <option key={city} value={city}>
+                    <option key={city} value={city} className="text-gray-800">
                       {city}
                     </option>
                   ))}
@@ -391,7 +391,7 @@ function Contact() {
               <input
                 type="text"
                 id="city"
-                placeholder="Enter your city"
+                placeholder="Enter Your City"
                 className="w-full px-4 py-2 text-gray-800 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 onChange={onChangeHandler}
                 value={contactData.city}
@@ -402,7 +402,7 @@ function Contact() {
             <div>
               <label
                 htmlFor="enquire"
-                className="block text-gray-800 font-medium"
+                className="block text-gray-400 font-medium"
               >
                 Enquire
               </label>
@@ -413,7 +413,7 @@ function Contact() {
                 value={contactData.enquire}
               >
                 <option value="" disabled selected>
-                  enquire
+                  Enquire
                 </option>
                 {/* <option value="usa">IT Service</option>
                 <option value="canada">Sales</option>
