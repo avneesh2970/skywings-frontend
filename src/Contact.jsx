@@ -4,10 +4,21 @@ import img from "./assets/gmail.jpg";
 import { Phone } from "lucide-react";
 import { HiPhone, HiMail } from "react-icons/hi";
 import React, { useState } from "react";
+import emailjs from '@emailjs/browser';
 
 function Contact() {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+
+  const [contactData, setContactData] = useState({
+    name: "",
+    contact: "",
+    email: "",
+    state: "",
+    city: "",
+    enquire: "",
+    enquireDetail: "",
+  });
 
   const countryCityMap = {
     usa: [
@@ -119,6 +130,35 @@ function Contact() {
     italy: ["Rome", "Milan", "Naples", "Florence", "Venice", "Other"],
     spain: ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Other"],
   };
+
+  function onChangeHandler(e) {
+    setContactData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+  }
+
+  function submitHandler(e) {
+    e.preventDefault();
+    try {
+      const serviceId = import.meta.env.VITE_SERVICE_ID;
+      const templateId = import.meta.env.VITE_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_PUBLIC_KEY;
+      console.log("Form submitted", contactData);
+      emailjs
+      .send(serviceId, templateId, contactData, {
+        publicKey,
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+        },
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <>
       {/* Header Section */}
@@ -155,7 +195,9 @@ function Contact() {
                   </div> */}
                   <div className="flex items-center space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none"><span className="font-bold">c</span>areers@assuredjob.com</li>
+                    <li className="list-none">
+                      <span className="font-bold">c</span>areers@assuredjob.com
+                    </li>
                   </div>
                   {/* <div className="flex items-center space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
@@ -163,7 +205,9 @@ function Contact() {
                   </div> */}
                   <div className="flex items-center  space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none"><span className="font-bold">h</span>r@assurejob.com</li>
+                    <li className="list-none">
+                      <span className="font-bold">h</span>r@assurejob.com
+                    </li>
                   </div>
 
                   {/* <p className="text-lg font-semibold text-zinc-800">hr@assuredjob.com</p>
@@ -218,7 +262,7 @@ function Contact() {
           className="p-6 rounded-2xl bg-white  w-full"
           style={{ boxShadow: "10px -10px  blue" }}
         >
-          <form className="grid grid-cols-1 gap-4">
+          <form className="grid grid-cols-1 gap-4" onSubmit={submitHandler}>
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-gray-700 font-medium">
@@ -229,6 +273,8 @@ function Contact() {
                 id="name"
                 placeholder="Abhinav Kumar"
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={onChangeHandler}
+                value={contactData.name}
               />
             </div>
 
@@ -245,6 +291,8 @@ function Contact() {
                 id="contact"
                 placeholder="9547646378"
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={onChangeHandler}
+                value={contactData.contact}
               />
             </div>
 
@@ -261,6 +309,8 @@ function Contact() {
                 id="email"
                 placeholder="abc@example.com"
                 className="w-full px-4 py-2 text-black mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={onChangeHandler}
+                value={contactData.email}
               />
             </div>
             <div className="flex flex-col gap-4">
@@ -292,19 +342,19 @@ function Contact() {
                 </select>
               </div> */}
 
-              {/* City Field */}
+              {/* State Field */}
               <div>
                 <label
                   htmlFor="city"
-                  className="block text-gray-700 font-medium"
+                  className="block text-gray-800 font-medium"
                 >
-                  City
+                  State
                 </label>
                 <select
-                  id="city"
-                  className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-400"
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
+                  id="state"
+                  className="w-full px-4 py-2 mt-2 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
+                  onChange={onChangeHandler}
+                  value={contactData.state}
                   // disabled={!selectedCountry}
                 >
                   {/* <option value="" disabled>
@@ -313,7 +363,7 @@ function Contact() {
                       : "Select a country first"}
                   </option> */}
                   <option value="" disabled>
-                    Select a city
+                    Select a state
                   </option>
                   {/* {selectedCountry &&
                     countryCityMap[selectedCountry].map((city) => (
@@ -330,17 +380,37 @@ function Contact() {
               </div>
             </div>
 
+            {/* City field */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-gray-800 font-medium"
+              >
+                City
+              </label>
+              <input
+                type="text"
+                id="city"
+                placeholder="Enter your city"
+                className="w-full px-4 py-2 text-gray-800 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={onChangeHandler}
+                value={contactData.city}
+              />
+            </div>
+
             {/* Enquire Field */}
             <div>
               <label
                 htmlFor="enquire"
-                className="block text-gray-700 font-medium"
+                className="block text-gray-800 font-medium"
               >
                 Enquire
               </label>
               <select
-                id="country"
-                className="w-full text-gray-400 px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                id="enquire"
+                className="w-full text-gray-800 px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={onChangeHandler}
+                value={contactData.enquire}
               >
                 <option value="" disabled selected>
                   enquire
@@ -407,6 +477,8 @@ function Contact() {
                 id="enquireDetail"
                 placeholder="Your requirement"
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={onChangeHandler}
+                value={contactData.enquireDetail}
               ></textarea>
             </div>
 

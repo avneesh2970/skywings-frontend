@@ -35,7 +35,7 @@ function Upload() {
                 <input
                   type="text"
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400  outline-none"
-                  placeholder="Rahul"
+                  placeholder="Enter Your Name"
                 />
               </div>
 
@@ -47,7 +47,7 @@ function Upload() {
                 <input
                   type="email"
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400  outline-none"
-                  placeholder="xyz@gmail.com"
+                  placeholder="enter your email"
                 />
               </div>
 
@@ -57,7 +57,7 @@ function Upload() {
   <input
     type="tel"
     className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
-    placeholder="8766478286"
+    placeholder="enter your contact number"
   />
 </div>
 
