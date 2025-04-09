@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
-import img from "../../assets/products/image.png";
-import testm_1 from "../../assets/products/textm_1.jpg";
-import testm_2 from "../../assets/products/testm_2.webp";
-import testm_3 from "../../assets/products/testm_3.jpg";
-import testm_4 from "../../assets/products/testm_4.jpg";
+"use client"
+
+import { useState, useEffect, useRef } from "react"
+import img from "../../assets/products/image.png"
+import testm_1 from "../../assets/products/textm_1.jpg"
+import testm_2 from "../../assets/products/testm_2.webp"
+import testm_3 from "../../assets/products/testm_3.jpg"
+import testm_4 from "../../assets/products/testm_4.jpg"
 
 const Cont5 = () => {
   const clientTestimonials = [
@@ -127,7 +129,7 @@ const Cont5 = () => {
       name: "HR Director",
       ac: "Leading Shared Services Firm",
     },
-  ];
+  ]
 
   const studentTestimonials = [
     {
@@ -286,7 +288,7 @@ const Cont5 = () => {
     },
     {
       id: 23,
-      text: "I was unsure about my career path, but AssuredJob.com placed me at Kotak Mahindra Bank, and I couldn’t be happier!",
+      text: "I was unsure about my career path, but AssuredJob.com placed me at Kotak Mahindra Bank, and I couldn't be happier!",
       image: img,
       name: "Varsha Kapoor, Placed at Kotak Mahindra Bank ",
       ac: "Ahmedabad",
@@ -335,12 +337,12 @@ const Cont5 = () => {
     },
     {
       id: 30,
-      text: "AssuredJob.com’s tech job listings helped me land a developer role at AeonX Digital!",
+      text: "AssuredJob.com's tech job listings helped me land a developer role at AeonX Digital!",
       image: img,
       name: "Kunal Saxena, Placed at AeonX Digital ",
       ac: "Meerut",
     },
-  ];
+  ]
 
   const freelancer = [
     {
@@ -491,7 +493,7 @@ const Cont5 = () => {
     {
       id: 30,
       name: "Tarun Kapoor, Varanasi",
-      text: "Their platform is built for recruiters—it’s fast, efficient, and payment-friendly!",
+      text: "Their platform is built for recruiters—it's fast, efficient, and payment-friendly!",
     },
     {
       id: 31,
@@ -501,7 +503,7 @@ const Cont5 = () => {
     {
       id: 32,
       name: "Jitendra Chouhan, Jodhpur",
-      text: "This is not just a side gig—it’s a serious recruiting career with real growth potential.",
+      text: "This is not just a side gig—it's a serious recruiting career with real growth potential.",
     },
     {
       id: 33,
@@ -546,7 +548,7 @@ const Cont5 = () => {
     {
       id: 41,
       name: "Poonam Aggarwal, Moradabad",
-      text: "This is the most stable freelance recruitment platform I’ve worked with!",
+      text: "This is the most stable freelance recruitment platform I've worked with!",
     },
     {
       id: 42,
@@ -561,7 +563,7 @@ const Cont5 = () => {
     {
       id: 44,
       name: "Aakash Pandey, Aligarh",
-      text: "I’ve built my entire career around freelance recruiting with their job security and consistent payouts.",
+      text: "I've built my entire career around freelance recruiting with their job security and consistent payouts.",
     },
     {
       id: 45,
@@ -593,292 +595,202 @@ const Cont5 = () => {
       name: "Sandeep Rawat, Ajmer",
       text: "FreelanceRecruiter.in is a game-changer for recruiter careers!",
     },
-  ];
+  ]
 
-  const [screenSize, setScreenSize] = useState("");
-  const [visibleCount, setVisibleCount] = useState(5);
-  const [clientCurrentIndex, setClientCurrentIndex] = useState(0);
-  const [studentCurrentIndex, setStudentCurrentIndex] = useState(0);
-  const [freelancerCurrentIndex, setFreelancerCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+  const [screenSize, setScreenSize] = useState("")
+  const [visibleCount, setVisibleCount] = useState(5)
+
+  // Refs for the scrolling containers
+  const clientScrollRef = useRef(null)
+  const studentScrollRef = useRef(null)
+  const freelancerScrollRef = useRef(null)
+
+  // Animation speed in pixels per second - Adjust this value to control the scrolling speed
+  // You can modify this value to make the scrolling faster or slower
+  const scrollSpeed = 50 // pixels per second
 
   useEffect(() => {
     const handleResize = () => {
-      const width = window.innerWidth;
+      const width = window.innerWidth
       if (width < 640) {
-        setScreenSize("xs");
-        setVisibleCount(1);
+        setScreenSize("xs")
+        setVisibleCount(1)
       } else if (width < 768) {
-        setScreenSize("sm");
-        setVisibleCount(2);
+        setScreenSize("sm")
+        setVisibleCount(2)
       } else if (width < 1024) {
-        setScreenSize("md");
-        setVisibleCount(3);
+        setScreenSize("md")
+        setVisibleCount(3)
       } else {
-        setScreenSize("lg");
-        setVisibleCount(5);
+        setScreenSize("lg")
+        setVisibleCount(5)
       }
-    };
+    }
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
+    handleResize()
+    window.addEventListener("resize", handleResize)
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [])
 
+  // Function to duplicate testimonials for smooth infinite scrolling
+  const duplicateTestimonials = (testimonials) => {
+    return [...testimonials, ...testimonials]
+  }
+
+  // Duplicate all testimonial arrays for infinite scrolling
+  const duplicatedClientTestimonials = duplicateTestimonials(clientTestimonials)
+  const duplicatedStudentTestimonials = duplicateTestimonials(studentTestimonials)
+  const duplicatedFreelancerTestimonials = duplicateTestimonials(freelancer)
+
+  // Set up the scrolling animation for each section
   useEffect(() => {
-    const clientInterval = setInterval(
-      () => nextSlide(clientTestimonials.length, setClientCurrentIndex),
-      5000
-    );
-    const studentInterval = setInterval(
-      () => nextSlide(studentTestimonials.length, setStudentCurrentIndex),
-      5000
-    );
-    const freelancerInterval = setInterval(
-      () => nextSlide(freelancer.length, setFreelancerCurrentIndex),
-      5000
-    );
+    // Function to handle the scrolling animation
+    const animateScroll = (scrollContainer, contentWidth) => {
+      if (!scrollContainer) return
 
+      let scrollPosition = 0
+      let lastTimestamp = 0
+
+      const step = (timestamp) => {
+        if (!lastTimestamp) lastTimestamp = timestamp
+        const elapsed = timestamp - lastTimestamp
+
+        // Calculate how much to scroll based on time elapsed and scroll speed
+        const pixelsToScroll = (scrollSpeed * elapsed) / 1000
+
+        scrollPosition += pixelsToScroll
+
+        // Reset position when we've scrolled through half the content (original set)
+        if (scrollPosition >= contentWidth / 2) {
+          scrollPosition = 0
+        }
+
+        // Apply the scroll position
+        if (scrollContainer.current) {
+          scrollContainer.current.style.transform = `translateX(-${scrollPosition}px)`
+        }
+
+        lastTimestamp = timestamp
+        requestAnimationFrame(step)
+      }
+
+      const animationId = requestAnimationFrame(step)
+
+      // Clean up animation on unmount
+      return () => cancelAnimationFrame(animationId)
+    }
+
+    // Get the width of the content for each section
+    const getContentWidth = (testimonials, cardWidth) => {
+      // We only need to scroll through the original set, not the duplicated one
+      return testimonials.length * cardWidth
+    }
+
+    // Calculate card width based on visible count
+    const cardWidth = 320 + 12 // card width + gap
+
+    // Start animations for each section
+    const clientAnimation = animateScroll(clientScrollRef, getContentWidth(clientTestimonials, cardWidth))
+
+    const studentAnimation = animateScroll(studentScrollRef, getContentWidth(studentTestimonials, cardWidth))
+
+    const freelancerAnimation = animateScroll(freelancerScrollRef, getContentWidth(freelancer, cardWidth))
+
+    // Clean up animations on unmount
     return () => {
-      clearInterval(clientInterval);
-      clearInterval(studentInterval);
-      clearInterval(freelancerInterval);
-    };
-  }, []);
-
-  // Carousel navigation functions
-  const nextSlide = (totalItems, setIndex) => {
-    setIndex((prevIndex) => (prevIndex + 1) % totalItems);
-  };
-
-  const prevSlide = (totalItems, setIndex) => {
-    setIndex((prevIndex) => (prevIndex - 1 + totalItems) % totalItems);
-  };
-
-  // events triggring
-  const handleTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = (totalItems, setIndex) => {
-    if (touchStart - touchEnd > 50) {
-      nextSlide(totalItems, setIndex);
+      clientAnimation && clientAnimation()
+      studentAnimation && studentAnimation()
+      freelancerAnimation && freelancerAnimation()
     }
+  }, [clientTestimonials.length, studentTestimonials.length, freelancer.length, scrollSpeed, visibleCount])
 
-    if (touchStart - touchEnd < -50) {
-      prevSlide(totalItems, setIndex);
-    }
-  };
-
-  const getVisibleTestimonials = (testimonials, currentIndex) => {
-    const result = [];
-    for (let i = 0; i < visibleCount; i++) {
-      const index = (currentIndex + i) % testimonials.length;
-      result.push({ ...testimonials[index], index });
-    }
-    return result;
-  };
-
-  const visibleClientTestimonials = getVisibleTestimonials(
-    clientTestimonials,
-    clientCurrentIndex
-  );
-  const visibleStudentTestimonials = getVisibleTestimonials(
-    studentTestimonials,
-    studentCurrentIndex
-  );
-  const visibleFreelancerTestimonials = getVisibleTestimonials(
-    freelancer,
-    freelancerCurrentIndex
-  );
-
-  // Testimonial card
+  // Testimonial card - Updated to reduce empty space while maintaining equal heights
   const renderTestimonialCard = (data, index) => (
     <div
       key={index}
-      className="bg-white shadow-lg rounded-lg p-4 flex flex-col items-center  w-full h-full mx-auto transition-all duration-300 hover:shadow-xl"
+      className="bg-white shadow-lg rounded-lg p-4 flex flex-col justify-between w-full mx-auto transition-all duration-300 hover:shadow-xl"
+      style={{
+        minWidth: "300px",
+        width: "300px",
+        margin: "0 6px",
+        height: "220px", // Reduced height to minimize empty space
+      }}
     >
-      <p className="text-gray-700 text-sm mb-4 ">{data.text}</p>
-      <div className="flex items-center mt-auto w-full">
-        {/* {data.image && (
-          <img src={data.image} alt="Profile" className="w-14 h-14 rounded-full object-cover m-2 border-2 border-purple-200" />
-        )} */}
+      {/* Text container with limited height */}
+      <div className="mb-3">
+        <p className="text-gray-700 text-sm line-clamp-5">{data.text}</p>
+      </div>
+
+      {/* Footer with author info - always at the bottom */}
+      <div className="flex items-center w-full mt-auto">
+        {data.image && (
+          <img
+            src={data.image || "/placeholder.svg"}
+            alt="Profile"
+            className="w-12 h-12 rounded-full object-cover border-2 border-purple-200"
+          />
+        )}
         <div className="text-left ml-2 flex-1">
-          <p className="text-sm text-center font-semibold text-gray-800">
-            {data.name}
-          </p>
-          {
-            <span className="text-xs flex justify-center text-purple-500">
-              {data.ac}
-            </span>
-          }
+          <p className="text-sm text-center font-semibold text-gray-800">{data.name}</p>
+          {data.ac && <span className="text-xs flex justify-center text-purple-500">{data.ac}</span>}
         </div>
       </div>
     </div>
-  );
+  )
 
-  // Pagination indicators component
-  const renderPaginationIndicators = (currentIndex, totalItems) => (
-    <div className="flex justify-center space-x-2 mt-6">
-      {Array.from({ length: Math.min(5, totalItems) }).map((_, idx) => (
-        <span
-          key={idx}
-          className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-            idx === currentIndex % Math.min(5, totalItems)
-              ? "bg-purple-600 w-4"
-              : "bg-gray-300"
-          }`}
-        />
-      ))}
-    </div>
-  );
-
-  const renderCarousel = (
-    testimonials,
-    visibleTestimonials,
-    currentIndex,
-    setIndex,
-    title
-  ) => (
+  // Render a section with horizontal scrolling testimonials
+  const renderScrollingSection = (testimonials, duplicatedTestimonials, scrollRef, title) => (
     <div className="w-full max-w-8xl mx-auto my-10">
       <p className="text-purple-600 mb-4 text-xl font-medium">{title}</p>
 
-      <div className="mt-6 relative">
-        <div className="relative px-2 md:px-2">
-          <button
-            onClick={() => prevSlide(testimonials.length, setIndex)}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-purple-300 bg-opacity-50 text-white rounded-full w-10 h-10 shadow-md hover:bg-purple-600 hover:bg-opacity-80 transition hidden md:flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-400"
-            aria-label="Previous testimonial"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
-            </svg>
-          </button>
-
-          <button
-            onClick={() => nextSlide(testimonials.length, setIndex)}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-purple-300 bg-opacity-50 text-white rounded-full w-10 h-10 shadow-md hover:bg-purple-600 hover:bg-opacity-80 transition hidden md:flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-400"
-            aria-label="Next testimonial"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
-            </svg>
-          </button>
-
+      <div className="relative overflow-hidden">
+        <div className="overflow-hidden">
+          {/* The scrolling container */}
           <div
-            className="flex overflow-hidden mx-auto w-full"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={() => handleTouchEnd(testimonials.length, setIndex)}
+            className="flex"
+            ref={scrollRef}
+            style={{
+              willChange: "transform",
+              transition: "transform 0.1s linear",
+            }}
           >
-            <div className="flex transition-transform duration-500 ease-in-out w-full gap-3 justify-center">
-              {visibleTestimonials.map((data, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-0 w-full md:w-auto"
-                  style={{ width: `${95 / visibleCount}%`, maxWidth: "320px" }}
-                >
-                  {renderTestimonialCard(data, index)}
-                </div>
-              ))}
-            </div>
+            {duplicatedTestimonials.map((item, index) => renderTestimonialCard(item, `${item.id}-${index}`))}
           </div>
         </div>
-
-        {/* Mobile navigation  */}
-        <div className="md:hidden flex justify-center mt-6">
-          <button
-            onClick={() => prevSlide(testimonials.length, setIndex)}
-            className="bg-purple-300 bg-opacity-70 text-white rounded-full p-3 mx-4 shadow-md hover:bg-purple-600 hover:bg-opacity-80 transition focus:outline-none focus:ring-2 focus:ring-purple-400"
-            aria-label="Previous testimonial"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
-            </svg>
-          </button>
-
-          <button
-            onClick={() => nextSlide(testimonials.length, setIndex)}
-            className="bg-purple-300 bg-opacity-70 text-white rounded-full p-3 mx-4 shadow-md hover:bg-purple-600 hover:bg-opacity-80 transition focus:outline-none focus:ring-2 focus:ring-purple-400"
-            aria-label="Next testimonial"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
-            </svg>
-          </button>
-        </div>
-
-        {renderPaginationIndicators(currentIndex, testimonials.length)}
       </div>
     </div>
-  );
+  )
 
   return (
-    <div className="bg-purple-50 py-16 text-center flex flex-col items-center px-12">
-      <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-4 py-1.5 rounded-full">
-        TESTIMONIALS
-      </span>
-      <h1 className="text-4xl text-[#42307D] font-bold my-6">
-        Don&apos;t just take our word for it
-      </h1>
+    <div className="bg-purple-50 py-16 text-center flex flex-col items-center px-4 md:px-12">
+      <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-4 py-1.5 rounded-full">TESTIMONIALS</span>
+      <h1 className="text-4xl text-[#42307D] font-bold my-6">Don&apos;t just take our word for it</h1>
 
-      {renderCarousel(
+      {renderScrollingSection(
         clientTestimonials,
-        visibleClientTestimonials,
-        clientCurrentIndex,
-        setClientCurrentIndex,
-        "Read what our clients have to say"
+        duplicatedClientTestimonials,
+        clientScrollRef,
+        "Read what our clients have to say",
       )}
 
-      {renderCarousel(
+      {renderScrollingSection(
         studentTestimonials,
-        visibleStudentTestimonials,
-        studentCurrentIndex,
-        setStudentCurrentIndex,
-        "See what our recently joined candidates have to say"
+        duplicatedStudentTestimonials,
+        studentScrollRef,
+        "See what our recently joined candidates have to say",
       )}
 
-      {renderCarousel(
+      {renderScrollingSection(
         freelancer,
-        visibleFreelancerTestimonials,
-        freelancerCurrentIndex,
-        setFreelancerCurrentIndex,
-        "Read what our Freelance Recruiters have to say"
+        duplicatedFreelancerTestimonials,
+        freelancerScrollRef,
+        "Read what our Freelance Recruiters have to say",
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Cont5;
+export default Cont5
