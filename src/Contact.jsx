@@ -37,19 +37,51 @@ function Contact() {
     ],
     germany: ["Berlin", "Hamburg", "Munich", "Frankfurt", "Cologne", "Other"],
     france: ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Other"],
+    // india: [
+    //   "Mumbai",
+    //   "Delhi",
+    //   "Bangalore",
+    //   "Hyderabad",
+    //   "Chennai",
+    //   "Kolkata",
+    //   "Pune",
+    //   "Jaipur",
+    //   "Ahmedabad",
+    //   "Lucknow",
+    //   "Other",
+    // ],
     india: [
-      "Mumbai",
-      "Delhi",
-      "Bangalore",
-      "Hyderabad",
-      "Chennai",
-      "Kolkata",
-      "Pune",
-      "Jaipur",
-      "Ahmedabad",
-      "Lucknow",
+      "Andhra Pradesh",
+      "Arunachal Pradesh",
+      "Assam",
+      "Bihar",
+      "Chhattisgarh",
+      "Goa",
+      "Gujarat",
+      "Haryana",
+      "Himachal Pradesh",
+      "Jharkhand",
+      "Karnataka",
+      "Kerala",
+      "Madhya Pradesh",
+      "Maharashtra",
+      "Manipur",
+      "Meghalaya",
+      "Mizoram",
+      "Nagaland",
+      "Odisha",
+      "Punjab",
+      "Rajasthan",
+      "Sikkim",
+      "Tamil Nadu",
+      "Telangana",
+      "Tripura",
+      "Uttar Pradesh",
+      "Uttarakhand",
+      "West Bengal",
       "Other",
     ],
+
     japan: ["Tokyo", "Osaka", "Kyoto", "Nagoya", "Fukuoka", "Other"],
     china: ["Beijing", "Shanghai", "Shenzhen", "Guangzhou", "Chengdu", "Other"],
     brazil: [
@@ -218,7 +250,10 @@ function Contact() {
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-black font-medium">
+              <label
+                htmlFor="email"
+                className="block text-gray-700 font-medium"
+              >
                 Email
               </label>
               <input
@@ -230,7 +265,7 @@ function Contact() {
             </div>
             <div className="flex flex-col gap-4">
               {/* Country Field */}
-              <div>
+              {/* <div>
                 <label
                   htmlFor="country"
                   className="block text-gray-700 font-medium"
@@ -255,7 +290,7 @@ function Contact() {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
 
               {/* City Field */}
               <div>
@@ -270,19 +305,27 @@ function Contact() {
                   className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-400"
                   value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
-                  disabled={!selectedCountry}
+                  // disabled={!selectedCountry}
                 >
-                  <option value="" disabled>
+                  {/* <option value="" disabled>
                     {selectedCountry
                       ? "Select a city"
                       : "Select a country first"}
+                  </option> */}
+                  <option value="" disabled>
+                    Select a city
                   </option>
-                  {selectedCountry &&
+                  {/* {selectedCountry &&
                     countryCityMap[selectedCountry].map((city) => (
                       <option key={city} value={city}>
                         {city}
                       </option>
-                    ))}
+                    ))} */}
+                  {countryCityMap["india"].map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -302,9 +345,53 @@ function Contact() {
                 <option value="" disabled selected>
                   enquire
                 </option>
-                <option value="usa">IT Service</option>
+                {/* <option value="usa">IT Service</option>
                 <option value="canada">Sales</option>
-                <option value="uk">Mangement</option>
+                <option value="uk">Mangement</option> */}
+                <option value="permanent-staffing">Permanent Staffing</option>
+                <option value="temporary-staffing">Temporary Staffing</option>
+                <option value="contract-staffing">Contract Staffing</option>
+                <option value="executive-search">Executive Search</option>
+                <option value="recruitment-process-outsourcing-rpo">
+                  Recruitment Process Outsourcing (RPO)
+                </option>
+                <option value="skill-gap-assessment">
+                  Skill Gap Assessment
+                </option>
+                <option value="internship-program-management">
+                  Internship Program Management
+                </option>
+                <option value="diversity-inclusion-hiring-initiatives">
+                  Diversity & Inclusion Hiring Initiatives
+                </option>
+                <option value="onboarding-and-training-support">
+                  Onboarding and Training Support
+                </option>
+                <option value="pre-placement-offer-ppo-recruitment">
+                  Pre-Placement Offer (PPO) Recruitment
+                </option>
+                <option value="remote-talent-pooling">
+                  Remote Talent Pooling
+                </option>
+                <option value="payroll-management">Payroll Management</option>
+                <option value="labour-compliance-management">
+                  Labour Compliance Management
+                </option>
+                <option value="freelance-recruiter-partnership">
+                  Freelance Recruiter Partnership
+                </option>
+                <option value="outplacement-services">
+                  Outplacement Services
+                </option>
+                <option value="hr-consulting-and-strategy">
+                  HR Consulting and Strategy
+                </option>
+                <option value="talent-mapping-and-market-intelligence">
+                  Talent Mapping and Market Intelligence
+                </option>
+                <option value="graduate-trainee-programs">
+                  Graduate Trainee Programs
+                </option>
               </select>
             </div>
 

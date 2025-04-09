@@ -162,7 +162,7 @@ const Footer = () => {
 
         {/* Newsletter Section */}
         <hr className="w-[85%] border-gray-300 mx-auto" />
-        <div className=" w-[85%] border-slate-700 pt-6 sm:pt-8 pb-6 mb-4">
+        <div className=" w-[85%] mx-auto pt-6 sm:pt-8 pb-6 mb-4">
           <div className="max-w-md mx-auto text-center px-4">
             <h3 className="text-xl sm:text-2xl font-bold mb-2">Newsletter</h3>
             <p className="text-sm sm:text-base text-slate-500 mb-4">
@@ -181,7 +181,7 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="pl-10  border border-2 border-gray-300 text-white placeholder:text-slate-400 w-full h-10 sm:h-11"
+                  className="pl-10 border-2 border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -360,7 +360,7 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="pl-10 bg-white border border-gray-300 text-white placeholder:text-slate-400 w-full h-10 sm:h-11"
+                  className="pl-10 bg-white border border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
