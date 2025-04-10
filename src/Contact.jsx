@@ -140,12 +140,14 @@ function Contact() {
 
   function submitHandler(e) {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); // Set loading to true at the beginning
+
     try {
       const serviceId = import.meta.env.VITE_SERVICE_ID;
       const templateId = import.meta.env.VITE_TEMPLATE_ID;
       const publicKey = import.meta.env.VITE_PUBLIC_KEY;
       console.log("Form submitted", contactData);
+
       emailjs
         .send(serviceId, templateId, contactData, {
           publicKey,
@@ -154,28 +156,31 @@ function Contact() {
           () => {
             console.log("SUCCESS!");
             toast.success("Your message has been sent successfully!");
+            // Reset form after success
+            setContactData({
+              name: "",
+              contact: "",
+              email: "",
+              state: "",
+              city: "",
+              enquire: "",
+              enquireDetail: "",
+            });
           },
           (error) => {
             console.log("FAILED...", error.text);
-            toast.error("failed to send message. Please try again later.");
+            toast.error("Failed to send message. Please try again later.");
           }
-        );
-      setContactData({
-        name: "",
-        contact: "",
-        email: "",
-        state: "",
-        city: "",
-        enquire: "",
-        enquireDetail: "",
-      });
+        )
+        .finally(() => {
+          setLoading(false); // Make sure loading is set to false after the promise resolves
+        });
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
+      toast.error("An error occurred. Please try again.");
+      setLoading(false); // Set loading to false in case of error
     }
   }
-
   return (
     <>
       {/* Header Section */}
@@ -504,9 +509,13 @@ function Contact() {
               <button
                 type="submit"
                 className="w-full bg-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                disabled={loading}
               >
                 {loading ? (
-                  <LoaderCircle className="animate-spin mx-auto" />
+                  <div className="flex items-center justify-center">
+                    <LoaderCircle className="animate-spin h-5 w-5 mr-2" />
+                    <span>Submitting...</span>
+                  </div>
                 ) : (
                   "Submit"
                 )}
