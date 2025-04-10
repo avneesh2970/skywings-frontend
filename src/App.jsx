@@ -4,6 +4,7 @@ import Navbar from "./componentes/navbar";
 import Footer from "./componentes/footer";
 import CookieBanner from "./componentes/CookieBanner";
 import SocialmediaConn from "./componentes/SocialmediaConn";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Navbar />
       <Outlet />
       <Footer />
+      <Toaster/>
     </>
   );
 }

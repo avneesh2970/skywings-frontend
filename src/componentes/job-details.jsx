@@ -44,45 +44,47 @@ const JobDetails = () => {
 
   function cleanHtmlContent(htmlString) {
     // Create a temporary DOM element
-    const tempDiv = document.createElement('div');
+    const tempDiv = document.createElement("div");
     tempDiv.innerHTML = htmlString;
-    
+
     // Get the text content (this automatically removes all HTML tags)
-    let cleanText = tempDiv.textContent || tempDiv.innerText || '';
-    
+    let cleanText = tempDiv.textContent || tempDiv.innerText || "";
+
     // Replace common HTML entities
     const htmlEntities = {
-      '&amp;': '&',
-      '&ndash;': '–',
-      '&mdash;': '—',
-      '&ldquo;': '"',
-      '&rdquo;': '"',
-      '&lsquo;': "'",
-      '&rsquo;': "'",
-      '&nbsp;': ' ',
-      '&lt;': '<',
-      '&gt;': '>',
-      '&quot;': '"',
-      '&#39;': "'"
+      "&amp;": "&",
+      "&ndash;": "–",
+      "&mdash;": "—",
+      "&ldquo;": '"',
+      "&rdquo;": '"',
+      "&lsquo;": "'",
+      "&rsquo;": "'",
+      "&nbsp;": " ",
+      "&lt;": "<",
+      "&gt;": ">",
+      "&quot;": '"',
+      "&#39;": "'",
     };
-    
+
     // Replace all HTML entities
     Object.entries(htmlEntities).forEach(([entity, replacement]) => {
-      cleanText = cleanText.replace(new RegExp(entity, 'g'), replacement);
+      cleanText = cleanText.replace(new RegExp(entity, "g"), replacement);
     });
-    
+
     // Normalize whitespace
-    cleanText = cleanText.replace(/\s+/g, ' ').trim();
-    
+    cleanText = cleanText.replace(/\s+/g, " ").trim();
+
     // Format for readability (preserve structure)
-    cleanText = cleanText.replace(/(Designation:|Grade:|Location:|Industry:|Education:|CTC:|Exp\.|Role:|Job Requirement:)/g, '\n$1');
-    cleanText = cleanText.replace(/\s*-\s*/g, '\n- ');
-    
+    cleanText = cleanText.replace(
+      /(Designation:|Grade:|Location:|Industry:|Education:|CTC:|Exp\.|Role:|Job Requirement:)/g,
+      "\n$1"
+    );
+    cleanText = cleanText.replace(/\s*-\s*/g, "\n- ");
+
     return cleanText;
   }
 
-
-  const cleanDescription = cleanHtmlContent(description)
+  const cleanDescription = cleanHtmlContent(description);
 
   const toggleText = () => setShowFullText(!showFullText);
 
@@ -210,12 +212,11 @@ const JobDetails = () => {
                   </div>
 
                   <div className="mt-4 text-gray-600 space-y-2">
-
-                  <div className="">
-                        <h3 className="min-h-[52px] max-h-[52px]  flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
-                          {relatedJob.job_title}
-                        </h3>
-                      </div>
+                    <div className="">
+                      <h3 className="min-h-[52px] max-h-[52px]  flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
+                        {relatedJob.job_title}
+                      </h3>
+                    </div>
                     <p className="flex items-center space-x-2">
                       <MdLocationOn />
                       <span>{relatedJob.location}</span>
@@ -361,10 +362,13 @@ const JobDetails = () => {
                 </p>
               )}
             </div>
+            {console.log("job detailssss: ", job)}
+            {console.log("apply_job: ", job.apply_job)}
             <button
               className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
               // onClick={toggleModal}
-              onClick={() => window.open(job.apply_job, "_blank")}
+              // onClick={() => window.open(job.apply_job, "_blank")}
+              onClick={() => window.open("https://careers.assuredjob.com/", "_blank")}
             >
               Apply Now
             </button>

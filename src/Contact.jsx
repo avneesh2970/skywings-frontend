@@ -5,10 +5,13 @@ import { Phone } from "lucide-react";
 import { HiPhone, HiMail } from "react-icons/hi";
 import React, { useState } from "react";
 import emailjs from "@emailjs/browser";
+import { LoaderCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 function Contact() {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [contactData, setContactData] = useState({
     name: "",
@@ -137,6 +140,7 @@ function Contact() {
 
   function submitHandler(e) {
     e.preventDefault();
+    setLoading(true);
     try {
       const serviceId = import.meta.env.VITE_SERVICE_ID;
       const templateId = import.meta.env.VITE_TEMPLATE_ID;
@@ -149,13 +153,26 @@ function Contact() {
         .then(
           () => {
             console.log("SUCCESS!");
+            toast.success("Your message has been sent successfully!");
           },
           (error) => {
             console.log("FAILED...", error.text);
+            toast.error("failed to send message. Please try again later.");
           }
         );
+      setContactData({
+        name: "",
+        contact: "",
+        email: "",
+        state: "",
+        city: "",
+        enquire: "",
+        enquireDetail: "",
+      });
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -352,7 +369,7 @@ function Contact() {
                 </label>
                 <select
                   id="state"
-                  className="w-full px-4 py-2 mt-2 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-400"
+                  className="w-full px-4 py-2 mt-2 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   onChange={onChangeHandler}
                   value={contactData.state}
                   // disabled={!selectedCountry}
@@ -362,7 +379,7 @@ function Contact() {
                       ? "Select a city"
                       : "Select a country first"}
                   </option> */}
-                  <option value="" disabled className="text-gray-800">
+                  <option value="" disabled className="text-gray-400">
                     Select a state
                   </option>
                   {/* {selectedCountry &&
@@ -488,7 +505,11 @@ function Contact() {
                 type="submit"
                 className="w-full bg-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
-                Submit
+                {loading ? (
+                  <LoaderCircle className="animate-spin mx-auto" />
+                ) : (
+                  "Submit"
+                )}
               </button>
             </div>
           </form>
