@@ -368,7 +368,9 @@ const JobDetails = () => {
               className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
               // onClick={toggleModal}
               // onClick={() => window.open(job.apply_job, "_blank")}
-              onClick={() => window.open("https://careers.assuredjob.com/", "_blank")}
+              onClick={() =>
+                window.open(job.apply_job_without_registration, "_blank")
+              }
             >
               Apply Now
             </button>
