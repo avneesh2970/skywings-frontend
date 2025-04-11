@@ -372,6 +372,7 @@ const JobDetails = () => {
                 window.open(job.apply_job_without_registration, "_blank")
               }
             >
+            {console.log("job apply link: ", job.apply_job_without_registration)}
               Apply Now
             </button>
           </div>
