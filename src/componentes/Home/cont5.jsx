@@ -843,13 +843,13 @@ const Cont5 = () => {
 
       {/* Footer with author info - always at the bottom */}
       <div className="flex items-center w-full mt-auto">
-        {data.image && (
+        {/* {data.image && (
           <img
             src={data.image || "/placeholder.svg"}
             alt="Profile"
             className="w-12 h-12 rounded-full object-cover border-2 border-purple-200"
           />
-        )}
+        )} */}
         <div className="text-left ml-2 flex-1">
           <p className="text-sm text-center font-semibold text-gray-800">{data.name}</p>
           {data.ac && <span className="text-xs flex justify-center text-purple-500">{data.ac}</span>}
