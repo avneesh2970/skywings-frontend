@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import img from "../../assets/products/image.png"
 import testm_1 from "../../assets/products/textm_1.jpg"
 import testm_2 from "../../assets/products/testm_2.webp"
@@ -599,11 +600,28 @@ const Cont5 = () => {
 
   const [screenSize, setScreenSize] = useState("")
   const [visibleCount, setVisibleCount] = useState(5)
+  const [isPaused, setIsPaused] = useState({
+    client: false,
+    student: false,
+    freelancer: false,
+  })
+
+  // Store scroll positions for each section
+  const [scrollPositions, setScrollPositions] = useState({
+    client: 0,
+    student: 0,
+    freelancer: 0,
+  })
 
   // Refs for the scrolling containers
   const clientScrollRef = useRef(null)
   const studentScrollRef = useRef(null)
   const freelancerScrollRef = useRef(null)
+
+  // Refs for the carousel containers
+  const clientCarouselRef = useRef(null)
+  const studentCarouselRef = useRef(null)
+  const freelancerCarouselRef = useRef(null)
 
   // Animation speed in pixels per second - Adjust this value to control the scrolling speed
   // You can modify this value to make the scrolling faster or slower
@@ -648,36 +666,43 @@ const Cont5 = () => {
   // Set up the scrolling animation for each section
   useEffect(() => {
     // Function to handle the scrolling animation
-    const animateScroll = (scrollContainer, contentWidth) => {
-      if (!scrollContainer) return
+    const animateScroll = (scrollContainer, contentWidth, sectionKey) => {
+      if (!scrollContainer.current) return
 
-      let scrollPosition = 0
-      let lastTimestamp = 0
+      let animationId = null
 
-      const step = (timestamp) => {
-        if (!lastTimestamp) lastTimestamp = timestamp
-        const elapsed = timestamp - lastTimestamp
+      const step = () => {
+        if (isPaused[sectionKey]) {
+          animationId = requestAnimationFrame(step)
+          return
+        }
 
-        // Calculate how much to scroll based on time elapsed and scroll speed
-        const pixelsToScroll = (scrollSpeed * elapsed) / 1000
+        // Calculate how much to scroll based on scroll speed
+        const pixelsToScroll = scrollSpeed / 60 // For smoother animation at 60fps
 
-        scrollPosition += pixelsToScroll
+        // Update the scroll position
+        let newPosition = scrollPositions[sectionKey] + pixelsToScroll
 
         // Reset position when we've scrolled through half the content (original set)
-        if (scrollPosition >= contentWidth / 2) {
-          scrollPosition = 0
+        if (newPosition >= contentWidth / 2) {
+          newPosition = 0
         }
+
+        // Update the stored position
+        setScrollPositions((prev) => ({
+          ...prev,
+          [sectionKey]: newPosition,
+        }))
 
         // Apply the scroll position
         if (scrollContainer.current) {
-          scrollContainer.current.style.transform = `translateX(-${scrollPosition}px)`
+          scrollContainer.current.style.transform = `translateX(-${newPosition}px)`
         }
 
-        lastTimestamp = timestamp
-        requestAnimationFrame(step)
+        animationId = requestAnimationFrame(step)
       }
 
-      const animationId = requestAnimationFrame(step)
+      animationId = requestAnimationFrame(step)
 
       // Clean up animation on unmount
       return () => cancelAnimationFrame(animationId)
@@ -693,11 +718,9 @@ const Cont5 = () => {
     const cardWidth = 320 + 12 // card width + gap
 
     // Start animations for each section
-    const clientAnimation = animateScroll(clientScrollRef, getContentWidth(clientTestimonials, cardWidth))
-
-    const studentAnimation = animateScroll(studentScrollRef, getContentWidth(studentTestimonials, cardWidth))
-
-    const freelancerAnimation = animateScroll(freelancerScrollRef, getContentWidth(freelancer, cardWidth))
+    const clientAnimation = animateScroll(clientScrollRef, getContentWidth(clientTestimonials, cardWidth), "client")
+    const studentAnimation = animateScroll(studentScrollRef, getContentWidth(studentTestimonials, cardWidth), "student")
+    const freelancerAnimation = animateScroll(freelancerScrollRef, getContentWidth(freelancer, cardWidth), "freelancer")
 
     // Clean up animations on unmount
     return () => {
@@ -705,7 +728,101 @@ const Cont5 = () => {
       studentAnimation && studentAnimation()
       freelancerAnimation && freelancerAnimation()
     }
-  }, [clientTestimonials.length, studentTestimonials.length, freelancer.length, scrollSpeed, visibleCount])
+  }, [
+    clientTestimonials.length,
+    studentTestimonials.length,
+    freelancer.length,
+    scrollSpeed,
+    visibleCount,
+    isPaused,
+    scrollPositions,
+  ])
+
+  // Function to manually scroll the testimonials
+  const scrollTestimonials = (direction, scrollRef, sectionKey) => {
+    if (!scrollRef.current) return
+
+    // Get the current scroll position for this section
+    const currentPosition = scrollPositions[sectionKey]
+
+    // Calculate the scroll amount (one card width)
+    const scrollAmount = 320 // card width
+
+    // Calculate the new position based on direction
+    let newPosition = 0
+
+    if (direction === "right") {
+      // Right arrow - move content to the right (which means scrolling left)
+      newPosition = Math.max(currentPosition - scrollAmount, 0)
+    } else if (direction === "left") {
+      // Left arrow - move content to the left (which means scrolling right)
+      newPosition = currentPosition + scrollAmount
+    }
+
+    // Update the stored position for this section only
+    setScrollPositions((prev) => ({
+      ...prev,
+      [sectionKey]: newPosition,
+    }))
+
+    // Apply the new position with smooth animation
+    scrollRef.current.style.transition = "transform 0.3s ease-out"
+    scrollRef.current.style.transform = `translateX(-${newPosition}px)`
+
+    // Reset the transition after animation completes
+    setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.style.transition = ""
+      }
+    }, 300)
+  }
+
+  // Setup event listeners for mouse/touch interactions to pause/resume scrolling
+  useEffect(() => {
+    const setupInteractionHandlers = (carouselRef, sectionKey) => {
+      if (!carouselRef.current) return
+
+      const handleInteractionStart = () => {
+        setIsPaused((prev) => ({
+          ...prev,
+          [sectionKey]: true,
+        }))
+      }
+
+      const handleInteractionEnd = () => {
+        setIsPaused((prev) => ({
+          ...prev,
+          [sectionKey]: false,
+        }))
+      }
+
+      // Add event listeners
+      carouselRef.current.addEventListener("mousedown", handleInteractionStart)
+      carouselRef.current.addEventListener("touchstart", handleInteractionStart)
+      window.addEventListener("mouseup", handleInteractionEnd)
+      window.addEventListener("touchend", handleInteractionEnd)
+
+      // Cleanup
+      return () => {
+        if (carouselRef.current) {
+          carouselRef.current.removeEventListener("mousedown", handleInteractionStart)
+          carouselRef.current.removeEventListener("touchstart", handleInteractionStart)
+        }
+        window.removeEventListener("mouseup", handleInteractionEnd)
+        window.removeEventListener("touchend", handleInteractionEnd)
+      }
+    }
+
+    const clientCleanup = setupInteractionHandlers(clientCarouselRef, "client")
+    const studentCleanup = setupInteractionHandlers(studentCarouselRef, "student")
+    const freelancerCleanup = setupInteractionHandlers(freelancerCarouselRef, "freelancer")
+
+    return () => {
+      clientCleanup && clientCleanup()
+      studentCleanup && studentCleanup()
+      freelancerCleanup && freelancerCleanup()
+    }
+  }, [])
 
   // Testimonial card - Updated to reduce empty space while maintaining equal heights
   const renderTestimonialCard = (data, index) => (
@@ -742,27 +859,45 @@ const Cont5 = () => {
   )
 
   // Render a section with horizontal scrolling testimonials
-  const renderScrollingSection = (testimonials, duplicatedTestimonials, scrollRef, title) => (
-    <div className="w-full max-w-8xl mx-auto my-10">
-      <p className="text-purple-600 mb-4 text-xl font-medium">{title}</p>
+  const renderScrollingSection = (testimonials, duplicatedTestimonials, scrollRef, carouselRef, title, sectionKey) => {
+    return (
+      <div className="w-full max-w-8xl mx-auto my-10">
+        <p className="text-purple-600 mb-4 text-xl font-medium">{title}</p>
 
-      <div className="relative overflow-hidden">
-        <div className="overflow-hidden">
-          {/* The scrolling container */}
-          <div
-            className="flex"
-            ref={scrollRef}
-            style={{
-              willChange: "transform",
-              transition: "transform 0.1s linear",
-            }}
+        <div className="relative overflow-hidden" ref={carouselRef}>
+          <button
+            onClick={() => scrollTestimonials("right", scrollRef, sectionKey)}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 hover:bg-white rounded-full shadow-md transition-all hover:scale-105"
+            aria-label="Previous testimonials"
           >
-            {duplicatedTestimonials.map((item, index) => renderTestimonialCard(item, `${item.id}-${index}`))}
+            <ChevronLeft className="w-6 h-6 text-purple-700" />
+          </button>
+
+          <div className="overflow-hidden px-10">
+            {/* The scrolling container */}
+            <div
+              className="flex"
+              ref={scrollRef}
+              style={{
+                willChange: "transform",
+                transform: "translateX(0)",
+              }}
+            >
+              {duplicatedTestimonials.map((item, index) => renderTestimonialCard(item, `${item.id}-${index}`))}
+            </div>
           </div>
+
+          <button
+            onClick={() => scrollTestimonials("left", scrollRef, sectionKey)}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/80 hover:bg-white rounded-full shadow-md transition-all hover:scale-105"
+            aria-label="Next testimonials"
+          >
+            <ChevronRight className="w-6 h-6 text-purple-700" />
+          </button>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div className="bg-purple-50 py-16 text-center flex flex-col items-center px-4 md:px-12">
@@ -773,21 +908,27 @@ const Cont5 = () => {
         clientTestimonials,
         duplicatedClientTestimonials,
         clientScrollRef,
+        clientCarouselRef,
         "Read what our clients have to say",
+        "client",
       )}
 
       {renderScrollingSection(
         studentTestimonials,
         duplicatedStudentTestimonials,
         studentScrollRef,
+        studentCarouselRef,
         "See what our recently joined candidates have to say",
+        "student",
       )}
 
       {renderScrollingSection(
         freelancer,
         duplicatedFreelancerTestimonials,
         freelancerScrollRef,
+        freelancerCarouselRef,
         "Read what our Freelance Recruiters have to say",
+        "freelancer",
       )}
     </div>
   )
