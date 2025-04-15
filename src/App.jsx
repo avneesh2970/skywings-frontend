@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import "./App.css";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./componentes/navbar";
 import Footer from "./componentes/footer";
 import CookieBanner from "./componentes/CookieBanner";
@@ -16,9 +16,8 @@ function App() {
       <Navbar />
       <Outlet />
       <Footer />
-      <Toaster/>
+      <Toaster />
       <ToastContainer position="top-right" autoClose={3000} />
-
     </>
   );
 }
