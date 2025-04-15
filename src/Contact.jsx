@@ -137,6 +137,9 @@ function Contact() {
   function onChangeHandler(e) {
     setContactData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   }
+  console.log("service",import.meta.env.VITE_SERVICE_ID);
+  console.log("template",import.meta.env.VITE_TEMPLATE_ID);
+  console.log("public",import.meta.env.VITE_PUBLIC_KEY);
 
   function submitHandler(e) {
     e.preventDefault();
@@ -493,7 +496,7 @@ function Contact() {
                 htmlFor="enquireDetail"
                 className="block text-gray-700 font-medium"
               >
-                Enquire Detail
+                Enquire Details
               </label>
               <textarea
                 id="enquireDetail"
