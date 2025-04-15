@@ -16,25 +16,58 @@ const Footer = () => {
   const [email, setEmail] = useState("");
 
  
-  const form = useRef(null);
-  const sendEmail = (e) => {
-    console.log("Submit triggered");
-    e.preventDefault();
+//   const form = useRef();
+//  const sendEmail = (e) => {
+//   e.preventDefault();
+//   console.log("Submit triggered");
 
-    emailjs
+//   if (!form.current) {
+//     console.error('Form ref is not attached yet.');
+//     return;
+//   }
+
+//   const formData = new FormData(form.current);
+//   const userEmailValue = formData.get("user_email");
+
+//   console.log("user_email value:", userEmailValue); // ✅ This will now show the correct value
+
+//   emailjs
+//     .sendForm('service_4sw2nkm', 'template_6sjxdz6', form.current, {
+//       // publicKey: 'qiG11gfWE86es3ObM',
+//     })
+//     .then(
+//       () => {
+//         console.log('SUCCESS!');
+//         toast.success('Thank You for Subscription !!');
+//       },
+//       (error) => {
+//         console.log('FAILED...', error.text);
+//       }
+//     );
+// };
+
+const form = useRef('');
+const sendEmail = (e) => {
+  e.preventDefault();
+  console.log("Submit triggered");
+  const formData = new FormData(form.current);
+  const userEmailValue = formData.get("user_email");
+  console.log("user_email value:", userEmailValue);
+  emailjs
       .sendForm('service_4sw2nkm', 'template_6sjxdz6', form.current, {
         publicKey: 'qiG11gfWE86es3ObM',
       })
       .then(
         () => {
           console.log('SUCCESS!');
-          toast.success('Thank You for Subscription !! '); 
+          toast.success('Thank You for Subscription !!');
         },
         (error) => {
           console.log('FAILED...', error.text);
-        },
+        }
       );
-  };
+};
+
   return (
     <>
       <div className=" w-full hidden md:block">
@@ -188,30 +221,33 @@ const Footer = () => {
               Subscribe to our newsletter to receive updates, news, and
               exclusive offers.
             </p>
-            <form
-             ref={form} onSubmit={sendEmail}
-              className="flex flex-col sm:flex-row"
-            >
-              <div className="flex-1 relative">
-                <Mail
-                  className="absolute top-1/2 transform -translate-y-1/2 ml-2 text-slate-400"
-                  size={18}
-                />
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="pl-10 border-2 border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
-                  name="email"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 h-10 sm:h-11 whitespace-nowrap"
-              >
-                Subscribe
-              </button>
-            </form>
+            {/* <form ref={form} onSubmit={sendEmail} className="flex flex-col sm:flex-row">
+  <input
+    type="email"
+    name="user_email"
+    className="pl-10 border-2 border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
+    required
+  />
+  <button
+    type="submit"
+    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 h-10 sm:h-11 whitespace-nowrap"
+  >
+    Subscribe
+  </button>
+</form> */}
+
+<form ref={form} onSubmit={sendEmail}   className="flex flex-col sm:flex-row">
+  <input
+    type="email"
+  
+    name="user_email"
+    className="pl-10 border-2 border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
+    placeholder="Enter email"
+    required
+  />
+  <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 h-10 sm:h-11 whitespace-nowrap">Submit</button>
+</form>
+
           </div>
         </div>
 
@@ -369,21 +405,15 @@ const Footer = () => {
               Subscribe to our newsletter to receive updates, news, and
               exclusive offers.
             </p>
-            <form ref={form} onSubmit={sendEmail}  className="flex  ">
-              <div className="flex-1 relative">
-                <Mail
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
-                  size={18}
-                />
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="pl-10 bg-white border border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
-                
-                  name='email'
-                  required
-                />
-              </div>
+            <form ref={form} onSubmit={sendEmail} className="flex  ">
+            <input
+    type="email"
+  
+    name="user_email"
+    className="pl-10 border-2 border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
+    placeholder="Enter email"
+    required
+  />
               <button
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base font-medium px-2 md:px-4 py-2 h-10 sm:h-11 whitespace-nowrap"
