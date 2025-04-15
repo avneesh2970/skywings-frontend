@@ -39,57 +39,24 @@ function Upload() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setLoading(true)
+  const form = useRef();
 
-    try {
-      const serviceId = import.meta.env.VITE_SERVICE_ID
-      const templateId = import.meta.env.VITE_TEMPLATE_ID1
-      const publicKey = import.meta.env.VITE_PUBLIC_KEY
+  const sendEmail = (e) => {
+    e.preventDefault();
 
-      console.log("Form submitted", formData)
-
-      emailjs
-        .send(serviceId, templateId, formData, {
-          publicKey,
-        })
-        .then(
-          () => {
-            console.log("SUCCESS!")
-            toast.success("Your resume has been submitted successfully!")
-            // Reset form after success
-            setFormData({
-              fullName: "",
-              email: "",
-              contactNumber: "",
-              jobAppliedFor: "",
-              state: "",
-              city: "",
-              resumeFileName: "",
-            })
-            setFileName("")
-            // Reset file input
-            const fileInput = document.getElementById("resume")
-            if (fileInput) {
-              fileInput.value = ""
-            }
-          },
-          (error) => {
-            console.log("FAILED...", error.text)
-            toast.error("Failed to submit your resume. Please try again later.")
-          },
-        )
-        .finally(() => {
-          setLoading(false) // Make sure loading is set to false after the promise resolves
-        })
-    } catch (error) {
-      console.log(error)
-      toast.error("An error occurred. Please try again.")
-      setLoading(false) // Set loading to false in case of error
-    }
-  }
-
+    emailjs
+      .sendForm('service_4sw2nkm', 'template_6sjxdz6', form.current, {
+        publicKey: 'qiG11gfWE86es3ObM',
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+        },
+      );
+  };
   return (
     <>
       <div className="bg-blue-50 min-h-screen flex justify-center items-center">
@@ -103,13 +70,13 @@ function Upload() {
           {/* Right Form Section */}
           <div className="w-10/12 outline-none md:w-1/2 px-16">
             <h3 className="text-2xl font-bold text-gray-800 text-center md:text-left">Submit Your Resume</h3>
-            <form onSubmit={handleSubmit} className="mt-4 space-y-2">
+            <form ref={form} onSubmit={sendEmail} className="mt-4 space-y-2">
               {/* Full Name */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">Full Name</label>
                 <input
                   type="text"
-                  name="fullName"
+                  name="user_name"
                   value={formData.fullName}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -123,7 +90,7 @@ function Upload() {
                 <label className="block text-gray-800 text-base mb-1">E-mail</label>
                 <input
                   type="email"
-                  name="email"
+                  name="user_email"
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -137,7 +104,7 @@ function Upload() {
                 <label className="block text-gray-800 text-base mb-1">Contact Number</label>
                 <input
                   type="tel"
-                  name="contactNumber"
+                  name="user_contactNumber"
                   value={formData.contactNumber}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -151,7 +118,7 @@ function Upload() {
                 <label className="block text-gray-800 text-base mb-1">Job Applied For</label>
                 <input
                   type="text"
-                  name="jobAppliedFor"
+                  name="user_obAppliedFor"
                   value={formData.jobAppliedFor}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -165,7 +132,7 @@ function Upload() {
                 <label className="block text-gray-800 text-base mb-1">State</label>
                 <input
                   type="text"
-                  name="state"
+                  name="user_state"
                   value={formData.state}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -179,7 +146,7 @@ function Upload() {
                 <label className="block text-gray-800 text-base mb-1">City</label>
                 <input
                   type="text"
-                  name="city"
+                  name="user_city"
                   value={formData.city}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
