@@ -1,72 +1,68 @@
+"use client"
+
 /* eslint-disable no-unused-vars */
 
-import { useNavigate } from "react-router-dom";
-import { MdLocationOn } from "react-icons/md";
-import { Link } from "react-router-dom";
-import { CalendarDays } from "lucide-react";
-import {
-  FaSearch,
-  FaMapMarkerAlt,
-  FaLocationArrow,
-  FaChevronLeft,
-  FaChevronRight,
-} from "react-icons/fa";
+import { useNavigate } from "react-router-dom"
+import { MdLocationOn } from "react-icons/md"
+import { Link } from "react-router-dom"
+import { CalendarDays } from "lucide-react"
+import { FaSearch, FaMapMarkerAlt, FaLocationArrow, FaChevronLeft, FaChevronRight } from "react-icons/fa"
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react"
 
 function Cont2() {
-  const navigate = useNavigate();
-  const [jobSearch, setJobSearch] = useState("");
-  const [locationSearch, setLocationSearch] = useState("");
-  const [currentLocation, setCurrentLocation] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [jobs, setJobs] = useState({ count: 0, results: [] });
-  const [initialJobs, setInitialJobs] = useState({ count: 0, results: [] });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate()
+  const [jobSearch, setJobSearch] = useState("")
+  const [locationSearch, setLocationSearch] = useState("")
+  const [currentLocation, setCurrentLocation] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [jobs, setJobs] = useState({ count: 0, results: [] })
+  const [initialJobs, setInitialJobs] = useState({ count: 0, results: [] })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [screenSize, setScreenSize] = useState({
     isMobile: false,
     isTablet: false,
     isDesktop: true,
-  });
-  const [searchTimeout, setSearchTimeout] = useState(null);
-  const [isSearching, setIsSearching] = useState(false);
+  })
+  const [searchTimeout, setSearchTimeout] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
 
-  const carouselRef = useRef(null);
-  const initialLoadRef = useRef(true);
-  const abortControllerRef = useRef(null);
+  const carouselRef = useRef(null)
+  const initialLoadRef = useRef(true)
+  const abortControllerRef = useRef(null)
 
   // Check screen size with more granular breakpoints
   useEffect(() => {
     const checkScreenSize = () => {
-      const width = window.innerWidth;
+      const width = window.innerWidth
       setScreenSize({
         isMobile: width < 640,
         isTablet: width >= 640 && width < 1024,
         isDesktop: width >= 1024,
-      });
-    };
+      })
+    }
 
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
+    checkScreenSize()
+    window.addEventListener("resize", checkScreenSize)
 
     return () => {
-      window.removeEventListener("resize", checkScreenSize);
-    };
-  }, []);
+      window.removeEventListener("resize", checkScreenSize)
+    }
+  }, [])
 
   const handleGetCurrentLocation = () => {
-    setIsLoading(true);
+    setIsLoading(true)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
             // Reverse geocoding to get location name from coordinates
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
-            );
-            const data = await response.json();
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`,
+            )
+            const data = await response.json()
 
             // Extract city name or area from the response
             const locationName =
@@ -74,45 +70,45 @@ function Cont2() {
               data.address.town ||
               data.address.village ||
               data.address.suburb ||
-              "Current Location";
+              "Current Location"
 
-            setCurrentLocation(locationName);
-            setLocationSearch(locationName);
-            setIsLoading(false);
+            setCurrentLocation(locationName)
+            setLocationSearch(locationName)
+            setIsLoading(false)
           } catch (error) {
-            console.error("Error getting location name:", error);
-            setCurrentLocation("Unable to get location");
-            setIsLoading(false);
+            console.error("Error getting location name:", error)
+            setCurrentLocation("Unable to get location")
+            setIsLoading(false)
           }
         },
         (error) => {
-          console.error("Error getting location:", error);
-          setCurrentLocation("Location access denied");
-          setIsLoading(false);
-        }
-      );
+          console.error("Error getting location:", error)
+          setCurrentLocation("Location access denied")
+          setIsLoading(false)
+        },
+      )
     } else {
-      setCurrentLocation("Geolocation not supported");
-      setIsLoading(false);
+      setCurrentLocation("Geolocation not supported")
+      setIsLoading(false)
     }
-  };
+  }
 
   // Carousel navigation
   const nextSlide = () => {
     if (currentSlide < filteredJobs.length - 1) {
-      setCurrentSlide(currentSlide + 1);
+      setCurrentSlide(currentSlide + 1)
     } else {
-      setCurrentSlide(0); // Loop back to first slide
+      setCurrentSlide(0) // Loop back to first slide
     }
-  };
+  }
 
   const prevSlide = () => {
     if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
+      setCurrentSlide(currentSlide - 1)
     } else {
-      setCurrentSlide(filteredJobs.length - 1); // Loop to last slide
+      setCurrentSlide(filteredJobs.length - 1) // Loop to last slide
     }
-  };
+  }
 
   // Update carousel position when currentSlide changes
   useEffect(() => {
@@ -120,217 +116,199 @@ function Cont2() {
       carouselRef.current.scrollTo({
         left: currentSlide * carouselRef.current.offsetWidth,
         behavior: "smooth",
-      });
+      })
     }
-  }, [currentSlide, screenSize.isDesktop]);
+  }, [currentSlide, screenSize.isDesktop])
 
   // Initial load of jobs
   useEffect(() => {
     const fetchJobs = async () => {
-      if (!initialLoadRef.current) return;
+      if (!initialLoadRef.current) return
       try {
-        setLoading(true);
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/jobs`, {
-            method: "GET",
-            credentials: "include", // Ensure cookies or authentication headers are sent
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
-        );
+        setLoading(true)
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`, {
+          method: "GET",
+          credentials: "include", // Ensure cookies or authentication headers are sent
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`)
         }
-        const data = await response.json();
-        setJobs(data);
-        console.log("initial jobs: ", data);
-        setInitialJobs(data); // Store initial jobs for reference
-        setError(null);
-        initialLoadRef.current = false;
+        const data = await response.json()
+        setJobs(data)
+        console.log("initial jobs: ", data)
+        setInitialJobs(data) // Store initial jobs for reference
+        setError(null)
+        initialLoadRef.current = false
       } catch (err) {
-        console.error("Error fetching jobs:", err);
-        setError("Failed to load jobs. Please try again later.");
+        console.error("Error fetching jobs:", err)
+        setError("Failed to load jobs. Please try again later.")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchJobs();
+    fetchJobs()
 
     // Cleanup function to cancel any pending requests when component unmounts
     return () => {
       if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+        abortControllerRef.current.abort()
       }
-    };
-  }, []);
+    }
+  }, [])
 
   // Determine number of columns based on screen size
   const getGridCols = () => {
-    if (screenSize.isDesktop)
-      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5";
-    if (screenSize.isTablet) return "grid-cols-1 sm:grid-cols-2";
-    return "grid-cols-1";
-  };
+    if (screenSize.isDesktop) return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+    if (screenSize.isTablet) return "grid-cols-1 sm:grid-cols-2"
+    return "grid-cols-1"
+  }
 
   // Sort jobs based on creation date or start date (newest first)
   const sortJobsByDate = (jobs) => {
-    if (!jobs || !Array.isArray(jobs)) return [];
+    if (!jobs || !Array.isArray(jobs)) return []
 
     return [...jobs].sort((a, b) => {
       // Try to use creation_date if available
       if (a.creation_date && b.creation_date) {
-        return new Date(b.creation_date) - new Date(a.creation_date);
+        return new Date(b.creation_date) - new Date(a.creation_date)
       }
 
       // Fall back to job_start_date
       if (a.job_start_date && b.job_start_date) {
-        return new Date(b.job_start_date) - new Date(a.job_start_date);
+        return new Date(b.job_start_date) - new Date(a.job_start_date)
       }
 
       // If no dates available, keep original order
-      return 0;
-    });
-  };
+      return 0
+    })
+  }
 
   // Filter jobs based on search criteria
   const filteredJobs = sortJobsByDate(
     jobs?.results
       ?.filter((job) => {
-        if (!jobSearch) return true;
+        if (!jobSearch) return true
 
-        const jobTitleMatch = job.job_title
-          ?.toLowerCase()
-          .includes(jobSearch.toLowerCase());
-        const companyMatch = job.client
-          ?.toLowerCase()
-          .includes(jobSearch.toLowerCase());
-        const skillsMatch = job.primary_skills
-          ?.toLowerCase()
-          .includes(jobSearch.toLowerCase());
+        const jobTitleMatch = job.job_title?.toLowerCase().includes(jobSearch.toLowerCase())
+        const companyMatch = job.client?.toLowerCase().includes(jobSearch.toLowerCase())
+        const skillsMatch = job.primary_skills?.toLowerCase().includes(jobSearch.toLowerCase())
 
-        return jobTitleMatch || companyMatch || skillsMatch;
+        return jobTitleMatch || companyMatch || skillsMatch
       })
       .filter((job) => {
-        if (!locationSearch) return true;
+        if (!locationSearch) return true
 
-        const cityMatch = job.city
-          ?.toLowerCase()
-          .includes(locationSearch.toLowerCase());
-        const countryMatch = job.country
-          ?.toLowerCase()
-          .includes(locationSearch.toLowerCase());
-        const postalCodeMatch = job.zip_code
-          ?.toString()
-          .includes(locationSearch);
+        const cityMatch = job.city?.toLowerCase().includes(locationSearch.toLowerCase())
+        const countryMatch = job.country?.toLowerCase().includes(locationSearch.toLowerCase())
+        const postalCodeMatch = job.zip_code?.toString().includes(locationSearch)
 
-        return cityMatch || countryMatch || postalCodeMatch;
+        return cityMatch || countryMatch || postalCodeMatch
       })
-      .slice(0, 5)
-  );
+      .slice(0, 5),
+  )
 
   function decodeEntities(encodedString) {
-    if (!encodedString) return "";
-    const textarea = document.createElement("textarea");
-    textarea.innerHTML = encodedString;
-    return textarea.value;
+    if (!encodedString) return ""
+    const textarea = document.createElement("textarea")
+    textarea.innerHTML = encodedString
+    return textarea.value
   }
 
   // Improved debounced search function
   const handleSearch = useCallback(() => {
     // Clear any existing timeout
     if (searchTimeout) {
-      clearTimeout(searchTimeout);
+      clearTimeout(searchTimeout)
     }
 
     // Cancel any ongoing fetch requests
     if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+      abortControllerRef.current.abort()
     }
 
     // If both search fields are empty, restore initial jobs
     if (!jobSearch && !locationSearch) {
-      setJobs(initialJobs);
-      setIsSearching(false);
-      return;
+      setJobs(initialJobs)
+      setIsSearching(false)
+      return
     }
 
     // Set a flag to indicate search is in progress
-    setIsSearching(true);
+    setIsSearching(true)
 
     // Create a new timeout
     const timeout = setTimeout(async () => {
       try {
-        setLoading(true);
+        setLoading(true)
 
         // Create a new AbortController for this request
-        abortControllerRef.current = new AbortController();
-        const signal = abortControllerRef.current.signal;
+        abortControllerRef.current = new AbortController()
+        const signal = abortControllerRef.current.signal
 
-        const params = new URLSearchParams();
-        if (jobSearch) params.append("query", jobSearch);
-        if (locationSearch) params.append("location", locationSearch);
+        const params = new URLSearchParams()
+        if (jobSearch) params.append("query", jobSearch)
+        if (locationSearch) params.append("location", locationSearch)
 
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/searchjobs?${params.toString()}`,
-          { signal }
-        );
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/searchjobs?${params.toString()}`, { signal })
 
         if (signal.aborted) {
-          console.log("Search request was aborted");
-          return;
+          console.log("Search request was aborted")
+          return
         }
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`)
         }
 
-        const data = await response.json();
-        setJobs(data);
-        setError(null);
-        setCurrentSlide(0); // Reset to first slide when search results change
+        const data = await response.json()
+        setJobs(data)
+        setError(null)
+        setCurrentSlide(0) // Reset to first slide when search results change
       } catch (err) {
         if (err.name === "AbortError") {
-          console.log("Search request was aborted");
+          console.log("Search request was aborted")
         } else {
-          console.error("Error searching jobs:", err);
-          setError("Failed to search jobs. Please try again later.");
+          console.error("Error searching jobs:", err)
+          setError("Failed to search jobs. Please try again later.")
         }
       } finally {
-        setLoading(false);
-        setIsSearching(false);
+        setLoading(false)
+        setIsSearching(false)
       }
-    }, 500); // 500ms delay
+    }, 500) // 500ms delay
 
-    setSearchTimeout(timeout);
-  }, [jobSearch, locationSearch, initialJobs]);
+    setSearchTimeout(timeout)
+  }, [jobSearch, locationSearch, initialJobs])
 
   // Auto-search when inputs change
   useEffect(() => {
-    handleSearch();
-  }, [jobSearch, locationSearch, handleSearch]);
+    handleSearch()
+  }, [jobSearch, locationSearch, handleSearch])
 
   // Handle manual search button click
   const handleSearchClick = (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Clear any existing timeout to execute search immediately
     if (searchTimeout) {
-      clearTimeout(searchTimeout);
-      setSearchTimeout(null);
+      clearTimeout(searchTimeout)
+      setSearchTimeout(null)
     }
 
-    handleSearch();
-  };
+    handleSearch()
+  }
 
   // Handle clearing search inputs
   const handleClearSearch = () => {
-    setJobSearch("");
-    setLocationSearch("");
-    setJobs(initialJobs);
-    setCurrentSlide(0);
-  };
+    setJobSearch("")
+    setLocationSearch("")
+    setJobs(initialJobs)
+    setCurrentSlide(0)
+  }
 
   return (
     <>
@@ -398,12 +376,8 @@ function Cont2() {
                 isSearching ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
-            {console.log("initial jobs count: ", initialJobs)}
-              <p>
-                {isSearching
-                  ? "Searching..."
-                  : `Search ${initialJobs.count || 0} jobs`}
-              </p>
+              {console.log("initial jobs count: ", initialJobs)}
+              <p>{isSearching ? "Searching..." : `Search ${initialJobs.count || 0} jobs`}</p>
             </button>
           </div>
 
@@ -414,10 +388,7 @@ function Cont2() {
               onClick={handleGetCurrentLocation}
               className="flex items-center justify-center gap-2 bg-white hover:underline rounded-lg px-3 py-2 text-gray-700 cursor-pointer transition w-full sm:w-auto text-sm md:text-base"
             >
-              <FaLocationArrow
-                className="text-blue-500"
-                size={screenSize.isMobile ? 12 : 16}
-              />
+              <FaLocationArrow className="text-blue-500" size={screenSize.isMobile ? 12 : 16} />
               {isLoading ? "Getting location..." : "Use Current Location"}
             </p>
 
@@ -430,11 +401,7 @@ function Cont2() {
 
             {/* Clear all filters button */}
             {(jobSearch || locationSearch) && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="text-blue-500 hover:text-blue-700 text-sm"
-              >
+              <button type="button" onClick={handleClearSearch} className="text-blue-500 hover:text-blue-700 text-sm">
                 Clear all filters
               </button>
             )}
@@ -452,24 +419,18 @@ function Cont2() {
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : error ? (
-              <div className="text-red-500 bg-red-100 p-4 rounded-lg">
-                {error}
-              </div>
+              <div className="text-red-500 bg-red-100 p-4 rounded-lg">{error}</div>
             ) : (
               <>
                 <div className="text-center mb-4">
                   <h2 className="text-lg font-semibold">
                     {jobSearch || locationSearch
                       ? `Found ${jobs.count || 0} matching jobs`
-                      : `Showing ${Math.min(5, jobs.results?.length || 0)} of ${
-                          initialJobs.count || 0
-                        } jobs`}
+                      : `Showing ${Math.min(5, jobs.results?.length || 0)} of ${initialJobs.count || 0} jobs`}
                   </h2>
                 </div>
                 {filteredJobs?.length > 0 ? (
-                  <div
-                    className={`grid ${getGridCols()} gap-2 mt-6 w-full max-w-6xl`}
-                  >
+                  <div className={`grid ${getGridCols()} gap-2 mt-6 w-full max-w-6xl`}>
                     {filteredJobs.map((job, index) => (
                       <div
                         key={job.id || index}
@@ -498,7 +459,25 @@ function Cont2() {
                             <CalendarDays />
                             {job.job_start_date}
                           </span>
-                          <Link to={`/jobdetails/${job.id}`}>
+                          <Link
+                            to={{
+                              pathname: `/jobdetails/${job.id}`,
+                              search: `?source=${encodeURIComponent(
+                                JSON.stringify({
+                                  id: job.id,
+                                  job_title: job.job_title,
+                                  client: job.client,
+                                  city: job.city,
+                                  country: job.country,
+                                  experience: job.experience,
+                                  job_start_date: job.job_start_date,
+                                  apply_job_without_registration: job.apply_job_without_registration,
+                                  job_description: job.job_description,
+                                  // Add any other essential fields you need
+                                }),
+                              )}`,
+                            }}
+                          >
                             <button className="mt-4 w-full border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white rounded-lg py-1">
                               View Details
                             </button>
@@ -509,13 +488,8 @@ function Cont2() {
                   </div>
                 ) : (
                   <div className="text-center p-6 bg-white rounded-lg shadow mt-6 w-full max-w-md">
-                    <p className="text-gray-600">
-                      No jobs found matching your search criteria.
-                    </p>
-                    <button
-                      onClick={handleClearSearch}
-                      className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg"
-                    >
+                    <p className="text-gray-600">No jobs found matching your search criteria.</p>
+                    <button onClick={handleClearSearch} className="mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg">
                       Clear filters
                     </button>
                   </div>
@@ -532,9 +506,7 @@ function Cont2() {
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : error ? (
-              <div className="text-red-500 bg-red-100 p-4 rounded-lg">
-                {error}
-              </div>
+              <div className="text-red-500 bg-red-100 p-4 rounded-lg">{error}</div>
             ) : filteredJobs?.length > 0 ? (
               /* Carousel Container */
               <div className="relative">
@@ -545,10 +517,7 @@ function Cont2() {
                     className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-3 z-10 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100"
                     aria-label="Previous job"
                   >
-                    <FaChevronLeft
-                      className="text-purple-500"
-                      size={screenSize.isMobile ? 12 : 16}
-                    />
+                    <FaChevronLeft className="text-purple-500" size={screenSize.isMobile ? 12 : 16} />
                   </button>
                 )}
 
@@ -567,17 +536,13 @@ function Cont2() {
                           <p className="flex items-center text-xs md:text-sm space-x-2">
                             <MdLocationOn className="text-purple-500 w-4 h-4 sm:w-5 sm:h-5" />
                             <span className="flex flex-wrap min-h-8 max-h-12 w-full truncate">
-                              {filteredJobs[currentSlide]?.city}{" "}
-                              {!filteredJobs[currentSlide]?.city ? "" : ","}{" "}
+                              {filteredJobs[currentSlide]?.city} {!filteredJobs[currentSlide]?.city ? "" : ","}{" "}
                               {filteredJobs[currentSlide]?.country}
                             </span>
                           </p>
                           <div className="space-y-1 mb-2">
                             <p className="text-gray-600 font-semibold">
-                              Experience:{" "}
-                              <span>
-                                {filteredJobs[currentSlide]?.experience} yr
-                              </span>
+                              Experience: <span>{filteredJobs[currentSlide]?.experience} yr</span>
                             </p>
                           </div>
                           <span className="flex gap-2 space-x-2.5 text-blue-500 font-semibold">
@@ -586,7 +551,24 @@ function Cont2() {
                           </span>
                         </div>
                         <Link
-                          to={`/jobdetails/${filteredJobs[currentSlide]?.id}`}
+                          to={{
+                            pathname: `/jobdetails/${filteredJobs[currentSlide]?.id}`,
+                            search: `?source=${encodeURIComponent(
+                              JSON.stringify({
+                                id: filteredJobs[currentSlide]?.id,
+                                job_title: filteredJobs[currentSlide]?.job_title,
+                                client: filteredJobs[currentSlide]?.client,
+                                city: filteredJobs[currentSlide]?.city,
+                                country: filteredJobs[currentSlide]?.country,
+                                experience: filteredJobs[currentSlide]?.experience,
+                                job_start_date: filteredJobs[currentSlide]?.job_start_date,
+                                apply_job_without_registration:
+                                  filteredJobs[currentSlide]?.apply_job_without_registration,
+                                job_description: filteredJobs[currentSlide]?.job_description,
+                                // Add any other essential fields you need
+                              }),
+                            )}`,
+                          }}
                         >
                           <button className="mt-3 md:mt-4 w-full py-1.5 md:py-2 border-2 border-blue-500 text-blue-500 font-semibold rounded-lg hover:bg-blue-500 hover:text-white transition cursor-pointer text-sm md:text-base">
                             View Details
@@ -604,18 +586,13 @@ function Cont2() {
                     className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-3 z-10 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100"
                     aria-label="Next job"
                   >
-                    <FaChevronRight
-                      className="text-purple-500"
-                      size={screenSize.isMobile ? 12 : 16}
-                    />
+                    <FaChevronRight className="text-purple-500" size={screenSize.isMobile ? 12 : 16} />
                   </button>
                 )}
               </div>
             ) : (
               <div className="text-center p-6 bg-white rounded-lg shadow mt-6 w-full max-w-md">
-                <p className="text-gray-600 text-sm md:text-base">
-                  No jobs found matching your search criteria.
-                </p>
+                <p className="text-gray-600 text-sm md:text-base">No jobs found matching your search criteria.</p>
                 <button
                   onClick={handleClearSearch}
                   className="mt-3 px-4 py-2 bg-purple-500 text-white rounded-lg text-sm md:text-base"
@@ -633,9 +610,7 @@ function Cont2() {
                     key={index}
                     onClick={() => setCurrentSlide(index)}
                     className={`h-1.5 w-1.5 rounded-full transition-all ${
-                      currentSlide === index
-                        ? "bg-purple-500 w-3"
-                        : "bg-gray-300"
+                      currentSlide === index ? "bg-purple-500 w-3" : "bg-gray-300"
                     }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
@@ -654,8 +629,8 @@ function Cont2() {
 
         <button
           onClick={() => {
-            navigate("/job");
-            window.scrollTo(0, 0); // Scroll to top
+            navigate("/job")
+            window.scrollTo(0, 0) // Scroll to top
           }}
           className="text-blue-500 px-14 mt-10 rounded-full hover:bg-blue-500 hover:text-white mb-10 font-semibold py-2 border border-blue-500"
         >
@@ -663,7 +638,7 @@ function Cont2() {
         </button>
       </div>
     </>
-  );
+  )
 }
 
-export default Cont2;
+export default Cont2

@@ -1,54 +1,55 @@
-/* eslint-disable no-unused-vars */
-import { MdLocationOn } from "react-icons/md";
-import { useParams } from "react-router-dom";
-import bag from "../assets/products/Vector.png";
-import { useState, useEffect, useRef } from "react";
-import emailjs from "@emailjs/browser";
-import { useNavigate } from "react-router-dom";
+"use client"
 
-import { format, isToday, isYesterday, parseISO } from "date-fns";
+/* eslint-disable no-unused-vars */
+import { MdLocationOn } from "react-icons/md"
+import { useParams, useLocation } from "react-router-dom"
+import { useState, useEffect, useRef } from "react"
+import emailjs from "@emailjs/browser"
+import { useNavigate } from "react-router-dom"
+
+import { format, isToday, isYesterday, parseISO } from "date-fns"
 // Remove the import for static data
 // import { jobs } from "../data";
 
 const JobDetails = () => {
-  const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const form = useRef();
-
-  const [showFullText, setShowFullText] = useState(false);
+  const navigate = useNavigate()
+  const [showModal, setShowModal] = useState(false)
+  const form = useRef()
+  const location = useLocation()
+  const [showFullText, setShowFullText] = useState(false)
 
   // const [isOpen, setIsOpen] = useState(false);
   // const toggleModal = () => setIsOpen(!isOpen);
   // const closeModal = () => setIsOpen(false);
-  const { id } = useParams();
+  const { id } = useParams()
   const formatJobDate = (dateString) => {
-    if (!dateString) return "Not available";
+    if (!dateString) return "Not available"
 
-    const date = parseISO(dateString); // Convert to Date object
+    const date = parseISO(dateString) // Convert to Date object
 
     if (isToday(date)) {
-      return "Today";
+      return "Today"
     } else if (isYesterday(date)) {
-      return "Yesterday";
+      return "Yesterday"
     } else {
-      return format(date, "do MMM yyyy"); // Example: 12/01/2025
+      return format(date, "do MMM yyyy") // Example: 12/01/2025
     }
-  };
+  }
   // State for job details and related jobs
-  const [job, setJob] = useState(null);
-  const [relatedJobs, setRelatedJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [job, setJob] = useState(null)
+  const [relatedJobs, setRelatedJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const description = job?.job_description || job?.details?.summary || "";
+  const description = job?.job_description || job?.details?.summary || ""
 
   function cleanHtmlContent(htmlString) {
     // Create a temporary DOM element
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = htmlString;
+    const tempDiv = document.createElement("div")
+    tempDiv.innerHTML = htmlString
 
     // Get the text content (this automatically removes all HTML tags)
-    let cleanText = tempDiv.textContent || tempDiv.innerText || "";
+    let cleanText = tempDiv.textContent || tempDiv.innerText || ""
 
     // Replace common HTML entities
     const htmlEntities = {
@@ -64,97 +65,123 @@ const JobDetails = () => {
       "&gt;": ">",
       "&quot;": '"',
       "&#39;": "'",
-    };
+    }
 
     // Replace all HTML entities
     Object.entries(htmlEntities).forEach(([entity, replacement]) => {
-      cleanText = cleanText.replace(new RegExp(entity, "g"), replacement);
-    });
+      cleanText = cleanText.replace(new RegExp(entity, "g"), replacement)
+    })
 
     // Normalize whitespace
-    cleanText = cleanText.replace(/\s+/g, " ").trim();
+    cleanText = cleanText.replace(/\s+/g, " ").trim()
 
     // Format for readability (preserve structure)
     cleanText = cleanText.replace(
       /(Designation:|Grade:|Location:|Industry:|Education:|CTC:|Exp\.|Role:|Job Requirement:)/g,
-      "\n$1"
-    );
-    cleanText = cleanText.replace(/\s*-\s*/g, "\n- ");
+      "\n$1",
+    )
+    cleanText = cleanText.replace(/\s*-\s*/g, "\n- ")
 
-    return cleanText;
+    return cleanText
   }
 
-  const cleanDescription = cleanHtmlContent(description);
+  const cleanDescription = cleanHtmlContent(description)
 
-  const toggleText = () => setShowFullText(!showFullText);
-
-  const filterSingleJob = (jobs) => jobs.find((job) => job.id === id);
+  const toggleText = () => setShowFullText(!showFullText)
 
   // Fetch job details and related jobs
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        setLoading(true);
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/jobs`
-        );
+        setLoading(true)
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        // First, try to get job data from URL search params
+        const searchParams = new URLSearchParams(location.search)
+        const sourceParam = searchParams.get("source")
+
+        if (sourceParam) {
+          try {
+            // If we have source data in the URL, use it
+            const sourceData = JSON.parse(decodeURIComponent(sourceParam))
+            if (sourceData && sourceData.id) {
+              setJob(sourceData)
+              setLoading(false)
+
+              // Still fetch related jobs
+              fetchRelatedJobs()
+              return // Exit early, we have the data
+            }
+          } catch (e) {
+            console.error("Error parsing source data:", e)
+            // Continue to API fetch if parsing fails
+          }
         }
 
-        const data = await response.json();
-        const singleJOb = filterSingleJob(data.results);
-        setJob(singleJOb);
-        setError(null);
+        // If no source data or parsing failed, fetch directly from API
+        // This is more efficient than fetching all jobs
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`)
+
+        if (!response.ok) {
+          // If direct fetch fails, try the old method of fetching all jobs
+          const allJobsResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`)
+
+          if (!allJobsResponse.ok) {
+            throw new Error(`HTTP error! Status: ${allJobsResponse.status}`)
+          }
+
+          const allJobsData = await allJobsResponse.json()
+          const foundJob = allJobsData.results.find((job) => job.id.toString() === id.toString())
+
+          if (!foundJob) {
+            throw new Error("Job not found")
+          }
+
+          setJob(foundJob)
+        } else {
+          const jobData = await response.json()
+          setJob(jobData)
+        }
+
+        setError(null)
       } catch (err) {
-        console.error("Error fetching job details:", err);
-        setError("Failed to load job details. Please try again later.");
+        console.error("Error fetching job details:", err)
+        setError("Failed to load job details. Please try again later.")
         // Fallback to local data if API fails
         import("../data").then((module) => {
-          const localJob = module.jobs.find(
-            (j) => j.id.toString() === id.toString()
-          );
+          const localJob = module.jobs.find((j) => j.id.toString() === id.toString())
           if (localJob) {
-            setJob(localJob);
+            setJob(localJob)
           }
-        });
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
     const fetchRelatedJobs = async () => {
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/jobs`
-        );
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`)
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`)
         }
 
-        const data = await response.json();
-        setRelatedJobs(
-          data.results.filter((j) => j.id.toString() !== id.toString())
-        );
+        const data = await response.json()
+        setRelatedJobs(data.results.filter((j) => j.id.toString() !== id.toString()))
       } catch (err) {
-        console.error("Error fetching related jobs:", err);
+        console.error("Error fetching related jobs:", err)
         // Fallback to local data if API fails
         import("../data").then((module) => {
-          setRelatedJobs(
-            module.jobs.filter((j) => j.id.toString() !== id.toString())
-          );
-        });
+          setRelatedJobs(module.jobs.filter((j) => j.id.toString() !== id.toString()))
+        })
       }
-    };
+    }
 
-    fetchJobDetails();
-    fetchRelatedJobs();
-  }, [id]);
+    fetchJobDetails()
+  }, [id, location.search])
 
   const sendEmail = (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     emailjs
       .sendForm("service_0czxrfs", "template_vjhksjv", form.current, {
@@ -162,15 +189,15 @@ const JobDetails = () => {
       })
       .then(
         () => {
-          console.log("SUCCESS!");
-          alert(`Applied successfully: ${job.title}`);
+          console.log("SUCCESS!")
+          alert(`Applied successfully: ${job.title}`)
           // closeModal();
         },
         (error) => {
-          console.log("FAILED...", error.text);
-        }
-      );
-  };
+          console.log("FAILED...", error.text)
+        },
+      )
+  }
 
   // Show loading spinner while fetching data
   if (loading) {
@@ -178,18 +205,16 @@ const JobDetails = () => {
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
-    );
+    )
   }
 
   // Show error message if there's an error
   if (error || !job) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="text-red-500 bg-red-100 p-4 rounded-lg">
-          {error || "Job not found"}
-        </div>
+        <div className="text-red-500 bg-red-100 p-4 rounded-lg">{error || "Job not found"}</div>
       </div>
-    );
+    )
   }
 
   return (
@@ -198,74 +223,80 @@ const JobDetails = () => {
         {/* ------------------------- Job Listings (Left Side) ------------------------- */}
         <div className="flex flex-col w-full md:w-6/12 items-center">
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-            {relatedJobs
-              .slice(0, showFullText ? 10 : 6)
-              .map((relatedJob, index) => (
-                <div key={index} className="bg-[#F7F7F7] rounded-2xl p-6">
-                  <div className="flex items-center space-x-3">
-                    <div>
-                      <h3 className="md:text-lg text-sm font-semibold">
-                        {relatedJob.title}
-                      </h3>
-                      {/* <p className="text-gray-500">{relatedJob.company}</p> */}
-                    </div>
+            {relatedJobs.slice(0, showFullText ? 10 : 6).map((relatedJob, index) => (
+              <div key={index} className="bg-[#F7F7F7] rounded-2xl p-6">
+                <div className="flex items-center space-x-3">
+                  <div>
+                    <h3 className="md:text-lg text-sm font-semibold">{relatedJob.title}</h3>
+                    {/* <p className="text-gray-500">{relatedJob.company}</p> */}
                   </div>
+                </div>
 
-                  <div className="mt-4 text-gray-600 space-y-2">
-                    <div className="">
-                      <h3 className="min-h-[52px] max-h-[52px]  flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
-                        {relatedJob.job_title}
-                      </h3>
-                    </div>
-                    <p className="flex items-center space-x-2">
-                      <MdLocationOn />
-                      <span>{relatedJob.location}</span>
-                    </p>
-                    {/* <p className="flex items-center text-sm lg:text-base space-x-2">
+                <div className="mt-4 text-gray-600 space-y-2">
+                  <div className="">
+                    <h3 className="min-h-[52px] max-h-[52px]  flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
+                      {relatedJob.job_title}
+                    </h3>
+                  </div>
+                  <p className="flex items-center space-x-2">
+                    <MdLocationOn />
+                    <span>{relatedJob.location}</span>
+                  </p>
+                  {/* <p className="flex items-center text-sm lg:text-base space-x-2">
                       <img src={bag || "/placeholder.svg"} alt="" />
                       <span>
                         {relatedJob.experience || "Experience not specified"}
                       </span>
                     </p> */}
-                    <span>
-                      {relatedJob.job_start_date || "Date of posting not Found"}
-                    </span>
-                  </div>
-                  <div className="space-y-1 mb-2">
-                    <p className="text-gray-600 font-semibold">
-                      Experience: <span>{relatedJob.experience} yr</span>
-                    </p>
-                  </div>
-                  <button
-                    className="mt-4 w-full py-2 border-2 border-purple-500 text-purple-500 font-semibold rounded-lg hover:bg-purple-100 transition cursor-pointer"
-                    onClick={() => {
-                      navigate(`/jobdetails/${relatedJob.id}`);
-                      window.scrollTo(0, 0); // Scroll to top when navigating
-                    }}
-                  >
-                    View Details
-                  </button>
+                  <span>{relatedJob.job_start_date || "Date of posting not Found"}</span>
                 </div>
-              ))}
+                <div className="space-y-1 mb-2">
+                  <p className="text-gray-600 font-semibold">
+                    Experience: <span>{relatedJob.experience} yr</span>
+                  </p>
+                </div>
+                <button
+                  className="mt-4 w-full py-2 border-2 border-purple-500 text-purple-500 font-semibold rounded-lg hover:bg-purple-100 transition cursor-pointer"
+                  onClick={() => {
+                    // Pass job data in the URL when navigating to related jobs
+                    navigate(
+                      `/jobdetails/${relatedJob.id}?source=${encodeURIComponent(
+                        JSON.stringify({
+                          id: relatedJob.id,
+                          job_title: relatedJob.job_title,
+                          client: relatedJob.client,
+                          city: relatedJob.city,
+                          country: relatedJob.country,
+                          experience: relatedJob.experience,
+                          job_start_date: relatedJob.job_start_date,
+                          apply_job_without_registration: relatedJob.apply_job_without_registration,
+                          job_description: relatedJob.job_description,
+                          // Add any other essential fields
+                        }),
+                      )}`,
+                    )
+                    window.scrollTo(0, 0) // Scroll to top when navigating
+                  }}
+                >
+                  View Details
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* ------------------------- Job Details (Right Side) ------------------------- */}
         <div className="bg-white w-full md:w-6/12 p-6 rounded-lg shadow-lg">
           <div>
-            <h2 className="text-2xl font-bold text-purple-600">
-              {job.job_title}
-            </h2>
+            <h2 className="text-2xl font-bold text-purple-600">{job.job_title}</h2>
             <p className="mt-2 text-gray-700">
               <strong>Company:</strong> {job.client}
             </p>
             <p className="text-gray-700">
-              <strong>Location:</strong>{" "}
-              {job.location || job.city || job.states || job.country}
+              <strong>Location:</strong> {job.location || job.city || job.states || job.country}
             </p>
             <p className="text-gray-700">
-              <strong>Experience:</strong>{" "}
-              {job.experience || "Experience not specified"}
+              <strong>Experience:</strong> {job.experience || "Experience not specified"}
               {job.experience && "yr"}
             </p>
             <p className="text-gray-700">
@@ -287,16 +318,11 @@ const JobDetails = () => {
               <p className="text-gray-600 mt-2">
                 {/* {console.log("job details: ", job.description)} */}
                 {/* {job.description || job.details?.summary} */}
-                {showFullText
-                  ? cleanDescription
-                  : `${cleanDescription.slice(0, 300)}...`}
+                {showFullText ? cleanDescription : `${cleanDescription.slice(0, 300)}...`}
               </p>
               {/* Button to toggle text */}
               {cleanDescription.length > 300 && (
-                <button
-                  onClick={toggleText}
-                  className="mt-2 text-blue-600 hover:underline focus:outline-none"
-                >
+                <button onClick={toggleText} className="mt-2 text-blue-600 hover:underline focus:outline-none">
                   {showFullText ? "See Less ▲" : "See More ▼"}
                 </button>
               )}
@@ -335,14 +361,13 @@ const JobDetails = () => {
               <div className="mt-4">
                 <h3 className="text-lg font-semibold">Skills:</h3>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {job.primary_skills.split.map((skill, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  {job.primary_skills &&
+                    job.primary_skills.split &&
+                    job.primary_skills.split(",").map((skill, idx) => (
+                      <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm">
+                        {skill.trim()}
+                      </span>
+                    ))}
                 </div>
               </div>
             )}
@@ -353,8 +378,7 @@ const JobDetails = () => {
                 {job.experience || "Experience not specified"}
               </p> */}
               <p className="text-gray-600">
-                <strong>Work Location:</strong>{" "}
-                {job.location || job.city || job.states || job.country}
+                <strong>Work Location:</strong> {job.location || job.city || job.states || job.country}
               </p>
               {job.remoteOpportunity && (
                 <p className="text-gray-600">
@@ -362,17 +386,10 @@ const JobDetails = () => {
                 </p>
               )}
             </div>
-            {console.log("job detailssss: ", job)}
-            {console.log("apply_job: ", job.apply_job)}
             <button
               className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              // onClick={toggleModal}
-              // onClick={() => window.open(job.apply_job, "_blank")}
-              onClick={() =>
-                window.open(job.apply_job_without_registration, "_blank")
-              }
+              onClick={() => window.open(job.apply_job_without_registration, "_blank")}
             >
-            {console.log("job apply link: ", job.apply_job_without_registration)}
               Apply Now
             </button>
           </div>
@@ -507,7 +524,7 @@ const JobDetails = () => {
         </div>
       )} */}
     </>
-  );
-};
+  )
+}
 
-export default JobDetails;
+export default JobDetails
