@@ -114,7 +114,7 @@ function Upload() {
                 </label>
                 <input
                   type="text"
-                  name="fullName"
+                  name="user_name"
                   value={formData.fullName}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -130,7 +130,7 @@ function Upload() {
                 </label>
                 <input
                   type="email"
-                  name="email"
+                  name="user_email"
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -146,7 +146,7 @@ function Upload() {
                 </label>
                 <input
                   type="tel"
-                  name="contactNumber"
+                  name="user_contactNumber"
                   value={formData.contactNumber}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -162,7 +162,7 @@ function Upload() {
                 </label>
                 <input
                   type="text"
-                  name="jobAppliedFor"
+                  name="user_obAppliedFor"
                   value={formData.jobAppliedFor}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -178,7 +178,7 @@ function Upload() {
                 </label>
                 <input
                   type="text"
-                  name="state"
+                  name="user_state"
                   value={formData.state}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
@@ -194,7 +194,7 @@ function Upload() {
                 </label>
                 <input
                   type="text"
-                  name="city"
+                  name="user_city"
                   value={formData.city}
                   onChange={handleInputChange}
                   className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"

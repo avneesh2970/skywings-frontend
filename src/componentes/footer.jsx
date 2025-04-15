@@ -1,3 +1,6 @@
+import React, { useRef } from 'react';
+import emailjs from '@emailjs/browser';
+
 import logo from "../assets/products/image 1.png";
 import { FaTwitter, FaFacebook, FaInstagram } from "react-icons/fa";
 import { HiPhone, HiMail } from "react-icons/hi";
@@ -6,15 +9,31 @@ import { useState } from "react";
 import { Mail } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaLinkedinIn } from "react-icons/fa";
+import { toast } from 'react-toastify';
+
 const Footer = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
-  const handleSubscribe = (e) => {
+ 
+  const form = useRef(null);
+  const sendEmail = (e) => {
+    console.log("Submit triggered");
     e.preventDefault();
-    // Handle subscription logic here
-    setEmail("");
-    // You could add toast notification or other feedback here
+
+    emailjs
+      .sendForm('service_4sw2nkm', 'template_6sjxdz6', form.current, {
+        publicKey: 'qiG11gfWE86es3ObM',
+      })
+      .then(
+        () => {
+          console.log('SUCCESS!');
+          toast.success('Thank You for Subscription !! '); 
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+        },
+      );
   };
   return (
     <>
@@ -170,7 +189,7 @@ const Footer = () => {
               exclusive offers.
             </p>
             <form
-              onSubmit={handleSubscribe}
+             ref={form} onSubmit={sendEmail}
               className="flex flex-col sm:flex-row"
             >
               <div className="flex-1 relative">
@@ -182,8 +201,7 @@ const Footer = () => {
                   type="email"
                   placeholder="Enter your email"
                   className="pl-10 border-2 border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
                   required
                 />
               </div>
@@ -351,7 +369,7 @@ const Footer = () => {
               Subscribe to our newsletter to receive updates, news, and
               exclusive offers.
             </p>
-            <form onSubmit={handleSubscribe} className="flex  ">
+            <form ref={form} onSubmit={sendEmail}  className="flex  ">
               <div className="flex-1 relative">
                 <Mail
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
@@ -361,8 +379,8 @@ const Footer = () => {
                   type="email"
                   placeholder="Enter your email"
                   className="pl-10 bg-white border border-gray-300 text-gray-800 placeholder:text-slate-400 w-full h-10 sm:h-11"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                
+                  name='email'
                   required
                 />
               </div>
