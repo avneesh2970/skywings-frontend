@@ -190,7 +190,7 @@ const sendEmail = (e) => {
              <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center"/><p><span className="font-bold">h</span>r@assuredjob.com</p>
              </div>
              <div className="flex ">
-             <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center"/><p><span className="font-bold">c</span>areers@assuredjob.com</p>
+             <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center"/><p><span className="font-bold">c</span>areer@assuredjob.com</p>
              </div>
               
 

@@ -221,7 +221,7 @@ function Contact() {
                   <div className="flex items-center space-x-3">
                     <HiMail className="w-5 h-5 text-blue-500" alt="" />
                     <li className="list-none">
-                      <span className="font-bold">c</span>areers@assuredjob.com
+                      <span className="font-bold">c</span>areer@assuredjob.com
                     </li>
                   </div>
                   {/* <div className="flex items-center space-x-3">
