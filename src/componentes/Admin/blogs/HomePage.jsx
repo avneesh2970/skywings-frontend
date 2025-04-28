@@ -159,7 +159,7 @@ export default function HomePage() {
               <Calendar className="h-6 w-6 text-blue-600" />
             </div>
           </div>
-          <Link to="/events" className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+          <Link to="/admin/dashboard/events" className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
             View all events
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
@@ -178,7 +178,7 @@ export default function HomePage() {
             </div>
           </div>
           <Link
-            to="/resumes"
+            to="/admin/dashboard/resumes"
             className="mt-4 text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center"
           >
             View all resumes
@@ -199,7 +199,7 @@ export default function HomePage() {
             </div>
           </div>
           <Link
-            to="/newsletter"
+            to="/admin/dashboard/newsletter"
             className="mt-4 text-green-600 hover:text-green-800 text-sm font-medium flex items-center"
           >
             View all subscribers

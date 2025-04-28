@@ -71,7 +71,8 @@ const Nav = ({toggle, fun}) => {
       label: "Resources",
       items: [
         { name: "Blogs", path: "/blog" },
-        
+        { name: "Events", path: "/events" },        
+        { name: "News", path: "/news" },        
       ],
     },
     {

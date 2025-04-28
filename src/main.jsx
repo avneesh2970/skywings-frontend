@@ -33,6 +33,7 @@ import ContactUs from "./componentes/Admin/ContactUs";
 import Resumes from "./componentes/Admin/Resumes";
 import NewsLetter from "./componentes/Admin/NewsLetter";
 import Settings from "./componentes/Admin/Settings";
+import Event from "./componentes/events/Event";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,7 @@ const router = createBrowserRouter([
       { path: "/jobdetails/:id", element: <JobDtails /> },
       { path: "/services", element: <Services /> },
       { path: "/blog", element: <Blog /> },
+      { path: "/events", element: <Event /> },
       { path: "/news", element: <Nws /> },
       { path: "/employes", element: <Employes /> },
       { path: "/carrers", element: <Career /> },

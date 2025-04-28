@@ -1,35 +1,42 @@
 import desktop from "../../assets/products/image(3).png";
 import podcast from "../../assets/products/image(6).png";
 import singleman from "../../assets/products/image(4).png";
-import img49 from '../../assets/service/image49.png'
-import img42 from '../../assets/service/image42.png'
-import img50 from '../../assets/service/image50.png'
-import img37 from '../../assets/service/image37.png'
-import img43 from '../../assets/service/image43.png'
-import img11 from '../../assets/products/img11.jpg'
-import img101 from '../../assets/products/img101.jpg'
-import img102 from '../../assets/products/img102.jpg'
-import img103 from '../../assets/products/img103.jpg'
-import img104 from '../../assets/products/img104.jpg'
-import img105 from '../../assets/products/img105.jpg'
-import img106 from '../../assets/products/img106.jpg'
-import img107 from '../../assets/products/img107.jpg'
-import img108 from '../../assets/products/img108.jpg'
-import img109 from '../../assets/products/img109.jpg'
-import img110 from '../../assets/products/img110.jpg'
+import img49 from "../../assets/service/image49.png";
+import img42 from "../../assets/service/image42.png";
+import img50 from "../../assets/service/image50.png";
+import img37 from "../../assets/service/image37.png";
+import img43 from "../../assets/service/image43.png";
+import img11 from "../../assets/products/img11.jpg";
+import img101 from "../../assets/products/img101.jpg";
+import img102 from "../../assets/products/img102.jpg";
+import img103 from "../../assets/products/img103.jpg";
+import img104 from "../../assets/products/img104.jpg";
+import img105 from "../../assets/products/img105.jpg";
+import img106 from "../../assets/products/img106.jpg";
+import img107 from "../../assets/products/img107.jpg";
+import img108 from "../../assets/products/img108.jpg";
+import img109 from "../../assets/products/img109.jpg";
+import img110 from "../../assets/products/img110.jpg";
 
 import { MdArrowOutward } from "react-icons/md";
 import { Link } from "react-router-dom";
-
-// import {imgy} from "../../assets/products/image (4).png";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Cont10 = () => {
-  // console.log("imgy", imgy)
+  const [dynamicPosts, setDynamicPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 9;
 
-  
+  // Helper function to strip HTML tags
+  function stripHtmlTags(html) {
+    if (!html) return "";
+    return html.replace(/<\/?[^>]+(>|$)/g, "");
+  }
 
-
-  const articles = [
+  const staticArticles = [
     {
       id: 1,
       image: img11,
@@ -39,8 +46,7 @@ const Cont10 = () => {
       title: "Busted No Show Reasons ",
       description:
         "I met with an accident!”, “My best friend is hospitalized”, “I am unwell”, “My grandparent expired”, “important meeting at office scheduled and I got the update last night”, either..",
-
-      },
+    },
     {
       id: 2,
       image: podcast,
@@ -50,9 +56,7 @@ const Cont10 = () => {
       title: "The One Thing Every Employer Wants to See On Your Resume",
       description:
         "It’s tough out there in the job market. And it may be getting tougher if you are following the news. You are It’s tough ..",
-      
-
-      },
+    },
 
     {
       id: 3,
@@ -63,7 +67,6 @@ const Cont10 = () => {
       title: "How to create a culture of leadership",
       description:
         "Culture is a composition of 'Intellectual Activity'. In this competitive world, a key factor behind a company's success, apart from .",
-
     },
     {
       id: 4,
@@ -74,168 +77,237 @@ const Cont10 = () => {
       title: "Basic questions asked in any job Interview",
       description:
         "It’s a well known fact that looking at a candidate’s past behaviour is the best way to predict their future",
-      
     },
     {
-    id: 5,
+      id: 5,
       image: singleman,
       author: "Admin",
       date: "Jan 10, 2025",
       jobtype: "Placement",
       title: "How College Placement Cells Can Improve Student Employability ",
       description:
-        "A college’s placement cell plays a crucial role in shaping the future of students by connecting them with...."
-  },
+        "A college’s placement cell plays a crucial role in shaping the future of students by connecting them with....",
+    },
     {
-    id: 6,
-      image: img106 ,
+      id: 6,
+      image: img106,
       author: "Admin",
       date: "Feb 19, 2025",
       jobtype: "Internship",
       title: "Internship Programs: Why They Are Essential for Career Growth ",
       description:
-        "India is home to one of the world’s largest and youngest workforces, yet many industries face a severe skill ..." 
-  },
+        "India is home to one of the world’s largest and youngest workforces, yet many industries face a severe skill ...",
+    },
     {
-    id: 7,
+      id: 7,
       image: img109,
       author: "Admin",
       date: "Feb 5, 2025",
       jobtype: "Skill Gap",
-      title: " Skill Gap in India: How to Bridge It Through Training & Recruitment ",
+      title:
+        " Skill Gap in India: How to Bridge It Through Training & Recruitment ",
       description:
-        "Skill Gap in India: How to Bridge It Through Training & Recruitment Introduction: The Growing Skill Gap in .."
-  },
+        "Skill Gap in India: How to Bridge It Through Training & Recruitment Introduction: The Growing Skill Gap in ..",
+    },
     {
-    id: 8,
+      id: 8,
       image: img105,
       author: "Admin",
       date: "Jan 17, 2025",
       jobtype: "Resume",
       title: "How to Optimize Your Resume for ATS  ",
       description:
-        "Applicant Tracking Systems (ATS). ATS is an AI-driven resume screening tool used by companies to filter..."
-  },
+        "Applicant Tracking Systems (ATS). ATS is an AI-driven resume screening tool used by companies to filter...",
+    },
     {
-    id: 9,
+      id: 9,
       image: img49,
       author: "Admin",
       date: "Feb 18, 2025",
       jobtype: " Hiring ",
-      title: "How Staffing Companies Can Improve Diversity & Inclusion Hiring  ",
+      title:
+        "How Staffing Companies Can Improve Diversity & Inclusion Hiring  ",
       description:
-        "Introduction: The Growing Importance of Diversity & Inclusion in Hiring Diversity and inclusion (D&I) are..."
-  },
+        "Introduction: The Growing Importance of Diversity & Inclusion in Hiring Diversity and inclusion (D&I) are...",
+    },
     {
-    id: 10,
-      image:img104,
+      id: 10,
+      image: img104,
       author: "Admin",
       date: "Jan 24, 2025",
       jobtype: " Pre-Placement ",
       title: "How Pre-Placement Offers (PPOs) Are Changing Campus Hiring",
       description:
-       "Introduction: The Rise of Pre-Placement Offers (PPOs) in India Campus hiring has long been the primary ..."
-  },
+        "Introduction: The Rise of Pre-Placement Offers (PPOs) in India Campus hiring has long been the primary ...",
+    },
     {
-    id: 11,
+      id: 11,
       image: img43,
       author: "Admin",
       date: "March 18, 2025",
       jobtype: "Staffing  ",
       title: "Top Challenges in the Staffing Industry and How to Overcome Them",
       description:
-        "Introduction: Why Staffing is More Challenging Than Ever The staffing industry  plays a crucial role..."
-  },
+        "Introduction: Why Staffing is More Challenging Than Ever The staffing industry  plays a crucial role...",
+    },
     {
-    id: 12,
+      id: 12,
       image: img42,
       author: "Admin",
       date: "March 17, 2025",
       jobtype: "Recruitment  ",
       title: "The Role of Recruitment Agencies in India's Growing Job Market",
       description:
-        "Introduction: Why Recruitment Agencies Are More Important Than Ever India’s job market is experiencing..."
-  },
+        "Introduction: Why Recruitment Agencies Are More Important Than Ever India’s job market is experiencing...",
+    },
     {
-    id: 13,
-      image:img103,
+      id: 13,
+      image: img103,
       author: "Admin",
       date: "March 11, 2025",
       jobtype: "AI  ",
-      title: "How AI is Revolutionizing Talent Acquisition & the Staffing Industry",
+      title:
+        "How AI is Revolutionizing Talent Acquisition & the Staffing Industry",
       description:
-       "Introduction: The Role of AI in Modern Recruitment The recruitment industry is undergoing a massive..."
-  },
+        "Introduction: The Role of AI in Modern Recruitment The recruitment industry is undergoing a massive...",
+    },
     {
-    id: 14,
+      id: 14,
       image: img108,
       author: "Admin",
       date: "Jan 8, 2025",
       jobtype: "Businesses ",
       title: "Understanding Whitepapers: A Comprehensive Guide for Businesses",
       description:
-       "In the fast-paced world of digital content, businesses are constantly searching for ways to establish..."
-  },
+        "In the fast-paced world of digital content, businesses are constantly searching for ways to establish...",
+    },
     {
-    id: 15,
-      image:img102,
+      id: 15,
+      image: img102,
       author: "Admin",
       date: "March 11, 2025",
       jobtype: "Success ",
-      title: "Competency Mapping: Unlocking Potential for Organizational Success",
+      title:
+        "Competency Mapping: Unlocking Potential for Organizational Success",
       description:
-       "In today’s dynamic and competitive market, businesses, especially in India, face the challenge of..."
-  },
+        "In today’s dynamic and competitive market, businesses, especially in India, face the challenge of...",
+    },
     {
-    id: 16,
+      id: 16,
       image: img110,
       author: "Admin",
       date: "Feb 16, 2025",
       jobtype: "W2 & C2C ",
       title: "Understanding W2 and C2C Employment Arrangements",
       description:
-       "When engaging with staffing or recruitment agencies, prospective employees often encounter two..."
-  },
-  {
-    id: 17,
+        "When engaging with staffing or recruitment agencies, prospective employees often encounter two...",
+    },
+    {
+      id: 17,
       image: img37,
       author: "Admin",
       date: "Feb 7, 2025",
       jobtype: "Freshers ",
       title: "How to source freshers",
       description:
-       "Sourcing freshers for sales roles can be quite effective when using a multi-channel approach...."
-  },
-  {
-    id: 18,
+        "Sourcing freshers for sales roles can be quite effective when using a multi-channel approach....",
+    },
+    {
+      id: 18,
       image: img101,
       author: "Admin",
       date: "March 15, 2025",
       jobtype: " FreelanceRecruiter.",
-      title: "Closing the Skill Gap: How FreelanceRecruiter.in Supports Workforce  Readiness",
+      title:
+        "Closing the Skill Gap: How FreelanceRecruiter.in Supports Workforce  Readiness",
       description:
-       "The Rise of Freelance Recruiters in India: Why More Companies Are Turning to Gig Talent for Hiring The "
-  },
-  {
-    id: 19,
+        "The Rise of Freelance Recruiters in India: Why More Companies Are Turning to Gig Talent for Hiring The ",
+    },
+    {
+      id: 19,
       image: img50,
       author: "Admin",
       date: "March 26, 2025",
       jobtype: " FreelanceRecruiter.",
       title: "How can i become Freelance Recruiter",
       description:
-       "Becoming a freelance recruiter can be a great career path if you have strong networking and... "
-  },
-
-
+        "Becoming a freelance recruiter can be a great career path if you have strong networking and... ",
+    },
   ];
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        // Check if the API endpoint is available
+        const apiUrl = import.meta.env.VITE_API_URL || "";
+        const blogApiEndpoint = `${apiUrl}/api/blog/posts`;
+        
+        console.log("Fetching posts from:", blogApiEndpoint);
+        
+        const response = await axios.get(blogApiEndpoint, {
+          timeout: 5000 // Set a timeout to avoid long waiting
+        });
+
+        // Format the dynamic posts to match the structure of static posts
+        const formattedPosts = response.data.map((post) => ({
+          id: post._id,
+          title: post.title,
+          // Strip HTML tags from the content for the description
+          description: stripHtmlTags(post.content).substring(0, 150) + "...",
+          author: post.author || "Admin",
+          date: new Date(post.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          }),
+          jobtype: post.category || "Blog",
+          image: post.featuredImage,
+          content: post.content,
+          isDynamic: true,
+        }));
+
+        setDynamicPosts(formattedPosts);
+        console.log("Successfully fetched", formattedPosts.length, "dynamic posts");
+      } catch (err) {
+        console.error("Error fetching blog posts:", err);
+        // Don't set error state, just log it - we'll still show static articles
+        console.log("Continuing with static articles only");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  // Combine static and dynamic articles
+  const allArticles = [...staticArticles, ...dynamicPosts];
+
+  // Sort articles by date (newest first)
+  const sortedArticles = [...allArticles].sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  // Pagination logic
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = sortedArticles.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(sortedArticles.length / postsPerPage);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="text-center  mt-10">
+      <div className="text-center mt-10">
         <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full">
           BLOG
         </span>
-        <h1 className="font-bold lg:text-5xl text-3xl  my-3">
+        <h1 className="font-bold lg:text-5xl text-3xl my-3">
           Stories and interviews
         </h1>
         <p className="text-gray-500 mt-4 text-lg">
@@ -245,8 +317,15 @@ const Cont10 = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 lg:mx-20 w-85 m-auto md:w-auto   ">
-        {articles.map((article, index) => (
+      {/* Show warning if dynamic posts failed to load */}
+      {error && (
+        <div className="text-center p-2 mb-4 text-amber-600 bg-amber-50 rounded-md mx-auto max-w-2xl">
+          <p>Note: Some blog posts couldn't be loaded. Showing available articles.</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 lg:mx-20 w-85 m-auto md:w-auto">
+        {currentPosts.map((article, index) => (
           <Link
             to={`/article/${article.id}`}
             state={article} // Pass article data
@@ -254,19 +333,20 @@ const Cont10 = () => {
             key={index}
           >
             <div
-              key={index}
               className="bg-white overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
               <img
-                src={article.image}
+                src={article.image || "/placeholder.svg"}
                 alt={article.title}
-                className="w-full object-cover"
+                className="w-full object-cover h-48"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/placeholder.svg"; // Fallback image
+                }}
               />
               <div className="p-4 relative">
-                {" "}
-                {/* relative for arrow*/}
                 <MdArrowOutward className="absolute right-3 top-5 md:block hidden" />
-                <h3 className="text-lg font-semibold mb-2 w-80">
+                <h3 className="text-lg font-semibold mb-2 line-clamp-2">
                   {article.title}
                 </h3>
                 <p className="text-sm text-purple-500 mb-2">
@@ -278,27 +358,52 @@ const Cont10 = () => {
                   <span className="text-black">| Last Updates: </span>{" "}
                   {article.date}
                 </p>
-                <p className="text-gray-500 text-sm mb-4">
+                <p className="text-gray-500 text-sm mb-4 line-clamp-3">
                   {article.description}
                 </p>
-                {/* <div className="flex flex-wrap gap-2 mb-4">
-              {article.tags.map((tag, tagIndex) => (
-                <span
-                  key={tagIndex}
-                  className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-1 rounded-2xl"
-                >
-                  {tag}
-                </span>
-              ))}
-              
-            </div> */}
                 <p>Read More...</p>
               </div>
             </div>
           </Link>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-8 mb-12">
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border rounded-md disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-4 py-2 border rounded-md ${
+                  currentPage === page ? "bg-purple-600 text-white" : ""
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 border rounded-md disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
+
 export default Cont10;
