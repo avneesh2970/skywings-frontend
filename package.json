@@ -23,7 +23,20 @@
     "react-router-dom": "^7.1.5",
     "react-scroll": "^1.9.3",
     "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.0.0"
+    "tailwindcss": "^4.0.0",
+    "@tinymce/tinymce-react": "^6.1.0",
+    "@tiptap/core": "^2.11.7",
+    "@tiptap/extension-highlight": "^2.11.7",
+    "@tiptap/extension-image": "^2.11.7",
+    "@tiptap/extension-link": "^2.11.7",
+    "@tiptap/extension-placeholder": "^2.11.7",
+    "@tiptap/extension-subscript": "^2.11.7",
+    "@tiptap/extension-superscript": "^2.11.7",
+    "@tiptap/extension-text-align": "^2.11.7",
+    "@tiptap/extension-underline": "^2.11.7",
+    "@tiptap/react": "^2.11.7",
+    "@tiptap/starter-kit": "^2.11.7",
+    "force": "^0.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

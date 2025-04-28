@@ -1,12 +1,15 @@
-import { useState } from "react";
-import img from "../assets/signup.png";
-import emailjs from "@emailjs/browser";
-import { toast } from "react-hot-toast";
-import { LoaderCircle } from "lucide-react";
+"use client"
+
+import { useState } from "react"
+import img from "../assets/signup.png"
+import emailjs from "@emailjs/browser"
+import { toast } from "react-hot-toast"
+import { LoaderCircle } from "lucide-react"
+import axios from "axios"
 
 function Upload() {
-  const [fileName, setFileName] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [fileName, setFileName] = useState("")
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -14,82 +17,148 @@ function Upload() {
     jobAppliedFor: "",
     state: "",
     city: "",
-    resumeFileName: "",
-  });
+  })
+  const [file, setFile] = useState(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [formErrors, setFormErrors] = useState({})
+
+  const validateForm = () => {
+    const errors = {}
+    if (!formData.fullName.trim()) errors.fullName = "Name is required"
+    if (!formData.email.trim()) errors.email = "Email is required"
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email is invalid"
+    if (!formData.contactNumber.trim()) errors.contactNumber = "Contact number is required"
+    if (!formData.jobAppliedFor.trim()) errors.jobAppliedFor = "Job title is required"
+    if (!formData.state.trim()) errors.state = "State is required"
+    if (!formData.city.trim()) errors.city = "City is required"
+    if (!file) errors.resume = "Resume is required"
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setFileName(file.name);
-      setFormData((prev) => ({ ...prev, resumeFileName: file.name }));
+    const selectedFile = event.target.files[0]
+    if (selectedFile) {
+      // Check file size (max 10MB)
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        toast.error("File size exceeds 10MB limit")
+        event.target.value = ""
+        return
+      }
 
-      // You can also use FileReader to convert the file to base64 if needed
-      // const reader = new FileReader();
-      // reader.onload = (e) => {
-      //   const base64 = e.target.result;
-      //   setFormData((prev) => ({ ...prev, resumeBase64: base64 }));
-      // };
-      // reader.readAsDataURL(file);
+      // Check file type
+      const fileType = selectedFile.type
+      const validTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ]
+
+      if (!validTypes.includes(fileType)) {
+        toast.error("Only PDF, DOC, and DOCX files are allowed")
+        event.target.value = ""
+        return
+      }
+
+      setFileName(selectedFile.name)
+      setFile(selectedFile)
+
+      // Clear any previous file error
+      if (formErrors.resume) {
+        setFormErrors((prev) => ({ ...prev, resume: undefined }))
+      }
     }
-  };
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    // Clear error for this field if it exists
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: undefined }))
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    // Validate form
+    if (!validateForm()) {
+      toast.error("Please fill all required fields correctly")
+      return
+    }
+
+    setLoading(true)
+    setUploadProgress(0)
 
     try {
-      const serviceId = import.meta.env.VITE_SERVICE_ID;
-      const templateId = import.meta.env.VITE_TEMPLATE_ID1;
-      const publicKey = import.meta.env.VITE_PUBLIC_KEY;
+      // Create form data for file upload
+      const submitFormData = new FormData()
 
-      console.log("Form submitted", formData);
+      // Add all form fields
+      Object.keys(formData).forEach((key) => {
+        submitFormData.append(key, formData[key])
+      })
 
-      emailjs
-        .send(serviceId, templateId, formData, {
-          publicKey,
-        })
-        .then(
-          () => {
-            console.log("SUCCESS!");
-            toast.success("Your resume has been submitted successfully!");
-            // Reset form after success
-            setFormData({
-              fullName: "",
-              email: "",
-              contactNumber: "",
-              jobAppliedFor: "",
-              state: "",
-              city: "",
-              resumeFileName: "",
-            });
-            setFileName("");
-            // Reset file input
-            const fileInput = document.getElementById("resume");
-            if (fileInput) {
-              fileInput.value = "";
-            }
-          },
-          (error) => {
-            console.log("FAILED...", error.text);
-            toast.error(
-              "Failed to submit your resume. Please try again later."
-            );
-          }
-        )
-        .finally(() => {
-          setLoading(false); // Make sure loading is set to false after the promise resolves
-        });
+      // Add the file
+      if (file) {
+        submitFormData.append("resume", file)
+      }
+
+      // Send data to backend API with progress tracking
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/resumes`, submitFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          setUploadProgress(percentCompleted)
+        },
+      })
+
+      // Also send email notification using EmailJS
+      const serviceId = import.meta.env.VITE_SERVICE_ID
+      const templateId = import.meta.env.VITE_TEMPLATE_ID1
+      const publicKey = import.meta.env.VITE_PUBLIC_KEY
+
+      const emailData = {
+        ...formData,
+        resumeFileName: fileName,
+      }
+
+      await emailjs.send(serviceId, templateId, emailData, {
+        publicKey,
+      })
+
+      toast.success("Your resume has been submitted successfully!")
+
+      // Reset form after success
+      setFormData({
+        fullName: "",
+        email: "",
+        contactNumber: "",
+        jobAppliedFor: "",
+        state: "",
+        city: "",
+      })
+      setFileName("")
+      setFile(null)
+      setUploadProgress(0)
+
+      // Reset file input
+      const fileInput = document.getElementById("resume")
+      if (fileInput) {
+        fileInput.value = ""
+      }
     } catch (error) {
-      console.log(error);
-      toast.error("An error occurred. Please try again.");
-      setLoading(false); // Set loading to false in case of error
+      console.error("Error submitting resume:", error)
+      toast.error(error.response?.data?.message || "Failed to submit your resume. Please try again later.")
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <>
@@ -102,138 +171,156 @@ function Upload() {
           ></div>
 
           {/* Right Form Section */}
-          <div className="w-10/12 outline-none md:w-1/2 px-16">
-            <h3 className="text-2xl font-bold text-gray-800 text-center md:text-left">
-              Submit Your Resume
-            </h3>
-            <form onSubmit={handleSubmit} className="mt-4 space-y-2">
+          <div className="w-full md:w-1/2 px-6 md:px-16">
+            <h3 className="text-2xl font-bold text-gray-800 text-center md:text-left">Submit Your Resume</h3>
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
               {/* Full Name */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">
-                  Full Name
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  className={`w-full px-3 py-2 rounded-lg ${
+                    formErrors.fullName ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-100"
+                  } text-zinc-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500`}
                   placeholder="Enter Your Name"
-                  required
                 />
+                {formErrors.fullName && <p className="text-red-500 text-xs mt-1">{formErrors.fullName}</p>}
               </div>
 
               {/* Email */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">
-                  E-mail
+                  E-mail <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  className={`w-full px-3 py-2 rounded-lg ${
+                    formErrors.email ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-100"
+                  } text-zinc-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500`}
                   placeholder="Enter Your Email"
-                  required
                 />
+                {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
               </div>
 
               {/* Contact Number */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">
-                  Contact Number
+                  Contact Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
                   name="contactNumber"
                   value={formData.contactNumber}
                   onChange={handleInputChange}
-                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  className={`w-full px-3 py-2 rounded-lg ${
+                    formErrors.contactNumber ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-100"
+                  } text-zinc-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500`}
                   placeholder="Enter Your Contact Number"
-                  required
                 />
+                {formErrors.contactNumber && <p className="text-red-500 text-xs mt-1">{formErrors.contactNumber}</p>}
               </div>
 
               {/* Job Applied For */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">
-                  Job Applied For
+                  Job Applied For <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="jobAppliedFor"
                   value={formData.jobAppliedFor}
                   onChange={handleInputChange}
-                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  className={`w-full px-3 py-2 rounded-lg ${
+                    formErrors.jobAppliedFor ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-100"
+                  } text-zinc-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500`}
                   placeholder="Enter Job Title"
-                  required
                 />
+                {formErrors.jobAppliedFor && <p className="text-red-500 text-xs mt-1">{formErrors.jobAppliedFor}</p>}
               </div>
 
               {/* State */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">
-                  State
+                  State <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="state"
                   value={formData.state}
                   onChange={handleInputChange}
-                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  className={`w-full px-3 py-2 rounded-lg ${
+                    formErrors.state ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-100"
+                  } text-zinc-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500`}
                   placeholder="Enter State"
-                  required
                 />
+                {formErrors.state && <p className="text-red-500 text-xs mt-1">{formErrors.state}</p>}
               </div>
 
               {/* City */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">
-                  City
+                  City <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleInputChange}
-                  className="w-full px-2 py-1 rounded-lg bg-gray-100 text-zinc-700 placeholder-gray-400 outline-none"
+                  className={`w-full px-3 py-2 rounded-lg ${
+                    formErrors.city ? "border-red-500 bg-red-50" : "border-gray-200 bg-gray-100"
+                  } text-zinc-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500`}
                   placeholder="Enter City"
-                  required
                 />
+                {formErrors.city && <p className="text-red-500 text-xs mt-1">{formErrors.city}</p>}
               </div>
 
               {/* Upload Resume */}
               <div>
                 <label className="block text-gray-800 text-base mb-1">
-                  Upload Resume
+                  Upload Resume <span className="text-red-500">*</span>
                 </label>
-                <div className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-400 py-6 px-4 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
+                <div
+                  className={`flex flex-col items-center justify-center w-full border-2 border-dashed ${
+                    formErrors.resume ? "border-red-400 bg-red-50" : "border-gray-400 bg-gray-50"
+                  } py-6 px-4 rounded-lg cursor-pointer hover:bg-gray-100 transition`}
+                >
                   <input
                     type="file"
                     id="resume"
-                    name="resumeFileName"
+                    name="resume"
                     className="hidden"
                     onChange={handleFileChange}
                     accept=".pdf,.doc,.docx"
-                    required
                   />
-                  <label
-                    htmlFor="resume"
-                    className="text-gray-500 text-center cursor-pointer"
-                  >
+                  <label htmlFor="resume" className="text-gray-500 text-center cursor-pointer">
                     Click to Upload Resume
                   </label>
-                  {fileName && (
-                    <p className="text-gray-600 text-sm mt-2">{fileName}</p>
-                  )}
+                  {fileName && <p className="text-gray-600 text-sm mt-2">{fileName}</p>}
+                  {formErrors.resume && <p className="text-red-500 text-xs mt-2">{formErrors.resume}</p>}
+                  <p className="text-xs text-gray-500 mt-2">Supported formats: PDF, DOC, DOCX (Max 10MB)</p>
                 </div>
               </div>
+
+              {/* Upload Progress */}
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
+                  <p className="text-xs text-gray-500 mt-1 text-right">{uploadProgress}% uploaded</p>
+                </div>
+              )}
 
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full py-3 rounded-lg mt-4 font-semibold text-white bg-blue-600 hover:bg-blue-700 transition duration-300"
+                className="w-full py-3 rounded-lg mt-4 font-semibold text-white bg-blue-600 hover:bg-blue-700 transition duration-300 disabled:bg-blue-400 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? (
@@ -250,7 +337,7 @@ function Upload() {
         </div>
       </div>
     </>
-  );
+  )
 }
 
-export default Upload;
+export default Upload

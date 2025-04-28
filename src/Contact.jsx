@@ -1,17 +1,33 @@
+/* eslint-disable no-unused-vars */
 import Cont5 from "./componentes/Home/cont5";
 import { Mail } from "lucide-react";
 import img from "./assets/gmail.jpg";
 import { Phone } from "lucide-react";
 import { HiPhone, HiMail } from "react-icons/hi";
-import React, { useState } from "react";
+import { useState } from "react";
 import emailjs from "@emailjs/browser";
 import { LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 function Contact() {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Form validation state
+  const [errors, setErrors] = useState({
+    name: "",
+    contact: "",
+    email: "",
+    state: "",
+    city: "",
+    enquire: "",
+    enquireDetail: "",
+  });
+
+  // Track if form was submitted to show all errors
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const [contactData, setContactData] = useState({
     name: "",
@@ -134,22 +150,71 @@ function Contact() {
     spain: ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Other"],
   };
 
-  function onChangeHandler(e) {
-    setContactData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
-  }
-  console.log("service",import.meta.env.VITE_SERVICE_ID);
-  console.log("template",import.meta.env.VITE_TEMPLATE_ID);
-  console.log("public",import.meta.env.VITE_PUBLIC_KEY);
+  // Validate a single field
+  const validateField = (name, value) => {
+    let errorMessage = "";
+    if (!value || value.trim() === "") {
+      errorMessage = `${
+        name.charAt(0).toUpperCase() + name.slice(1)
+      } is required`;
+    } else if (name === "email" && !/^\S+@\S+\.\S+$/.test(value)) {
+      errorMessage = "Please enter a valid email address";
+    } else if (
+      name === "contact" &&
+      !/^\d{10,15}$/.test(value.replace(/[^0-9]/g, ""))
+    ) {
+      errorMessage = "Please enter a valid contact number (10-15 digits)";
+    }
 
-  function submitHandler(e) {
+    return errorMessage;
+  };
+
+  // Validate all fields
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    // Validate each field
+    Object.keys(contactData).forEach((key) => {
+      const error = validateField(key, contactData[key]);
+      newErrors[key] = error;
+      if (error) isValid = false;
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+  function onChangeHandler(e) {
+    const { id, value } = e.target;
+    setContactData((prev) => ({ ...prev, [id]: value }));
+
+    // Clear error when user types if form was already submitted once
+    if (formSubmitted) {
+      setErrors((prev) => ({ ...prev, [id]: validateField(id, value) }));
+    }
+  }
+
+  async function submitHandler(e) {
     e.preventDefault();
-    setLoading(true); // Set loading to true at the beginning
+    setFormSubmitted(true);
+    // Validate all fields before submission
+    if (!validateForm()) {
+      toast.error("Please fill in all required fields correctly");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const serviceId = import.meta.env.VITE_SERVICE_ID;
       const templateId = import.meta.env.VITE_TEMPLATE_ID;
       const publicKey = import.meta.env.VITE_PUBLIC_KEY;
-      console.log("Form submitted", contactData);
+
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/enquiries`,
+        contactData
+      );
+      toast.success("Enquiry saved successfully!");
 
       emailjs
         .send(serviceId, templateId, contactData, {
@@ -169,6 +234,7 @@ function Contact() {
               enquire: "",
               enquireDetail: "",
             });
+            setFormSubmitted(false);
           },
           (error) => {
             console.log("FAILED...", error.text);
@@ -291,16 +357,22 @@ function Contact() {
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-gray-700 font-medium">
-                Name
+                Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 id="name"
                 placeholder="Enter Your Name"
-                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.name ? "border-red-500" : ""
+                }`}
                 onChange={onChangeHandler}
                 value={contactData.name}
+                required
               />
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+              )}
             </div>
 
             {/* Contact Field */}
@@ -309,16 +381,22 @@ function Contact() {
                 htmlFor="contact"
                 className="block text-gray-700 font-medium"
               >
-                Contact
+                Contact <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 id="contact"
                 placeholder="Enter Your Contact Number"
-                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.contact ? "border-red-500" : ""
+                }`}
                 onChange={onChangeHandler}
                 value={contactData.contact}
+                required
               />
+              {errors.contact && (
+                <p className="mt-1 text-sm text-red-500">{errors.contact}</p>
+              )}
             </div>
 
             {/* Email Field */}
@@ -327,122 +405,98 @@ function Contact() {
                 htmlFor="email"
                 className="block text-gray-700 font-medium"
               >
-                Email
+                Email <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
                 id="email"
                 placeholder="Enter Your Email"
-                className="w-full px-4 py-2 text-black mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 text-black mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.email ? "border-red-500" : ""
+                }`}
                 onChange={onChangeHandler}
                 value={contactData.email}
+                required
               />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+              )}
             </div>
-            <div className="flex flex-col gap-4">
-              {/* Country Field */}
-              {/* <div>
-                <label
-                  htmlFor="country"
-                  className="block text-gray-700 font-medium"
-                >
-                  Country
-                </label>
-                <select
-                  id="country"
-                  className="w-full text-gray-400 px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  value={selectedCountry}
-                  onChange={(e) => {
-                    setSelectedCountry(e.target.value);
-                    setSelectedCity(""); // Reset city when country changes
-                  }}
-                >
-                  <option value="" disabled>
-                    Select a country
-                  </option>
-                  {Object.keys(countryCityMap).map((country) => (
-                    <option key={country} value={country}>
-                      {country.charAt(0).toUpperCase() + country.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
 
+            <div className="flex flex-col gap-4">
               {/* State Field */}
               <div>
                 <label
-                  htmlFor="city"
+                  htmlFor="state"
                   className="block text-gray-800 font-medium"
                 >
-                  State
+                  State <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="state"
-                  className="w-full px-4 py-2 mt-2 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    errors.state ? "border-red-500" : "border-black"
+                  }`}
                   onChange={onChangeHandler}
                   value={contactData.state}
-                  // disabled={!selectedCountry}
+                  required
                 >
-                  {/* <option value="" disabled>
-                    {selectedCountry
-                      ? "Select a city"
-                      : "Select a country first"}
-                  </option> */}
                   <option value="" disabled className="text-gray-400">
                     Select a state
                   </option>
-                  {/* {selectedCountry &&
-                    countryCityMap[selectedCountry].map((city) => (
-                      <option key={city} value={city}>
-                        {city}
-                      </option>
-                    ))} */}
                   {countryCityMap["india"].map((city) => (
                     <option key={city} value={city} className="text-gray-800">
                       {city}
                     </option>
                   ))}
                 </select>
+                {errors.state && (
+                  <p className="mt-1 text-sm text-red-500">{errors.state}</p>
+                )}
               </div>
             </div>
 
             {/* City field */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-gray-800 font-medium"
-              >
-                City
+              <label htmlFor="city" className="block text-gray-800 font-medium">
+                City <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 id="city"
                 placeholder="Enter Your City"
-                className="w-full px-4 py-2 text-gray-800 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 text-gray-800 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.city ? "border-red-500" : ""
+                }`}
                 onChange={onChangeHandler}
                 value={contactData.city}
+                required
               />
+              {errors.city && (
+                <p className="mt-1 text-sm text-red-500">{errors.city}</p>
+              )}
             </div>
 
             {/* Enquire Field */}
             <div>
               <label
                 htmlFor="enquire"
-                className="block text-gray-400 font-medium"
+                className="block text-gray-700 font-medium"
               >
-                Enquire
+                Enquiry Type <span className="text-red-500">*</span>
               </label>
               <select
                 id="enquire"
-                className="w-full text-gray-800 px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full text-gray-800 px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.enquire ? "border-red-500" : ""
+                }`}
                 onChange={onChangeHandler}
                 value={contactData.enquire}
+                required
               >
-                <option value="" disabled selected>
-                  Enquire
+                <option value="" disabled>
+                  Select Enquiry Type
                 </option>
-                {/* <option value="usa">IT Service</option>
-                <option value="canada">Sales</option>
-                <option value="uk">Mangement</option> */}
                 <option value="permanent-staffing">Permanent Staffing</option>
                 <option value="temporary-staffing">Temporary Staffing</option>
                 <option value="contract-staffing">Contract Staffing</option>
@@ -488,6 +542,9 @@ function Contact() {
                   Graduate Trainee Programs
                 </option>
               </select>
+              {errors.enquire && (
+                <p className="mt-1 text-sm text-red-500">{errors.enquire}</p>
+              )}
             </div>
 
             {/* Enquire Detail Field */}
@@ -496,22 +553,31 @@ function Contact() {
                 htmlFor="enquireDetail"
                 className="block text-gray-700 font-medium"
               >
-                Enquire Details
+                Enquiry Details <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="enquireDetail"
                 placeholder="Your requirement"
-                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.enquireDetail ? "border-red-500" : ""
+                }`}
                 onChange={onChangeHandler}
                 value={contactData.enquireDetail}
+                rows="4"
+                required
               ></textarea>
+              {errors.enquireDetail && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.enquireDetail}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}
             <div>
               <button
                 type="submit"
-                className="w-full bg-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full bg-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-purple-400 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? (

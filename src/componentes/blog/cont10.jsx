@@ -25,6 +25,10 @@ import { Link } from "react-router-dom";
 
 const Cont10 = () => {
   // console.log("imgy", imgy)
+
+  
+
+
   const articles = [
     {
       id: 1,
