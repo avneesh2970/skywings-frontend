@@ -418,7 +418,7 @@ export default function NewsLetter() {
       {/* Header with search and filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold text-purple-700">Newsletter Subscribers</h2>
+          <h2 className="text-2xl font-bold text-blue-700">Newsletter Subscribers</h2>
           <button
             onClick={() => fetchSubscribers(true)}
             className={`p-1 rounded-full hover:bg-gray-100 ${refreshing ? "animate-spin" : ""}`}
@@ -521,7 +521,7 @@ export default function NewsLetter() {
           {/* Export Button */}
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             disabled={subscribers.length === 0}
           >
             <Download className="h-4 w-4" />

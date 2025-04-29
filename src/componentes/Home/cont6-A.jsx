@@ -39,6 +39,7 @@ const images = [
   "/Brand/logo34.jpg",
   "/Brand/logo35.jpg",
   "/Brand/logo36.png",
+  "/Brand/logo37.png",
 ]
 
 const Cont6A = () => {

@@ -84,7 +84,7 @@ const BlogsPage = () => {
       <div className="bg-gradient-to-r from-emerald-50 to-teal-50 py-12 px-4 rounded-xl mb-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Welcome to <span className="text-emerald-600">Skywings</span> Blog
+            Welcome to <span className="text-blue-600">Skywings</span> Blog
           </h1>
           <p className="text-lg text-gray-600 mb-8">
             Discover stories, insights, and knowledge from our community
@@ -158,7 +158,7 @@ const BlogsPage = () => {
 
                 <Link
                   to="/admin/dashboard/blog-post/editor"
-                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md transition-colors"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
                 >
                   <PenSquare size={18} />
                   <span>New Post</span>

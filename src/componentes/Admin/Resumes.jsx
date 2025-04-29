@@ -439,11 +439,11 @@ export default function Resumes() {
   }
 
   return (
-    <div className="w-full bg-white p-4 md:p-6 rounded-lg shadow-md">
+    <div className="w-full bg-white p-4 md:p-6 rounded-lg shadow-md overflow-hidden">
       {/* Header with search and filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold text-purple-700">Resume Submissions</h2>
+          <h2 className="text-2xl font-bold text-blue-700">Resume Submissions</h2>
           <button
             onClick={() => fetchResumes(true)}
             className={`p-1 rounded-full hover:bg-gray-100 ${refreshing ? "animate-spin" : ""}`}
@@ -659,7 +659,7 @@ export default function Resumes() {
           {/* Export Button */}
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             disabled={resumes.length === 0}
           >
             <Download className="h-4 w-4" />
@@ -683,7 +683,7 @@ export default function Resumes() {
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto max-w-full">
             <div className="inline-block min-w-full align-middle">
-              <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg table-fixed">
+              <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg table-fixed w-full">
                 <thead className="bg-gray-50">
                   <tr>
                     <th
@@ -730,13 +730,19 @@ export default function Resumes() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {resumes.map((resume) => (
                     <tr key={resume._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-3 py-4 text-sm font-medium text-gray-900 truncate">{resume.fullName}</td>
-                      <td className="px-3 py-4 text-sm text-gray-500 truncate">{resume.email}</td>
-                      <td className="hidden lg:table-cell px-3 py-4 text-sm text-gray-500 truncate">
-                        {resume.jobAppliedFor}
+                      <td className="px-3 py-4 text-sm font-medium text-gray-900">
+                        <div className="truncate max-w-[200px]">{resume.fullName}</div>
                       </td>
-                      <td className="hidden xl:table-cell px-3 py-4 text-sm text-gray-500 truncate">
-                        {resume.city}, {resume.state}
+                      <td className="px-3 py-4 text-sm text-gray-500">
+                        <div className="truncate max-w-[250px]">{resume.email}</div>
+                      </td>
+                      <td className="hidden lg:table-cell px-3 py-4 text-sm text-gray-500">
+                        <div className="truncate max-w-[200px]">{resume.jobAppliedFor}</div>
+                      </td>
+                      <td className="hidden xl:table-cell px-3 py-4 text-sm text-gray-500">
+                        <div className="truncate max-w-[150px]">
+                          {resume.city}, {resume.state}
+                        </div>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
                         <span
@@ -782,7 +788,7 @@ export default function Resumes() {
                 className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-medium text-gray-900">{resume.fullName}</h3>
+                  <h3 className="font-medium text-gray-900 truncate max-w-[200px]">{resume.fullName}</h3>
                   <span
                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getStatusBadge(resume.status).color}`}
                   >
@@ -794,12 +800,12 @@ export default function Resumes() {
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span className="truncate">{resume.email}</span>
+                    <span className="truncate max-w-[220px] inline-block">{resume.email}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4 text-gray-400" />
-                    <span className="truncate">{resume.jobAppliedFor}</span>
+                    <span className="truncate max-w-[220px] inline-block">{resume.jobAppliedFor}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -1032,7 +1038,7 @@ export default function Resumes() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">Name</h4>
-                    <p className="mt-1 text-gray-900">{selectedResume.fullName}</p>
+                    <p className="mt-1 text-gray-900 break-words">{selectedResume.fullName}</p>
                   </div>
 
                   <div>

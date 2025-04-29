@@ -177,7 +177,7 @@ const Nav = ({ toggle, fun }) => {
                       key={idx}
                       to={item.path}
                       className={({ isActive }) =>
-                        `block text-gray-800 text-sm py-2 border-b border-gray-300 hover:text-blue-600 transition-colors duration-200 ${
+                        `block text-gray-800 text-sm py-2 border-b border-gray-300 hover:text-blue-600 hover:font-semibold transition-colors duration-200 ${
                           isActive ? "font-semibold" : ""
                         } ml-4`
                       }
