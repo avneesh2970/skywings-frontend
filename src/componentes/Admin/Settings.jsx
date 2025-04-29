@@ -16,7 +16,7 @@ export default function Settings() {
     email: "admin@example.com",
     role: "Administrator",
     bio: "Managing the admin dashboard and system settings.",
-    phone: "+1 (555) 123-4567",
+    phone: "+91 (999) 123-4567",
   })
 
   // Security settings state

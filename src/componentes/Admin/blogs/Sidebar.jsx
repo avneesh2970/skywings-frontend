@@ -92,7 +92,7 @@ function Sidebar() {
         {/* Logo area */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center">
+            <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
               <span className="text-white font-bold">S</span>
             </div>
             <span className="font-semibold text-lg">Admin Panel</span>
@@ -115,17 +115,17 @@ function Sidebar() {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
                   isActive(item.path)
-                    ? "bg-purple-50 text-purple-700 font-medium"
+                    ? "bg-purple-50 text-blue-700 font-medium"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
                 onClick={() => window.innerWidth < 768 && setIsOpen(false)}
               >
-                <span className={isActive(item.path) ? "text-purple-600" : "text-gray-500"}>
+                <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
                 {isActive(item.path) && (
-                  <span className="ml-auto w-1.5 h-5 bg-purple-600 rounded-full"></span>
+                  <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
                 )}
               </Link>
             ))}

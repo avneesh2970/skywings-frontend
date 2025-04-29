@@ -43,7 +43,6 @@ const faqs = [
 
 const FAQAccordion = () => {
     const navigate = useNavigate();
-
     const [openIndex, setOpenIndex] = useState(null);
 
     const toggleFAQ = (index) => {
@@ -58,27 +57,28 @@ const FAQAccordion = () => {
                 <div key={index} className="border-b border-gray-300">
                     <button
                         onClick={() => toggleFAQ(index)}
-                        className="w-full flex justify-between items-center py-4 text-left text-lg font-medium text-[#101828]"
+                        className="w-full flex justify-between items-center py-4 text-left text-lg font-medium text-[#101828] transition-all duration-300 ease-in-out transform hover:scale-105"
                     >
                         {faq.question}
                         {openIndex === index ? (
-                             <img className='cursor-pointer w-[20px] h-auto'
-                             src={min} 
-                             alt="Not-show" />
+                            <img className='cursor-pointer w-[20px] h-auto transform transition-transform duration-300 rotate-180'
+                                 src={min} alt="Not-show" />
                         ) : (
-                            <img className='cursor-pointer w-[20px] h-auto'
-                            src={add} 
-                            alt="Show-icon" />
+                            <img className='cursor-pointer w-[20px] h-auto transform transition-transform duration-300 rotate-0'
+                                 src={add} alt="Show-icon" />
                         )}
                     </button>
-                    {openIndex === index && (
-                        <p className="text-[#667085] pb-4">{faq.answer}</p>
-                    )}
+                    <div className={`transition-all duration-500 ease-in-out max-h-0 overflow-hidden ${openIndex === index ? 'max-h-[200px]' : ''}`}>
+                        {openIndex === index && (
+                            <p className="text-[#667085] pb-4">{faq.answer}</p>
+                        )}
+                    </div>
                 </div>
             ))}
-            <button onClick={()=>navigate('/faq')} className='flex justify-center mx-auto mt-1.5 px-10 py-1 rounded-lg border border-blue-500  text-lg font-medium text-blue-500 cursor-pointer'>See more ...</button>
+            <button onClick={()=>navigate('/faq')} className='flex justify-center mx-auto mt-1.5 px-10 py-1 rounded-lg border border-blue-500 text-lg font-medium text-blue-500 cursor-pointer'>
+                See more ...
+            </button>
         </div>
-    
     )
 }
 

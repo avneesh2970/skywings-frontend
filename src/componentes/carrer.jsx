@@ -120,15 +120,18 @@ const Career = () => {
           Why Work with Us?
         </h2>
 
-        <div className="hidden md:flex justify-between gap-4 mx-10 px-7 py-2 b ">
-          {cards.map((card, index) => (
-            <Card
-              key={index}
-              title={card.title}
-              description={card.description}
-            />
-          ))}
-        </div>
+        <div className="hidden md:flex justify-between gap-4 mx-10 px-7 py-2 b">
+  {cards.map((card, index) => (
+    <div
+      key={index}
+      className="group relative flex flex-col items-center bg-white border-2 border-blue-500 hover:bg-[#2b7fff] hover:text-white rounded-lg p-4 transition-all duration-300 ease-in-out"
+    >
+      <h3 className="font-semibold text-lg">{card.title}</h3>
+      <p>{card.description}</p>
+    </div>
+  ))}
+</div>
+
         <Element name="full_time">
           <div className="flex justify-between w-full px-7">
             <p className="font-semibold">Open Position (10)</p>
@@ -161,51 +164,77 @@ const Career = () => {
             Scan code
           </span>
           <div className="w-full bg-white-200 py-4 px-4">
-            <div className="grid w-full justify-center mx-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-12 py-10">
-              {scan.map((list, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center bg-white shadow-lg rounded-lg pt-5"
-                >
-                  {/* Contact Text */}
-                  <p className="text-center text-lg font-semibold text-gray-800">
-                    Contact us on {list.name}
-                  </p>
+  <div className="grid w-full justify-center mx-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-12 py-10">
+    {scan.map((list, index) => (
+      <div
+        key={index}
+        className="flex flex-col items-center bg-white shadow-lg rounded-lg pt-5 bounce-on-hover"
+      >
+        {/* Contact Text */}
+        <p className="text-center text-lg font-semibold text-gray-800">
+          Contact us on {list.name}
+        </p>
 
-                  {/* Profile Image */}
-                  <div className="flex z-10 justify-center mt-2">
-                    <img
-                      src={img_}
-                      className="h-36 w-36 rounded-full object-cover "
-                      alt="Profile"
-                    />
-                  </div>
+        {/* Profile Image */}
+        <div className="flex z-10 justify-center mt-2">
+          <img
+            src={img_}
+            className="h-36 w-36 rounded-full object-cover"
+            alt="Profile"
+          />
+        </div>
 
-                  {/* Information Box */}
-                  <div className="bg-gray-100 -mt-24 sm:-mt-28 p-4 w-full rounded-lg shadow-sm text-center space-y-2">
-                    <p className="text-lg font-semibold text-gray-900 pt-14 md:pt-16">
-                      Skywings
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Assure you a better tomorrow
-                    </p>
+        {/* Information Box */}
+        <div className="bg-gray-100 -mt-24 sm:-mt-28 p-4 w-full rounded-lg shadow-sm text-center space-y-2">
+          <p className="text-lg font-semibold text-gray-900 pt-14 md:pt-16">
+            Skywings
+          </p>
+          <p className="text-sm text-gray-600">
+            Assure you a better tomorrow
+          </p>
 
-                    {/* LinkedIn Logo */}
-                    <div className="flex justify-center mt-4">
-                      <img
-                        src={list.img}
-                        alt="LinkedIn Logo"
-                        className="h-32 w-32 sm:h-24 sm:w-24 md:h-40 md:w-40"
-                      />
-                    </div>
-                    <p className="text-center text-sm font-medium text-gray-700">
-                      Scan Code
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* LinkedIn Logo */}
+          <div className="flex justify-center mt-4">
+            <img
+              src={list.img}
+              alt="LinkedIn Logo"
+              className="h-32 w-32 sm:h-24 sm:w-24 md:h-40 md:w-40"
+            />
           </div>
+          <p className="text-center text-sm font-medium text-gray-700">
+            Scan Code
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style jsx>{`
+  /* Bounce animation */
+.bounce-on-hover {
+  transition: transform 0.4s ease;
+}
+
+.bounce-on-hover:hover {
+  animation: bounce 0.5s ease; /* remove 'infinite' */
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+}
+
+`}</style>
+
         </div>
       </div>
 

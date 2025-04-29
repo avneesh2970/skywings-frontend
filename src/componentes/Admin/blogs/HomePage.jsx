@@ -187,20 +187,20 @@ export default function HomePage() {
         </div>
 
         {/* Newsletter Stats */}
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm text-gray-500 mb-1">Newsletter Subscribers</p>
               <h3 className="text-2xl font-bold text-gray-800">{stats.newsletter.total}</h3>
-              <p className="text-sm text-green-600 mt-1">{stats.newsletter.active} active subscribers</p>
+              <p className="text-sm text-blue-600 mt-1">{stats.newsletter.active} active subscribers</p>
             </div>
             <div className="bg-green-100 p-3 rounded-full">
-              <Mail className="h-6 w-6 text-green-600" />
+              <Mail className="h-6 w-6 text-blue-600" />
             </div>
           </div>
           <Link
             to="/admin/dashboard/newsletter"
-            className="mt-4 text-green-600 hover:text-green-800 text-sm font-medium flex items-center"
+            className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
           >
             View all subscribers
             <ArrowRight className="ml-1 h-4 w-4" />
@@ -381,7 +381,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="bg-blue-50 rounded-lg p-4">
+              {/* <div className="bg-blue-50 rounded-lg p-4">
                 <div className="flex items-center">
                   <div className="bg-blue-100 p-2 rounded-full mr-3">
                     <TrendingUp className="h-5 w-5 text-blue-600" />
@@ -391,9 +391,9 @@ export default function HomePage() {
                     <p className="text-lg font-semibold text-gray-800">+12.5%</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="bg-purple-50 rounded-lg p-4">
+              {/* <div className="bg-purple-50 rounded-lg p-4">
                 <div className="flex items-center">
                   <div className="bg-purple-100 p-2 rounded-full mr-3">
                     <Users className="h-5 w-5 text-purple-600" />
@@ -403,7 +403,7 @@ export default function HomePage() {
                     <p className="text-lg font-semibold text-gray-800">87%</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

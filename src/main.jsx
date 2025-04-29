@@ -34,6 +34,7 @@ import Resumes from "./componentes/Admin/Resumes";
 import NewsLetter from "./componentes/Admin/NewsLetter";
 import Settings from "./componentes/Admin/Settings";
 import Event from "./componentes/events/Event";
+import NewsDetail from "./componentes/news/NewsDetails";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
       { path: "/blog", element: <Blog /> },
       { path: "/events", element: <Event /> },
       { path: "/news", element: <Nws /> },
+      { path: "/news/:id", element: <NewsDetail /> },
       { path: "/employes", element: <Employes /> },
       { path: "/carrers", element: <Career /> },
       { path: "/fresher", element: <Fresher /> },

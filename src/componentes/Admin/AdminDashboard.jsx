@@ -14,16 +14,16 @@ function AdminDashboard() {
     const handleResize = () => {
       setIsMobileView(window.innerWidth < 768);
     };
-    
-    window.addEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   useEffect(() => {
     fetchPosts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -42,10 +42,20 @@ function AdminDashboard() {
             <Outlet />
           </main>
 
-          <footer className="bg-white py-6 border-t border-gray-200 mt-8">
-            <div className="container mx-auto px-4 text-center text-gray-500">
-              &copy; {new Date().getFullYear()} SKYWINGS Blog - Built with
-              React, Express, MongoDB & Node.js
+          <footer>
+            <div className="flex flex-col items-center justify-center text-center  py-4 ">
+              <hr className="w-[85%] border-gray-300" />
+              <p className="text-gray-600 text-base mt-2">
+                © Copyright 2025 | All Rights Reserved | Powered by{" "}
+                <span
+                  onClick={() =>
+                    window.open("https://novanectar.co.in/", "_blank")
+                  }
+                  className="text-blue-600 font-semibold cursor-pointer hover:underline"
+                >
+                  Novanectar Services Pvt. Ltd.
+                </span>
+              </p>
             </div>
           </footer>
         </div>

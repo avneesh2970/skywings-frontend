@@ -9,6 +9,7 @@ import emailjs from "@emailjs/browser";
 import { LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 function Contact() {
   const [selectedCountry, setSelectedCountry] = useState("");
@@ -353,7 +354,13 @@ function Contact() {
           className="p-6 rounded-2xl bg-white  w-full"
           style={{ boxShadow: "10px -10px  blue" }}
         >
-          <form className="grid grid-cols-1 gap-4" onSubmit={submitHandler}>
+          <motion.form
+            className="grid grid-cols-1 gap-4"
+            onSubmit={submitHandler}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-gray-700 font-medium">
@@ -590,7 +597,7 @@ function Contact() {
                 )}
               </button>
             </div>
-          </form>
+          </motion.form>
         </div>
       </div>
       <div className="flex w-full ">

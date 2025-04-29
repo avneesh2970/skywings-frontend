@@ -1,114 +1,140 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { Calendar, MapPin, Tag, Star, Search, Filter, ChevronDown, X, ArrowLeft, ArrowRight, Clock, Users, ExternalLink } from 'lucide-react';
+"use client"
+
+import { useState, useEffect } from "react"
+import axios from "axios"
+import {
+  Calendar,
+  MapPin,
+  Tag,
+  Star,
+  Search,
+  Filter,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Clock,
+  Users,
+  ExternalLink,
+} from "lucide-react"
+import EventDetailsModal from "./EventDetailsModal"
 
 export default function Event() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalEvents, setTotalEvents] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterFeatured, setFilterFeatured] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false);
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalEvents, setTotalEvents] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterStatus, setFilterStatus] = useState("")
+  const [filterCategory, setFilterCategory] = useState("")
+  const [filterFeatured, setFilterFeatured] = useState("")
+  const [categories, setCategories] = useState([])
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false)
   const [sortConfig, setSortConfig] = useState({
     key: "startDate",
     direction: "asc",
-  });
+  })
+
+  // New state for modal
+  const [selectedEvent, setSelectedEvent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Fetch events from the API
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        setLoading(true);
-        
-        // Build query parameters
-        const params = new URLSearchParams();
-        params.append('page', currentPage);
-        params.append('limit', 9); // Show 9 events per page
-        
-        if (searchTerm) params.append('search', searchTerm);
-        if (filterStatus) params.append('status', filterStatus);
-        if (filterCategory) params.append('category', filterCategory);
-        if (filterFeatured) params.append('featured', filterFeatured);
-        params.append('sort', sortConfig.key);
-        params.append('order', sortConfig.direction);
-        
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/events?${params.toString()}`);
-        
-        setEvents(response.data.data);
-        setTotalPages(response.data.totalPages);
-        setTotalEvents(response.data.total);
-        
-        // Extract unique categories for filtering
-        const uniqueCategories = [...new Set(response.data.data.map(event => event.category))];
-        setCategories(uniqueCategories);
-        
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching events:", err);
-        setError("Failed to load events. Please try again later.");
-        setEvents([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+        setLoading(true)
 
-    fetchEvents();
-  }, [currentPage, searchTerm, filterStatus, filterCategory, filterFeatured, sortConfig]);
+        // Build query parameters
+        const params = new URLSearchParams()
+        params.append("page", currentPage)
+        params.append("limit", 9) // Show 9 events per page
+
+        if (searchTerm) params.append("search", searchTerm)
+        if (filterStatus) params.append("status", filterStatus)
+        if (filterCategory) params.append("category", filterCategory)
+        if (filterFeatured) params.append("featured", filterFeatured)
+        params.append("sort", sortConfig.key)
+        params.append("order", sortConfig.direction)
+
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/events?${params.toString()}`)
+
+        setEvents(response.data.data)
+        setTotalPages(response.data.totalPages)
+        setTotalEvents(response.data.total)
+
+        // Extract unique categories for filtering
+        const uniqueCategories = [...new Set(response.data.data.map((event) => event.category))]
+        setCategories(uniqueCategories)
+
+        setError(null)
+      } catch (err) {
+        console.error("Error fetching events:", err)
+        setError("Failed to load events. Please try again later.")
+        setEvents([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [currentPage, searchTerm, filterStatus, filterCategory, filterFeatured, sortConfig])
 
   // Format date for display
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+    return new Date(dateString).toLocaleDateString(undefined, options)
+  }
 
   // Get status badge styling
   const getStatusBadge = (status) => {
     switch (status) {
       case "upcoming":
-        return { color: "bg-blue-100 text-blue-700", icon: <Calendar className="h-3 w-3 mr-1" /> };
+        return { color: "bg-blue-100 text-blue-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
       case "ongoing":
-        return { color: "bg-green-100 text-green-700", icon: <Calendar className="h-3 w-3 mr-1" /> };
+        return { color: "bg-green-100 text-green-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
       case "past":
-        return { color: "bg-gray-100 text-gray-700", icon: <Calendar className="h-3 w-3 mr-1" /> };
+        return { color: "bg-gray-100 text-gray-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
       case "cancelled":
-        return { color: "bg-red-100 text-red-700", icon: <Calendar className="h-3 w-3 mr-1" /> };
+        return { color: "bg-red-100 text-red-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
       default:
-        return { color: "bg-purple-100 text-purple-700", icon: <Calendar className="h-3 w-3 mr-1" /> };
+        return { color: "bg-purple-100 text-purple-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
     }
-  };
+  }
 
   // Clear all filters
   const clearFilters = () => {
-    setSearchTerm("");
-    setFilterStatus("");
-    setFilterCategory("");
-    setFilterFeatured("");
-    setCurrentPage(1);
-  };
+    setSearchTerm("")
+    setFilterStatus("")
+    setFilterCategory("")
+    setFilterFeatured("")
+    setCurrentPage(1)
+  }
 
   // Handle search input with debounce
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page on search
-  };
+    setSearchTerm(e.target.value)
+    setCurrentPage(1) // Reset to first page on search
+  }
+
+  // Handle opening the modal with event details
+  const handleViewDetails = (event) => {
+    setSelectedEvent(event)
+    setIsModalOpen(true)
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Section */}
-      <div className="bg-purple-700 text-white py-16 px-4">
+      <div className="bg-blue-500 text-white py-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Upcoming Events</h1>
           <p className="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">
@@ -133,8 +159,8 @@ export default function Event() {
             {searchTerm && (
               <button
                 onClick={() => {
-                  setSearchTerm("");
-                  setCurrentPage(1);
+                  setSearchTerm("")
+                  setCurrentPage(1)
                 }}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
@@ -148,8 +174,8 @@ export default function Event() {
             <div className="relative">
               <button
                 onClick={() => {
-                  setIsFilterOpen(!isFilterOpen);
-                  setIsCategoryFilterOpen(false);
+                  setIsFilterOpen(!isFilterOpen)
+                  setIsCategoryFilterOpen(false)
                 }}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
                   isFilterOpen || filterStatus
@@ -164,9 +190,9 @@ export default function Event() {
                 {filterStatus && (
                   <button
                     onClick={(e) => {
-                      e.stopPropagation();
-                      setFilterStatus("");
-                      setCurrentPage(1);
+                      e.stopPropagation()
+                      setFilterStatus("")
+                      setCurrentPage(1)
                     }}
                     className="ml-2 text-gray-400 hover:text-gray-600"
                   >
@@ -182,9 +208,9 @@ export default function Event() {
                       <button
                         key={status}
                         onClick={() => {
-                          setFilterStatus(status);
-                          setIsFilterOpen(false);
-                          setCurrentPage(1);
+                          setFilterStatus(status)
+                          setIsFilterOpen(false)
+                          setCurrentPage(1)
                         }}
                         className={`w-full text-left px-3 py-2 rounded-md text-sm ${
                           filterStatus === status ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"
@@ -205,8 +231,8 @@ export default function Event() {
             <div className="relative">
               <button
                 onClick={() => {
-                  setIsCategoryFilterOpen(!isCategoryFilterOpen);
-                  setIsFilterOpen(false);
+                  setIsCategoryFilterOpen(!isCategoryFilterOpen)
+                  setIsFilterOpen(false)
                 }}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
                   isCategoryFilterOpen || filterCategory
@@ -215,15 +241,13 @@ export default function Event() {
                 }`}
               >
                 <Tag className="h-4 w-4" />
-                <span>
-                  {filterCategory ? `${filterCategory}` : "Category"}
-                </span>
+                <span>{filterCategory ? `${filterCategory}` : "Category"}</span>
                 {filterCategory && (
                   <button
                     onClick={(e) => {
-                      e.stopPropagation();
-                      setFilterCategory("");
-                      setCurrentPage(1);
+                      e.stopPropagation()
+                      setFilterCategory("")
+                      setCurrentPage(1)
                     }}
                     className="ml-2 text-gray-400 hover:text-gray-600"
                   >
@@ -239,9 +263,9 @@ export default function Event() {
                       <button
                         key={category}
                         onClick={() => {
-                          setFilterCategory(category);
-                          setIsCategoryFilterOpen(false);
-                          setCurrentPage(1);
+                          setFilterCategory(category)
+                          setIsCategoryFilterOpen(false)
+                          setCurrentPage(1)
                         }}
                         className={`w-full text-left px-3 py-2 rounded-md text-sm ${
                           filterCategory === category ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"
@@ -261,8 +285,8 @@ export default function Event() {
             {/* Featured Filter */}
             <button
               onClick={() => {
-                setFilterFeatured(filterFeatured === "" ? "true" : filterFeatured === "true" ? "false" : "");
-                setCurrentPage(1);
+                setFilterFeatured(filterFeatured === "" ? "true" : filterFeatured === "true" ? "false" : "")
+                setCurrentPage(1)
               }}
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
                 filterFeatured !== ""
@@ -277,9 +301,9 @@ export default function Event() {
               {filterFeatured !== "" && (
                 <button
                   onClick={(e) => {
-                    e.stopPropagation();
-                    setFilterFeatured("");
-                    setCurrentPage(1);
+                    e.stopPropagation()
+                    setFilterFeatured("")
+                    setCurrentPage(1)
                   }}
                   className="ml-2 text-gray-400 hover:text-gray-600"
                 >
@@ -345,8 +369,8 @@ export default function Event() {
                         alt={event.title}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = "/placeholder.svg?height=200&width=400&query=event";
+                          e.target.onerror = null
+                          e.target.src = "/community-celebration.png"
                         }}
                       />
                     ) : (
@@ -354,13 +378,15 @@ export default function Event() {
                         <Calendar className="h-16 w-16 text-purple-300" />
                       </div>
                     )}
-                    
+
                     {/* Status Badge */}
-                    <div className={`absolute top-3 left-3 ${getStatusBadge(event.status).color} px-2 py-1 rounded-full text-xs font-medium flex items-center`}>
+                    <div
+                      className={`absolute top-3 left-3 ${getStatusBadge(event.status).color} px-2 py-1 rounded-full text-xs font-medium flex items-center`}
+                    >
                       {getStatusBadge(event.status).icon}
                       <span className="capitalize">{event.status}</span>
                     </div>
-                    
+
                     {/* Featured Badge */}
                     {event.featured && (
                       <div className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
@@ -369,11 +395,11 @@ export default function Event() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Event Content */}
                   <div className="p-5 flex-grow flex flex-col">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">{event.title}</h3>
-                    
+
                     <div className="space-y-2 mb-4 text-sm text-gray-600">
                       {/* Date and Time */}
                       <div className="flex items-start">
@@ -385,13 +411,13 @@ export default function Event() {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Location */}
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                         <span>{event.location}</span>
                       </div>
-                      
+
                       {/* Category */}
                       <div className="flex items-center">
                         <Tag className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
@@ -399,7 +425,7 @@ export default function Event() {
                           {event.category}
                         </span>
                       </div>
-                      
+
                       {/* Capacity if available */}
                       {event.capacity > 0 && (
                         <div className="flex items-center">
@@ -408,25 +434,25 @@ export default function Event() {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Description */}
                     <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p>
-                    
+
                     {/* Action Buttons */}
                     <div className="mt-auto pt-4 flex gap-2">
-                      <a
-                        href={`/event/${event._id}`}
-                        className="flex-grow px-4 py-2 bg-purple-600 text-white text-center rounded-md hover:bg-purple-700 transition-colors"
+                      <button
+                        onClick={() => handleViewDetails(event)}
+                        className="flex-grow px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors"
                       >
                         View Details
-                      </a>
-                      
+                      </button>
+
                       {event.registrationUrl && event.status !== "past" && event.status !== "cancelled" && (
                         <a
                           href={event.registrationUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-4 py-2 border border-purple-600 text-purple-600 rounded-md hover:bg-purple-50 transition-colors"
+                          className="flex items-center gap-1 px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-purple-50 transition-colors"
                         >
                           Register
                           <ExternalLink className="h-4 w-4" />
@@ -453,7 +479,7 @@ export default function Event() {
 
                   <div className="hidden md:flex">
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(page => {
+                      .filter((page) => {
                         // Show first page, last page, current page, and pages around current page
                         return (
                           page === 1 ||
@@ -461,19 +487,16 @@ export default function Event() {
                           Math.abs(page - currentPage) <= 1 ||
                           (page === 2 && currentPage === 1) ||
                           (page === totalPages - 1 && currentPage === totalPages)
-                        );
+                        )
                       })
                       .map((page, index, array) => {
                         // Add ellipsis where needed
                         if (index > 0 && array[index - 1] !== page - 1) {
                           return (
-                            <span
-                              key={`ellipsis-${page}`}
-                              className="px-4 py-2 border rounded-md text-gray-400"
-                            >
+                            <span key={`ellipsis-${page}`} className="px-4 py-2 border rounded-md text-gray-400">
                               ...
                             </span>
-                          );
+                          )
                         }
                         return (
                           <button
@@ -485,7 +508,7 @@ export default function Event() {
                           >
                             {page}
                           </button>
-                        );
+                        )
                       })}
                   </div>
 
@@ -507,6 +530,18 @@ export default function Event() {
           </>
         )}
       </div>
+
+      {/* Event Details Modal */}
+      {selectedEvent && (
+        <EventDetailsModal
+          event={selectedEvent}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          formatDate={formatDate}
+          getStatusBadge={getStatusBadge}
+          apiUrl={import.meta.env.VITE_API_URL}
+        />
+      )}
     </div>
-  );
+  )
 }
