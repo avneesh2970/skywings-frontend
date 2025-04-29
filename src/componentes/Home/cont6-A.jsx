@@ -14,7 +14,32 @@ const images = [
   "/Brand/logo9.png",
   "/Brand/logo10.jpg",
   "/Brand/logo11.png",
-];
+  "/Brand/logo12.png",
+  "/Brand/logo13.png",
+  "/Brand/logo14.gif",
+  "/Brand/logo15.png",
+  "/Brand/logo16.png",
+  "/Brand/logo17.png",
+  "/Brand/logo18.jpg",
+  "/Brand/logo19.png",
+  "/Brand/logo20.png",
+  "/Brand/logo21.png",
+  "/Brand/logo22.png",
+  "/Brand/logo23.png",
+  "/Brand/logo24.png",
+  "/Brand/logo25.jpg",
+  "/Brand/logo26.png",
+  "/Brand/logo27.gif",
+  "/Brand/logo28.png",
+  "/Brand/logo29.png",
+  "/Brand/logo30.png",
+  "/Brand/logo31.png",
+  "/Brand/logo32.png",
+  "/Brand/logo33.jpg",
+  "/Brand/logo34.jpg",
+  "/Brand/logo35.jpg",
+  "/Brand/logo36.png",
+]
 
 const Cont6A = () => {
   const scrollRef = useRef(null);
@@ -41,12 +66,11 @@ const Cont6A = () => {
 
     let scrollPosition = 0;
 
-    // Time in seconds to scroll through one complete set of logos
-    const secondsToScrollComplete = 30; // Slow, subtle scrolling
+    // Define a constant speed in pixels per second
+    const pixelsPerSecond = 50; // Adjust this value to control speed (lower = slower)
 
-    // Calculate pixels per frame based on desired duration
-    const containerWidth = itemWidth * itemCount;
-    const pixelsPerFrame = containerWidth / (secondsToScrollComplete * 60); // Assuming 60fps
+    // Calculate pixels per frame based on 60fps
+    const pixelsPerFrame = pixelsPerSecond / 60;
 
     const scroll = () => {
       scrollPosition -= pixelsPerFrame;
