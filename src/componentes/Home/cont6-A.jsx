@@ -3,17 +3,17 @@
 import { useEffect, useRef } from "react";
 
 const images = [
-  "/Brand/i.webp",
-  "/Brand/j.png",
-  "/Brand/k.png",
-  "/Brand/l.png",
-  "/Brand/m.webp",
-  "/Brand/n.webp",
-  "/Brand/p.png",
-  "/Brand/q.png",
-  "/Brand/r.png",
-  "/Brand/s.png",
-  "/Brand/t.png",
+  "/Brand/logo1.png",
+  "/Brand/logo2.png",
+  "/Brand/logo3.jpg",
+  "/Brand/logo4.png",
+  "/Brand/logo5.png",
+  "/Brand/logo6.jpg",
+  "/Brand/logo7.png",
+  "/Brand/logo8.png",
+  "/Brand/logo9.png",
+  "/Brand/logo10.jpg",
+  "/Brand/logo11.png",
 ];
 
 const Cont6A = () => {

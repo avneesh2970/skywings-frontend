@@ -139,8 +139,8 @@ function Sidebar() {
               <Users size={20} className="text-gray-600" />
             </div>
             <div>
-              <p className="font-medium text-sm">Admin User</p>
-              <p className="text-xs text-gray-500">admin@example.com</p>
+              <p className="font-medium text-sm">skywings</p>
+              <p className="text-xs text-gray-500">career@assuredjob.com</p>
             </div>
           </div>
         </div>
