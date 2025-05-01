@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import axios from "axios"
 import {
   Calendar,
@@ -17,6 +17,7 @@ import {
   ExternalLink,
 } from "lucide-react"
 import EventDetailsModal from "./EventDetailsModal"
+import { motion } from "framer-motion"
 
 export default function Event() {
   const [events, setEvents] = useState([])
@@ -37,20 +38,36 @@ export default function Event() {
     direction: "asc",
   })
 
-  // New state for modal
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  // Fetch events from the API
+  const filterRef = useRef(null)
+  const categoryFilterRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsFilterOpen(false)
+      }
+      if (categoryFilterRef.current && !categoryFilterRef.current.contains(event.target)) {
+        setIsCategoryFilterOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true)
 
-        // Build query parameters
         const params = new URLSearchParams()
         params.append("page", currentPage)
-        params.append("limit", 9) // Show 9 events per page
+        params.append("limit", 9)
 
         if (searchTerm) params.append("search", searchTerm)
         if (filterStatus) params.append("status", filterStatus)
@@ -65,7 +82,6 @@ export default function Event() {
         setTotalPages(response.data.totalPages)
         setTotalEvents(response.data.total)
 
-        // Extract unique categories for filtering
         const uniqueCategories = [...new Set(response.data.data.map((event) => event.category))]
         setCategories(uniqueCategories)
 
@@ -82,7 +98,6 @@ export default function Event() {
     fetchEvents()
   }, [currentPage, searchTerm, filterStatus, filterCategory, filterFeatured, sortConfig])
 
-  // Format date for display
   const formatDate = (dateString) => {
     const options = {
       year: "numeric",
@@ -94,7 +109,6 @@ export default function Event() {
     return new Date(dateString).toLocaleDateString(undefined, options)
   }
 
-  // Get status badge styling
   const getStatusBadge = (status) => {
     switch (status) {
       case "upcoming":
@@ -110,7 +124,6 @@ export default function Event() {
     }
   }
 
-  // Clear all filters
   const clearFilters = () => {
     setSearchTerm("")
     setFilterStatus("")
@@ -119,21 +132,36 @@ export default function Event() {
     setCurrentPage(1)
   }
 
-  // Handle search input with debounce
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value)
-    setCurrentPage(1) // Reset to first page on search
+    setCurrentPage(1)
   }
 
-  // Handle opening the modal with event details
   const handleViewDetails = (event) => {
     setSelectedEvent(event)
     setIsModalOpen(true)
   }
 
+  const EventSkeleton = () => (
+    <div className="bg-white rounded-lg overflow-hidden shadow-md animate-pulse">
+      <div className="h-48 bg-gray-200"></div>
+      <div className="p-5">
+        <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+        <div className="space-y-3">
+          <div className="h-4 bg-gray-200 rounded w-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+        </div>
+        <div className="mt-6 pt-4 flex gap-2">
+          <div className="h-10 bg-gray-200 rounded w-full"></div>
+          <div className="h-10 bg-gray-200 rounded w-1/3"></div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Hero Section */}
       <div className="bg-blue-500 text-white py-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Upcoming Events</h1>
@@ -143,16 +171,14 @@ export default function Event() {
         </div>
       </div>
 
-      {/* Filters Section */}
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          {/* Search */}
           <div className="relative w-full md:w-auto md:flex-grow md:max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
               type="text"
               placeholder="Search events..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
               value={searchTerm}
               onChange={handleSearchChange}
             />
@@ -162,7 +188,7 @@ export default function Event() {
                   setSearchTerm("")
                   setCurrentPage(1)
                 }}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -170,14 +196,13 @@ export default function Event() {
           </div>
 
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
-            {/* Status Filter */}
-            <div className="relative">
+            <div className="relative" ref={filterRef}>
               <button
                 onClick={() => {
                   setIsFilterOpen(!isFilterOpen)
                   setIsCategoryFilterOpen(false)
                 }}
-                className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
+                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-300 ${
                   isFilterOpen || filterStatus
                     ? "bg-purple-50 border-purple-300 text-purple-700"
                     : "bg-white text-gray-700 hover:bg-gray-50"
@@ -194,7 +219,7 @@ export default function Event() {
                       setFilterStatus("")
                       setCurrentPage(1)
                     }}
-                    className="ml-2 text-gray-400 hover:text-gray-600"
+                    className="ml-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -212,7 +237,7 @@ export default function Event() {
                           setIsFilterOpen(false)
                           setCurrentPage(1)
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
                           filterStatus === status ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"
                         }`}
                       >
@@ -227,14 +252,13 @@ export default function Event() {
               )}
             </div>
 
-            {/* Category Filter */}
-            <div className="relative">
+            <div className="relative" ref={categoryFilterRef}>
               <button
                 onClick={() => {
                   setIsCategoryFilterOpen(!isCategoryFilterOpen)
                   setIsFilterOpen(false)
                 }}
-                className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
+                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-300 ${
                   isCategoryFilterOpen || filterCategory
                     ? "bg-purple-50 border-purple-300 text-purple-700"
                     : "bg-white text-gray-700 hover:bg-gray-50"
@@ -249,7 +273,7 @@ export default function Event() {
                       setFilterCategory("")
                       setCurrentPage(1)
                     }}
-                    className="ml-2 text-gray-400 hover:text-gray-600"
+                    className="ml-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -267,7 +291,7 @@ export default function Event() {
                           setIsCategoryFilterOpen(false)
                           setCurrentPage(1)
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
                           filterCategory === category ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"
                         }`}
                       >
@@ -282,13 +306,12 @@ export default function Event() {
               )}
             </div>
 
-            {/* Featured Filter */}
             <button
               onClick={() => {
                 setFilterFeatured(filterFeatured === "" ? "true" : filterFeatured === "true" ? "false" : "")
                 setCurrentPage(1)
               }}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
+              className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-300 ${
                 filterFeatured !== ""
                   ? "bg-purple-50 border-purple-300 text-purple-700"
                   : "bg-white text-gray-700 hover:bg-gray-50"
@@ -305,18 +328,17 @@ export default function Event() {
                     setFilterFeatured("")
                     setCurrentPage(1)
                   }}
-                  className="ml-2 text-gray-400 hover:text-gray-600"
+                  className="ml-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
                 >
                   <X className="h-4 w-4" />
                 </button>
               )}
             </button>
 
-            {/* Clear Filters */}
             {(searchTerm || filterStatus || filterCategory || filterFeatured) && (
               <button
                 onClick={clearFilters}
-                className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-300"
               >
                 Clear Filters
               </button>
@@ -324,10 +346,11 @@ export default function Event() {
           </div>
         </div>
 
-        {/* Loading State */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {[...Array(6)].map((_, index) => (
+              <EventSkeleton key={index} />
+            ))}
           </div>
         ) : error ? (
           <div className="bg-red-50 text-red-600 p-6 rounded-lg text-center">
@@ -354,25 +377,33 @@ export default function Event() {
           </div>
         ) : (
           <>
-            {/* Events Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {events.map((event) => (
-                <div
+                <motion.div
                   key={event._id}
-                  className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col"
+                  className="relative bg-white rounded-xl overflow-hidden shadow-md flex flex-col h-full group"
+                  initial={{ scale: 1, y: 0 }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.2)",
+                    transition: { duration: 0.3, ease: "easeOut" },
+                  }}
                 >
                   {/* Event Image */}
-                  <div className="relative h-48 bg-gray-200">
+                  <div className="relative h-48 bg-gray-200 overflow-hidden">
                     {event.imageUrl ? (
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}${event.imageUrl}`}
-                        alt={event.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.onerror = null
-                          e.target.src = "/community-celebration.png"
-                        }}
-                      />
+                      <>
+                        <img
+                          src={`${import.meta.env.VITE_API_URL}${event.imageUrl}`}
+                          alt={event.title}
+                          className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110"
+                          onError={(e) => {
+                            e.target.onerror = null
+                            e.target.src = "/community-celebration.png"
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-purple-100">
                         <Calendar className="h-16 w-16 text-purple-300" />
@@ -381,7 +412,7 @@ export default function Event() {
 
                     {/* Status Badge */}
                     <div
-                      className={`absolute top-3 left-3 ${getStatusBadge(event.status).color} px-2 py-1 rounded-full text-xs font-medium flex items-center`}
+                      className={`absolute top-3 left-3 ${getStatusBadge(event.status).color} px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-sm`}
                     >
                       {getStatusBadge(event.status).icon}
                       <span className="capitalize">{event.status}</span>
@@ -389,7 +420,7 @@ export default function Event() {
 
                     {/* Featured Badge */}
                     {event.featured && (
-                      <div className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                      <div className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-sm">
                         <Star className="h-3 w-3 mr-1" />
                         Featured
                       </div>
@@ -397,11 +428,19 @@ export default function Event() {
                   </div>
 
                   {/* Event Content */}
-                  <div className="p-5 flex-grow flex flex-col">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">{event.title}</h3>
+                  <motion.div
+                    className="p-5 flex-grow flex flex-col relative"
+                    initial={{ y: 0 }}
+                    whileHover={{
+                      y: -10,
+                      transition: { duration: 0.3, ease: "easeOut" },
+                    }}
+                  >
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-purple-700 transition-colors duration-300">
+                      {event.title}
+                    </h3>
 
                     <div className="space-y-2 mb-4 text-sm text-gray-600">
-                      {/* Date and Time */}
                       <div className="flex items-start">
                         <Clock className="h-4 w-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" />
                         <div>
@@ -412,13 +451,11 @@ export default function Event() {
                         </div>
                       </div>
 
-                      {/* Location */}
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                         <span>{event.location}</span>
                       </div>
 
-                      {/* Category */}
                       <div className="flex items-center">
                         <Tag className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                         <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs">
@@ -426,7 +463,6 @@ export default function Event() {
                         </span>
                       </div>
 
-                      {/* Capacity if available */}
                       {event.capacity > 0 && (
                         <div className="flex items-center">
                           <Users className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
@@ -435,43 +471,44 @@ export default function Event() {
                       )}
                     </div>
 
-                    {/* Description */}
-                    <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p>
+                    {/* <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p> */}
 
-                    {/* Action Buttons */}
                     <div className="mt-auto pt-4 flex gap-2">
-                      <button
+                      <motion.button
                         onClick={() => handleViewDetails(event)}
-                        className="flex-grow px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors"
+                        className="flex-grow px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors duration-300"
+                        whileHover={{ backgroundColor: "#2563eb" }}
+                        whileTap={{ scale: 0.98 }}
                       >
                         View Details
-                      </button>
+                      </motion.button>
 
                       {event.registrationUrl && event.status !== "past" && event.status !== "cancelled" && (
-                        <a
+                        <motion.a
                           href={event.registrationUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-purple-50 transition-colors"
+                          className="flex items-center gap-1 px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors duration-300"
+                          whileHover={{ backgroundColor: "#eff6ff" }}
+                          whileTap={{ scale: 0.98 }}
                         >
                           Register
                           <ExternalLink className="h-4 w-4" />
-                        </a>
+                        </motion.a>
                       )}
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-8 mb-12">
                 <div className="flex space-x-2">
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="flex items-center px-4 py-2 border rounded-md disabled:opacity-50"
+                    className="flex items-center px-4 py-2 border rounded-md disabled:opacity-50 transition-colors duration-300"
                   >
                     <ArrowLeft className="h-4 w-4 mr-1" />
                     Previous
@@ -480,7 +517,6 @@ export default function Event() {
                   <div className="hidden md:flex">
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                       .filter((page) => {
-                        // Show first page, last page, current page, and pages around current page
                         return (
                           page === 1 ||
                           page === totalPages ||
@@ -490,7 +526,6 @@ export default function Event() {
                         )
                       })
                       .map((page, index, array) => {
-                        // Add ellipsis where needed
                         if (index > 0 && array[index - 1] !== page - 1) {
                           return (
                             <span key={`ellipsis-${page}`} className="px-4 py-2 border rounded-md text-gray-400">
@@ -502,8 +537,8 @@ export default function Event() {
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`px-4 py-2 border rounded-md ${
-                              currentPage === page ? "bg-purple-600 text-white" : ""
+                            className={`px-4 py-2 border rounded-md transition-colors duration-300 ${
+                              currentPage === page ? "bg-purple-600 text-white border-purple-600" : "hover:bg-gray-50"
                             }`}
                           >
                             {page}
@@ -519,7 +554,7 @@ export default function Event() {
                   <button
                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="flex items-center px-4 py-2 border rounded-md disabled:opacity-50"
+                    className="flex items-center px-4 py-2 border rounded-md disabled:opacity-50 transition-colors duration-300"
                   >
                     Next
                     <ArrowRight className="h-4 w-4 ml-1" />
@@ -531,7 +566,6 @@ export default function Event() {
         )}
       </div>
 
-      {/* Event Details Modal */}
       {selectedEvent && (
         <EventDetailsModal
           event={selectedEvent}

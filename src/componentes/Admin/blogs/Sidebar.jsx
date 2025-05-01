@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, FileText, Calendar, Mail, Users, Settings, Menu, X, Upload, Bell } from 'lucide-react';
+import { Home, FileText, Calendar, Mail, Users, Settings, Menu, X, Upload, Bell, Newspaper } from 'lucide-react';
 
-function Sidebar() {
+function Sidebar({ user }) {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
   const location = useLocation();
+  const [newsExpanded, setNewsExpanded] = useState(false);
   
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
@@ -54,6 +55,16 @@ function Sidebar() {
   
   const navItems = [
     { path: "/admin/dashboard", icon: <Home size={20} />, label: "Dashboard" },
+    { 
+      path: "/admin/dashboard/news", 
+      icon: <Newspaper size={20} />, 
+      label: "News", 
+      hasSubmenu: true,
+      submenu: [
+        { path: "/admin/dashboard/news", label: "All News" },
+        { path: "/admin/dashboard/news/create", label: "Add News" }
+      ]
+    },
     { path: "/admin/dashboard/blogs", icon: <FileText size={20} />, label: "Blog" },
     { path: "/admin/dashboard/events", icon: <Calendar size={20} />, label: "Events" },
     { path: "/admin/dashboard/contact-us", icon: <Mail size={20} />, label: "Contact Us" },
@@ -107,27 +118,72 @@ function Sidebar() {
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3">
+     {/* Navigation */}
+     <nav className="flex-1 overflow-y-auto py-4 px-3">
           <div className="space-y-1">
             {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
-                  isActive(item.path)
-                    ? "bg-purple-50 text-blue-700 font-medium"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-                onClick={() => window.innerWidth < 768 && setIsOpen(false)}
-              >
-                <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>
-                  {item.icon}
-                </span>
-                <span>{item.label}</span>
-                {isActive(item.path) && (
-                  <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
+              <div key={item.path}>
+                {item.hasSubmenu ? (
+                  <>
+                    <button
+                      onClick={() => setNewsExpanded(!newsExpanded)}
+                      className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-md transition-colors ${
+                        isActive(item.path)
+                          ? "bg-purple-50 text-blue-700 font-medium"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>
+                          {item.icon}
+                        </span>
+                        <span>{item.label}</span>
+                      </div>
+                      {isActive(item.path) && (
+                        <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
+                      )}
+                    </button>
+                    
+                    {/* Submenu */}
+                    {newsExpanded && (
+                      <div className="pl-10 space-y-1 mt-1">
+                        {item.submenu.map((subItem) => (
+                          <Link
+                            key={subItem.path}
+                            to={subItem.path}
+                            className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
+                              location.pathname === subItem.path
+                                ? "bg-purple-50 text-blue-700 font-medium"
+                                : "text-gray-700 hover:bg-gray-100"
+                            }`}
+                            onClick={() => window.innerWidth < 768 && setIsOpen(false)}
+                          >
+                            <span className="text-sm">{subItem.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
+                      isActive(item.path)
+                        ? "bg-purple-50 text-blue-700 font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                    onClick={() => window.innerWidth < 768 && setIsOpen(false)}
+                  >
+                    <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>
+                      {item.icon}
+                    </span>
+                    <span>{item.label}</span>
+                    {isActive(item.path) && (
+                      <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
+                    )}
+                  </Link>
                 )}
-              </Link>
+              </div>
             ))}
           </div>
         </nav>
@@ -139,8 +195,8 @@ function Sidebar() {
               <Users size={20} className="text-gray-600" />
             </div>
             <div>
-              <p className="font-medium text-sm">skywings</p>
-              <p className="text-xs text-gray-500">career@assuredjob.com</p>
+              <p className="font-medium text-sm">{user?.email?.split('@')[0] || 'Admin'}</p>
+              <p className="text-xs text-gray-500">{user?.email || 'admin@example.com'}</p>
             </div>
           </div>
         </div>

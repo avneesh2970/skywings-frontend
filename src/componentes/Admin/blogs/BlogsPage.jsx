@@ -53,7 +53,7 @@ const BlogsPage = () => {
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
         <p className="mt-4 text-gray-600">Loading posts...</p>
       </div>
     );
@@ -69,7 +69,7 @@ const BlogsPage = () => {
           <p className="text-gray-700 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition"
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
           >
             Try Again
           </button>
@@ -81,7 +81,7 @@ const BlogsPage = () => {
   return (
     <div className="pb-12">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 py-12 px-4 rounded-xl mb-10">
+      <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Welcome to <span className="text-blue-600">Skywings</span> Blog
@@ -98,7 +98,7 @@ const BlogsPage = () => {
               placeholder="Search posts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -117,7 +117,7 @@ const BlogsPage = () => {
               </p>
               <Link
                 to="/admin/dashboard/blog-post/editor"
-                className="inline-flex items-center gap-2 bg-emerald-600 text-white px-5 py-3 rounded-md hover:bg-emerald-700 transition"
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-md hover:bg-blue-700 transition"
               >
                 <span>Create Your First Post</span>
                 <ArrowUpRight size={18} />
@@ -133,7 +133,7 @@ const BlogsPage = () => {
                   {searchTerm ? "Search Results" : "Latest Posts"}
                 </h2>
                 {searchTerm && (
-                  <span className="ml-2 text-sm bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full">
+                  <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                     {filteredPosts.length} results
                   </span>
                 )}
@@ -142,7 +142,7 @@ const BlogsPage = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-1 text-gray-600 hover:text-emerald-600"
+                  className="flex items-center gap-1 text-gray-600 hover:text-blue-600"
                 >
                   <Filter size={18} />
                   <span>Filter</span>
@@ -150,7 +150,7 @@ const BlogsPage = () => {
                 <select
                   value={sortOption}
                   onChange={(e) => setSortOption(e.target.value)}
-                  className="ml-2 bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="ml-2 bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
@@ -178,11 +178,11 @@ const BlogsPage = () => {
                     <div className="flex gap-2">
                       <input
                         type="date"
-                        className="bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+                        className="bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                       />
                       <input
                         type="date"
-                        className="bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full"
+                        className="bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                       />
                     </div>
                   </div>
@@ -198,7 +198,7 @@ const BlogsPage = () => {
                 </p>
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="text-emerald-600 hover:text-emerald-700 font-medium"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Clear search
                 </button>
@@ -228,7 +228,7 @@ const BlogsPage = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
                     <div className="p-5 flex-grow flex flex-col">
-                      <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                      <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                         {post.title}
                       </h2>
                       <p className="text-gray-600 mb-4 line-clamp-3">

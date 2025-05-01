@@ -35,11 +35,20 @@ import NewsLetter from "./componentes/Admin/NewsLetter";
 import Settings from "./componentes/Admin/Settings";
 import Event from "./componentes/events/Event";
 import NewsDetail from "./componentes/news/NewsDetails";
+import AdminLogin from "./componentes/Admin/adminLogin/AdminLogin";
+import AdminProtectedRoute from "./componentes/protectedRoute/AdminProtectedRoute";
+import NewsListPage from "./componentes/Admin/news/NewsListPage";
+import CreateNewsPage from "./componentes/Admin/news/CreateNewsPage";
+import EditNewsPage from "./componentes/Admin/news/EditNewsPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <AppProvider>
+        <App />
+      </AppProvider>
+    ),
     children: [
       { path: "/", element: <Home /> },
       { path: "/about", element: <About /> },
@@ -64,7 +73,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin/dashboard",
-    element: <AdminDashboard />,
+    element: (
+      <AppProvider>
+        <AdminProtectedRoute>
+          <AdminDashboard />
+        </AdminProtectedRoute>
+      </AppProvider>
+    ),
     children: [
       {
         path: "/admin/dashboard",
@@ -95,6 +110,18 @@ const router = createBrowserRouter([
         element: <AddEvents />,
       },
       {
+        path: "/admin/dashboard/news",
+        element: <NewsListPage />,
+      },
+      {
+        path: "/admin/dashboard/news/create",
+        element: <CreateNewsPage />,
+      },
+      {
+        path: "/admin/dashboard/news/edit/:id",
+        element: <EditNewsPage />,
+      },
+      {
         path: "/admin/dashboard/contact-us",
         element: <ContactUs />,
       },
@@ -112,12 +139,18 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "/admin/login",
+    element: (
+      <AppProvider>
+        <AdminLogin />
+      </AppProvider>
+    ),
+  },
 ]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <AppProvider>
-      <RouterProvider router={router} />
-    </AppProvider>
+    <RouterProvider router={router} />
   </StrictMode>
 );

@@ -1,25 +1,65 @@
-"use client";
-
+import { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { MdArrowBack, MdAccessTime, MdPerson } from "react-icons/md";
+import axios from "axios";
 import mountain from "../../assets/products/image(10).png";
 import tech from "../../assets/products/image(11).png";
 import desktop from "../../assets/products/image(3).png";
 import sigleman from "../../assets/products/image(4).png";
 import concentration from "../../assets/products/image(5).png";
 import podcast from "../../assets/products/image(6).png";
-import { useEffect } from "react";
 
 export default function NewsDetail() {
   const { pathname } = useLocation();
-
+  const location = useLocation();
   const { id } = useParams();
+  const [dynamicArticle, setDynamicArticle] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Check if this is a dynamic article from the API using state
+  const isDynamic = location.state?.isDynamic;
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  // Extended articles data with full content
+  // Fetch dynamic article if needed
+  useEffect(() => {
+    if (isDynamic) {
+      const fetchArticle = async () => {
+        try {
+          setLoading(true);
+          console.log("Fetching dynamic article with ID:", id);
+          
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/news/${id}`
+          );
+          
+          console.log("API response:", response.data);
+          
+          setDynamicArticle({
+            ...response.data,
+            image: response.data.image ? `${import.meta.env.VITE_API_URL}${response.data.image}` : null,
+            date: new Date(response.data.date).toLocaleDateString('en-US', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
+            }),
+          });
+        } catch (err) {
+          console.error("Error fetching article:", err);
+          setError("Failed to load article");
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchArticle();
+    }
+  }, [id, isDynamic]);
+
+  // Extended articles data with full content (static articles)
   const articlesExtended = [
     {
       id: 1,
@@ -402,18 +442,30 @@ export default function NewsDetail() {
     },
   ];
 
-  // Find the article based on the ID
-  const article = articlesExtended.find(
+  // For static articles, find the article based on the ID
+  const staticArticle = !isDynamic ? articlesExtended.find(
     (article) => article.id === Number.parseInt(id)
-  );
+  ) : null;
+  
+  // Use either the dynamic or static article
+  const article = isDynamic ? dynamicArticle : staticArticle;
 
-  // Find related articles
-  const relatedArticles =
-    article?.relatedArticles?.map((relId) =>
-      articlesExtended.find((a) => a.id === relId)
-    ) || [];
+  // Find related articles (only for static articles)
+  const relatedArticles = !isDynamic && staticArticle?.relatedArticles
+    ? staticArticle.relatedArticles.map((relId) =>
+        articlesExtended.find((a) => a.id === relId)
+      )
+    : [];
 
-  if (!article) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  if (error || !article) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
@@ -421,7 +473,7 @@ export default function NewsDetail() {
             Article not found
           </h1>
           <p className="mt-4 text-gray-600">
-            The article you're looking for doesn't exist or has been removed.
+            {error || "The article you're looking for doesn't exist or has been removed."}
           </p>
           <Link
             to="/news"
@@ -450,11 +502,16 @@ export default function NewsDetail() {
               src={article.image || "/placeholder.svg"}
               alt={article.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error("Image failed to load:", article.image);
+                e.target.src = "/placeholder.svg";
+                e.target.onerror = null; // Prevent infinite loop
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end">
               <div className="p-6 md:p-8 text-white">
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {article.tags.map((tag, tagIndex) => (
+                  {article.tags && article.tags.map((tag, tagIndex) => (
                     <span
                       key={tagIndex}
                       className="bg-purple-600/80 text-white text-xs font-medium px-2 py-1 rounded-full"
@@ -482,6 +539,7 @@ export default function NewsDetail() {
               </div>
             </div>
 
+            {/* Use dangerouslySetInnerHTML for BOTH dynamic and static articles */}
             <div
               className="prose prose-lg max-w-none prose-headings:text-purple-900 prose-a:text-purple-700 prose-a:no-underline hover:prose-a:underline"
               dangerouslySetInnerHTML={{ __html: article.content }}
@@ -489,7 +547,7 @@ export default function NewsDetail() {
           </div>
         </div>
 
-        {relatedArticles.length > 0 && (
+        {!isDynamic && relatedArticles.length > 0 && (
           <div className="mt-12">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">
               Related Articles
@@ -500,6 +558,7 @@ export default function NewsDetail() {
                   relatedArticle && (
                     <Link
                       to={`/news/${relatedArticle.id}`}
+                      state={{ isDynamic: false }}
                       key={relatedArticle.id}
                       className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
                     >
@@ -508,6 +567,11 @@ export default function NewsDetail() {
                           src={relatedArticle.image || "/placeholder.svg"}
                           alt={relatedArticle.title}
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                          onError={(e) => {
+                            console.error("Image failed to load:", relatedArticle.image);
+                            e.target.src = "/placeholder.svg";
+                            e.target.onerror = null; // Prevent infinite loop
+                          }}
                         />
                       </div>
                       <div className="p-4 flex flex-col flex-grow">

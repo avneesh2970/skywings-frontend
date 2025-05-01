@@ -52,31 +52,6 @@ export default function Cont4() {
         <h2 className="text-lg text-purple-600 mt-4">
           Our complete assistance will be with you and we guide you accordingly.
         </h2>
-        {/* <div className="w-full max-w-7xl mx-auto px-2 py-6">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-            {industries.map((industry, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 bg-gray-200 rounded-lg shadow-sm hover:bg-gray-300 cursor-pointer p-2"
-                style={{
-                  transition: "background-color 0.2s ease",
-                }}
-              >
-                <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                  <img
-                    src={industry.icon || "/placeholder.svg"}
-                    alt=""
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span className="text-xs sm:text-sm font-medium overflow-hidden text-ellipsis">
-                  {industry.name}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div> */}
-
         <div className="w-full max-w-7xl mx-auto px-10 py-6">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
             {industries.map((industry, index) => (

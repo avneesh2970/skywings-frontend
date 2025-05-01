@@ -1,29 +1,17 @@
-"use client"
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Search, Home, X, LogOut, User } from 'lucide-react';
+import logo from "../../../assets/products/image 1.png";
 
-import { useState, useEffect } from "react"
-import { Link, useLocation } from "react-router-dom"
-import { Search, Home, X } from "lucide-react"
-import logo from "../../../assets/products/image 1.png"
-
-const Navbar = () => {
-  const location = useLocation()
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-
-  // Handle scroll effect
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     setIsScrolled(window.scrollY > 10)
-  //   }
-
-  //   window.addEventListener("scroll", handleScroll)
-  //   return () => window.removeEventListener("scroll", handleScroll)
-  // }, [])
+const Navbar = ({ user, logout }) => {
+  const location = useLocation();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Handle search functionality
   const handleSearchToggle = () => {
-    setSearchOpen(!searchOpen)
-  }
+    setSearchOpen(!searchOpen);
+  };
 
   return (
     <header
@@ -58,8 +46,8 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Right column - Search button/bar */}
-          <div className="flex justify-end">
+          {/* Right column - Search button/bar and user info */}
+          <div className="flex justify-end items-center gap-4">
             {/* Desktop Search */}
             <div className="hidden md:block">
               {searchOpen ? (
@@ -88,6 +76,23 @@ const Navbar = () => {
                   <span>Search</span>
                 </button>
               )}
+            </div>
+
+            {/* User Info & Logout */}
+            <div className="flex items-center">
+              {user && (
+                <div className="hidden md:flex items-center mr-4">
+                  <User size={18} className="text-gray-500 mr-2" />
+                  <span className="text-sm text-gray-600">{user.email}</span>
+                </div>
+              )}
+              <button
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
 
             {/* Mobile Search Button */}
@@ -127,7 +132,7 @@ const Navbar = () => {
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

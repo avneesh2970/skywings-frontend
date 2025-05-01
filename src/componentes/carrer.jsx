@@ -121,16 +121,16 @@ const Career = () => {
         </h2>
 
         <div className="hidden md:flex justify-between gap-4 mx-10 px-7 py-2 b">
-  {cards.map((card, index) => (
-    <div
-      key={index}
-      className="group relative flex flex-col items-center bg-white border-2 border-blue-500 hover:bg-[#2b7fff] hover:text-white rounded-lg p-4 transition-all duration-300 ease-in-out"
-    >
-      <h3 className="font-semibold text-lg">{card.title}</h3>
-      <p>{card.description}</p>
-    </div>
-  ))}
-</div>
+          {cards.map((card, index) => (
+            <div
+              key={index}
+              className="group relative flex flex-col items-center bg-white border-2 border-blue-500 hover:bg-[#2b7fff] hover:text-white rounded-lg p-4 transition-all duration-300 ease-in-out"
+            >
+              <h3 className="font-semibold text-lg">{card.title}</h3>
+              <p>{card.description}</p>
+            </div>
+          ))}
+        </div>
 
         <Element name="full_time">
           <div className="flex justify-between w-full px-7">
@@ -164,53 +164,53 @@ const Career = () => {
             Scan code
           </span>
           <div className="w-full bg-white-200 py-4 px-4">
-  <div className="grid w-full justify-center mx-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-12 py-10">
-    {scan.map((list, index) => (
-      <div
-        key={index}
-        className="flex flex-col items-center bg-white shadow-lg rounded-lg pt-5 bounce-on-hover"
-      >
-        {/* Contact Text */}
-        <p className="text-center text-lg font-semibold text-gray-800">
-          Contact us on {list.name}
-        </p>
+            <div className="grid w-full justify-center mx-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-12 py-10">
+              {scan.map((list, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col items-center bg-white shadow-lg rounded-lg pt-5 bounce-on-hover"
+                >
+                  {/* Contact Text */}
+                  <p className="text-center text-lg font-semibold text-gray-800">
+                    Contact us on {list.name}
+                  </p>
 
-        {/* Profile Image */}
-        <div className="flex z-10 justify-center mt-2">
-          <img
-            src={img_}
-            className="h-36 w-36 rounded-full object-cover"
-            alt="Profile"
-          />
-        </div>
+                  {/* Profile Image */}
+                  <div className="flex z-10 justify-center mt-2">
+                    <img
+                      src={img_}
+                      className="h-36 w-36 rounded-full object-cover"
+                      alt="Profile"
+                    />
+                  </div>
 
-        {/* Information Box */}
-        <div className="bg-gray-100 -mt-24 sm:-mt-28 p-4 w-full rounded-lg shadow-sm text-center space-y-2">
-          <p className="text-lg font-semibold text-gray-900 pt-14 md:pt-16">
-            Skywings
-          </p>
-          <p className="text-sm text-gray-600">
-            Assure you a better tomorrow
-          </p>
+                  {/* Information Box */}
+                  <div className="bg-gray-100 -mt-24 sm:-mt-28 p-4 w-full rounded-lg shadow-sm text-center space-y-2">
+                    <p className="text-lg font-semibold text-gray-900 pt-14 md:pt-16">
+                      Skywings
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Assure you a better tomorrow
+                    </p>
 
-          {/* LinkedIn Logo */}
-          <div className="flex justify-center mt-4">
-            <img
-              src={list.img}
-              alt="LinkedIn Logo"
-              className="h-32 w-32 sm:h-24 sm:w-24 md:h-40 md:w-40"
-            />
+                    {/* LinkedIn Logo */}
+                    <div className="flex justify-center mt-4">
+                      <img
+                        src={list.img}
+                        alt="LinkedIn Logo"
+                        className="h-32 w-32 sm:h-24 sm:w-24 md:h-40 md:w-40"
+                      />
+                    </div>
+                    <p className="text-center text-sm font-medium text-gray-700">
+                      Scan Code
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="text-center text-sm font-medium text-gray-700">
-            Scan Code
-          </p>
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
 
-<style jsx>{`
+          <style jsx>{`
   /* Bounce animation */
 .bounce-on-hover {
   transition: transform 0.4s ease;
@@ -234,7 +234,6 @@ const Career = () => {
 }
 
 `}</style>
-
         </div>
       </div>
 
@@ -267,20 +266,20 @@ const Career = () => {
                 </div>
             </div> */}
 
-
-      <Resume/>
-
-      <h3 className="text-center text-2xl text-[#667085] mt-11">
-        “Join 100K+ professionals who trust AssuredJob for career growth.”
+      <Resume />
+      <h3 className="text-center text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-700 mb-8 sm:mb-12 max-w-2xl mx-auto mt-14 leading-snug sm:leading-tight">
+        Join 100K+ professionals who trust AssuredJob for career growth.
       </h3>
 
-      <div className="hidden md:flex items-center justify-center gap-4 p-4">
-        {platFormCard.map((info, index) => (
-          <StatCard key={index} count={info.count} platform={info.platform} />
-        ))}
+      <div className="flex justify-center w-full px-4 mb-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl w-full place-items-center">
+          {platFormCard.map((info, index) => (
+            <StatCard key={index} count={info.count} platform={info.platform} />
+          ))}
+        </div>
       </div>
 
-      <div className="md:hidden w-full flex flex-col items-center relative overflow-hidden my-3">
+      {/* <div className="md:hidden w-full flex flex-col items-center relative overflow-hidden my-3">
         <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{
@@ -298,7 +297,7 @@ const Career = () => {
           ))}
         </div>
         <Arrows nextSlide={nextStatSlide} prevSlide={prevStatSlide} />
-      </div>
+      </div> */}
 
       <FAQAccordion />
       <SupportSection />

@@ -6,20 +6,7 @@ import Sidebar from "./blogs/Sidebar";
 import { AppContext } from "../../context/AppContext";
 
 function AdminDashboard() {
-  const { fetchPosts } = useContext(AppContext);
-  const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
-
-  // Check for mobile view on resize
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const { fetchPosts, user, logout } = useContext(AppContext);
 
   useEffect(() => {
     fetchPosts();
@@ -29,12 +16,11 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Top Navbar */}
-      <Navbar />
-
+      <Navbar user={user} logout={logout} />
       {/* Main content with Sidebar + Page content */}
       <div className="flex flex-1 relative">
         {/* Sidebar */}
-        <Sidebar />
+        <Sidebar user={user} />
 
         {/* Main content */}
         <div className="flex-1 p-4 md:ml-0">
