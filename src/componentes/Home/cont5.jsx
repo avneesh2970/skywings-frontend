@@ -999,6 +999,8 @@ import testm_2 from "../../assets/products/testm_2.webp";
 import testm_3 from "../../assets/products/testm_3.jpg";
 import testm_4 from "../../assets/products/testm_4.jpg";
 import Newslettr from "../newsletter/Newslettr";
+import FAQAccordion from "../Carrier/FAQAccordion";
+import EventsDisplay from "./EventsCards";
 
 const Cont5 = () => {
   const clientTestimonials = [
@@ -1885,6 +1887,8 @@ const Cont5 = () => {
 
   return (
     <>
+        <EventsDisplay/>
+
     <div className="bg-purple-50 py-16 text-center flex flex-col items-center px-4 md:px-12">
       <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-4 py-1.5 rounded-full">TESTIMONIALS</span>
       <h1 className="text-4xl text-[#42307D] font-bold my-6">Don&apos;t just take our word for it</h1>
@@ -1913,6 +1917,7 @@ const Cont5 = () => {
         "freelancer"
       )}
     </div>
+    <FAQAccordion />
     <Newslettr />
     </>
   );

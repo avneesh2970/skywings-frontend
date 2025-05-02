@@ -4,7 +4,7 @@ import { useRef } from "react"
 import emailjs from "@emailjs/browser"
 
 import logo from "../assets/products/image 1.png"
-import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa"
+import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa"
 import { HiPhone, HiMail } from "react-icons/hi"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
@@ -53,7 +53,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <FaLinkedin className="w-6 h-6 p-0.5 text-blue-600 hover:text-blue-700" />
+                <FaLinkedin className="w-6 h-6 text-blue-600 hover:text-blue-700" />
               </a>
               <a
                 href="https://www.facebook.com/www.assuredjob.in?mibextid=ZbWKwL"
@@ -65,8 +65,11 @@ const Footer = () => {
               <a href="https://www.instagram.com/assuredjob/" target="_blank" rel="noopener noreferrer">
                 <FaInstagram className="w-6 h-6 text-red-600 hover:text-pink-500" />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer">
+              <a href="https://x.com/assuredjob "  target="_blank" rel="noopener noreferrer">
                 <FaXTwitter className="w-6 h-6 text-black hover:text-gray-700" />
+              </a>
+              <a href="https://www.youtube.com/@TheAssuredJobChannel"  target="_blank" rel="noopener noreferrer">
+                <FaYoutube className="w-6 h-6 text-red-500 hover:text-red-600" />
               </a>
             </div>
           </div>

@@ -10,13 +10,14 @@ import {
   Users,
   ArrowRight,
   Loader2,
-  BarChart3,
-  TrendingUp,
   Clock,
   AlertCircle,
   CheckCircle,
   XCircle,
   Star,
+  Newspaper,
+  Eye,
+  Tag,
 } from "lucide-react"
 
 export default function HomePage() {
@@ -25,6 +26,7 @@ export default function HomePage() {
     events: { total: 0, upcoming: 0, recent: [] },
     resumes: { total: 0, new: 0, recent: [] },
     newsletter: { total: 0, active: 0, recent: [] },
+    news: { total: 0, recent: [] },
   })
   const [error, setError] = useState(null)
 
@@ -48,6 +50,11 @@ export default function HomePage() {
           params: { limit: 5, sort: "createdAt", order: "desc" },
         })
 
+        // Fetch news data
+        const newsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/news`, {
+          params: { limit: 5, sort: "date", order: "desc", status: "published" },
+        })
+
         // Calculate stats
         const upcomingEvents = eventsResponse.data.data.filter((event) => event.status === "upcoming").length
         const newResumes = resumesResponse.data.data.filter((resume) => resume.status === "new").length
@@ -68,6 +75,10 @@ export default function HomePage() {
             total: newsletterResponse.data.total,
             active: activeSubscribers,
             recent: newsletterResponse.data.data,
+          },
+          news: {
+            total: newsResponse.data.total,
+            recent: newsResponse.data.data,
           },
         })
 
@@ -97,34 +108,90 @@ export default function HomePage() {
   const getEventStatusBadge = (status) => {
     switch (status) {
       case "upcoming":
-        return { color: "bg-blue-100 text-blue-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-blue-100 text-blue-700",
+          icon: <Calendar className="h-3 w-3 mr-1" />,
+        }
       case "ongoing":
-        return { color: "bg-green-100 text-green-700", icon: <CheckCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-green-100 text-green-700",
+          icon: <CheckCircle className="h-3 w-3 mr-1" />,
+        }
       case "past":
-        return { color: "bg-gray-100 text-gray-700", icon: <Clock className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-gray-100 text-gray-700",
+          icon: <Clock className="h-3 w-3 mr-1" />,
+        }
       case "cancelled":
-        return { color: "bg-red-100 text-red-700", icon: <XCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-red-100 text-red-700",
+          icon: <XCircle className="h-3 w-3 mr-1" />,
+        }
       default:
-        return { color: "bg-purple-100 text-purple-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-purple-100 text-purple-700",
+          icon: <Calendar className="h-3 w-3 mr-1" />,
+        }
     }
   }
 
   const getResumeStatusBadge = (status) => {
     switch (status) {
       case "new":
-        return { color: "bg-blue-100 text-blue-700", icon: <Clock className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-blue-100 text-blue-700",
+          icon: <Clock className="h-3 w-3 mr-1" />,
+        }
       case "reviewed":
-        return { color: "bg-purple-100 text-purple-700", icon: <CheckCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-purple-100 text-purple-700",
+          icon: <CheckCircle className="h-3 w-3 mr-1" />,
+        }
       case "contacted":
-        return { color: "bg-yellow-100 text-yellow-700", icon: <Mail className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-yellow-100 text-yellow-700",
+          icon: <Mail className="h-3 w-3 mr-1" />,
+        }
       case "interviewed":
-        return { color: "bg-orange-100 text-orange-700", icon: <Users className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-orange-100 text-orange-700",
+          icon: <Users className="h-3 w-3 mr-1" />,
+        }
       case "rejected":
-        return { color: "bg-red-100 text-red-700", icon: <XCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-red-100 text-red-700",
+          icon: <XCircle className="h-3 w-3 mr-1" />,
+        }
       case "hired":
-        return { color: "bg-green-100 text-green-700", icon: <CheckCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-green-100 text-green-700",
+          icon: <CheckCircle className="h-3 w-3 mr-1" />,
+        }
       default:
-        return { color: "bg-gray-100 text-gray-700", icon: <AlertCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-gray-100 text-gray-700",
+          icon: <AlertCircle className="h-3 w-3 mr-1" />,
+        }
+    }
+  }
+
+  const getNewsStatusBadge = (status) => {
+    switch (status) {
+      case "published":
+        return {
+          color: "bg-green-100 text-green-700",
+          icon: <CheckCircle className="h-3 w-3 mr-1" />,
+        }
+      case "draft":
+        return {
+          color: "bg-yellow-100 text-yellow-700",
+          icon: <Clock className="h-3 w-3 mr-1" />,
+        }
+      default:
+        return {
+          color: "bg-gray-100 text-gray-700",
+          icon: <AlertCircle className="h-3 w-3 mr-1" />,
+        }
     }
   }
 
@@ -159,7 +226,10 @@ export default function HomePage() {
               <Calendar className="h-6 w-6 text-blue-600" />
             </div>
           </div>
-          <Link to="/admin/dashboard/events" className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+          <Link
+            to="/admin/dashboard/events"
+            className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+          >
             View all events
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
@@ -214,7 +284,10 @@ export default function HomePage() {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
             <h2 className="text-lg font-semibold text-gray-800">Recent Events</h2>
-            <Link to="/admin/dashboard/events" className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
+            <Link
+              to="/admin/dashboard/events"
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+            >
               See all
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
@@ -244,7 +317,9 @@ export default function HomePage() {
                         <div className="flex items-center mt-1">
                           <span className="text-xs text-gray-500 mr-2">{formatDate(event.startDate)}</span>
                           <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${getEventStatusBadge(event.status).color}`}
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${
+                              getEventStatusBadge(event.status).color
+                            }`}
                           >
                             {getEventStatusBadge(event.status).icon}
                             <span className="capitalize">{event.status}</span>
@@ -274,7 +349,10 @@ export default function HomePage() {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
             <h2 className="text-lg font-semibold text-gray-800">Recent Resume Submissions</h2>
-            <Link to="/admin/dashboard/resumes" className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center">
+            <Link
+              to="/admin/dashboard/resumes"
+              className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center"
+            >
               See all
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
@@ -290,7 +368,9 @@ export default function HomePage() {
                       <div className="flex items-center mt-1">
                         <span className="text-xs text-gray-500 mr-2">{resume.jobAppliedFor}</span>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${getResumeStatusBadge(resume.status).color}`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${
+                            getResumeStatusBadge(resume.status).color
+                          }`}
                         >
                           {getResumeStatusBadge(resume.status).icon}
                           <span className="capitalize">{resume.status}</span>
@@ -365,46 +445,81 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Activity Overview */}
+        {/* Recent News */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="px-6 py-4 bg-gray-50 border-b">
-            <h2 className="text-lg font-semibold text-gray-800">Activity Overview</h2>
+          <div className="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
+            <h2 className="text-lg font-semibold text-gray-800">Recent News</h2>
+            <Link
+              to="/admin/dashboard/news"
+              className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center"
+            >
+              See all
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
           </div>
 
-          <div className="p-6">
-            <div className="flex items-center justify-center h-48 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-              <div className="text-center">
-                <BarChart3 className="h-10 w-10 mx-auto text-gray-400 mb-2" />
-                <p className="text-gray-500">Activity charts coming soon</p>
-                <p className="text-xs text-gray-400 mt-1">Track user engagement and content performance</p>
+          <div className="divide-y divide-gray-200">
+            {stats.news.recent && stats.news.recent.length > 0 ? (
+              stats.news.recent.slice(0, 4).map((newsItem) => (
+                <div key={`news-${newsItem._id}`} className="px-6 py-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        {newsItem.image ? (
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}${newsItem.image}`}
+                            alt={newsItem.title}
+                            className="h-10 w-10 rounded-md object-cover"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-md bg-purple-100 flex items-center justify-center">
+                            <Newspaper className="h-5 w-5 text-purple-600" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{newsItem.title}</h3>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{formatDate(newsItem.date)}</span>
+                          </div>
+                          {newsItem.author && (
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Users className="h-3 w-3 mr-1" />
+                              <span className="line-clamp-1">{newsItem.author}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Eye className="h-3 w-3 mr-1" />
+                            <span>{newsItem.views || 0} views</span>
+                          </div>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${
+                              getNewsStatusBadge(newsItem.status).color
+                            }`}
+                          >
+                            {getNewsStatusBadge(newsItem.status).icon}
+                            <span className="capitalize">{newsItem.status}</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {newsItem.tags && newsItem.tags.length > 0 && (
+                      <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full flex items-center">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {newsItem.tags[0]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="px-6 py-8 text-center text-gray-500">
+                <Newspaper className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                <p>No news articles found</p>
               </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-4">
-              {/* <div className="bg-blue-50 rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="bg-blue-100 p-2 rounded-full mr-3">
-                    <TrendingUp className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Monthly Growth</p>
-                    <p className="text-lg font-semibold text-gray-800">+12.5%</p>
-                  </div>
-                </div>
-              </div> */}
-
-              {/* <div className="bg-purple-50 rounded-lg p-4">
-                <div className="flex items-center">
-                  <div className="bg-purple-100 p-2 rounded-full mr-3">
-                    <Users className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">User Engagement</p>
-                    <p className="text-lg font-semibold text-gray-800">87%</p>
-                  </div>
-                </div>
-              </div> */}
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -36,7 +36,7 @@ function SocialmediaConn() {
         <FaLinkedin className='w-9 h-9'/>
       </Link>
       <Link
-        to=""
+        to="https://www.youtube.com/@TheAssuredJobChannel"
         target="_blank"
         rel="noopener noreferrer"
        className="text-red-500 rounded-lg  bg-transparent text-3xl hover:scale-110 duration-300 hover:shadow-[0_0_20px_5px] hover:shadow-red-500/50"
@@ -44,7 +44,7 @@ function SocialmediaConn() {
         <FaYoutube className=' w-9 bg-transparent h-9'/>
       </Link>
       <Link
-        to=""
+        to="https://x.com/assuredjob"
         target="_blank"
         rel="noopener noreferrer"
        className="text-black rounded-lg  bg-transparent text-3xl hover:scale-110 duration-300 hover:shadow-[0_0_20px_5px] hover:shadow-black"
