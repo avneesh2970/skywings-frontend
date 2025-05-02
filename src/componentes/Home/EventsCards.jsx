@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, MapPin, Tag, Users, X, AlertCircle, User, ChevronRight } from "lucide-react"
+import { Calendar, MapPin, Tag, Users, X, AlertCircle, User, ChevronRight, Clock } from "lucide-react"
 
 function EventsDisplay() {
   const [events, setEvents] = useState([])
@@ -12,7 +12,7 @@ function EventsDisplay() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Maximum number of cards to display
-  const MAX_VISIBLE_EVENTS = 3
+  const MAX_VISIBLE_EVENTS = 4 // Increased to 4 from 3
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -60,7 +60,7 @@ function EventsDisplay() {
   }
 
   const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" }
+    const options = { year: "numeric", month: "short", day: "numeric" }
     return new Date(dateString).toLocaleDateString(undefined, options)
   }
 
@@ -85,23 +85,22 @@ function EventsDisplay() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center text-purple-900 mb-12">Upcoming Events</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[...Array(3)].map((_, index) => (
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-bold text-center text-purple-900 mb-8">Upcoming Events</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {[...Array(4)].map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl overflow-hidden shadow-md h-full animate-pulse border border-purple-100"
+              className="bg-white rounded-lg overflow-hidden shadow-sm h-full animate-pulse border border-purple-100"
             >
-              <div className="h-48 bg-purple-50"></div>
-              <div className="p-6">
-                <div className="h-6 bg-purple-50 rounded w-3/4 mb-4"></div>
-                <div className="h-4 bg-purple-50 rounded w-1/2 mb-3"></div>
-                <div className="h-4 bg-purple-50 rounded w-2/3 mb-6"></div>
-                <div className="h-20 bg-purple-50 rounded mb-6"></div>
-                <div className="flex justify-between">
-                  <div className="h-6 bg-purple-50 rounded w-1/4"></div>
-                  <div className="h-6 bg-purple-50 rounded w-1/4"></div>
+              <div className="h-36 bg-purple-50"></div>
+              <div className="p-4">
+                <div className="h-5 bg-purple-50 rounded w-3/4 mb-3"></div>
+                <div className="h-4 bg-purple-50 rounded w-1/2 mb-2"></div>
+                <div className="h-4 bg-purple-50 rounded w-2/3 mb-4"></div>
+                <div className="flex justify-between mt-3">
+                  <div className="h-5 bg-purple-50 rounded w-1/4"></div>
+                  <div className="h-5 bg-purple-50 rounded w-1/4"></div>
                 </div>
               </div>
             </div>
@@ -113,16 +112,16 @@ function EventsDisplay() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="bg-red-50 text-red-600 p-4 rounded-full mb-6">
-            <AlertCircle size={32} />
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="bg-red-50 text-red-600 p-3 rounded-full mb-4">
+            <AlertCircle size={28} />
           </div>
-          <h2 className="text-2xl font-bold text-purple-900 mb-4">Unable to Load Events</h2>
-          <p className="text-gray-600 mb-8 max-w-md">{error}</p>
+          <h2 className="text-xl font-bold text-purple-900 mb-3">Unable to Load Events</h2>
+          <p className="text-gray-600 mb-6 max-w-md">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            className="px-5 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
           >
             Try Again
           </button>
@@ -132,46 +131,46 @@ function EventsDisplay() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-      <h2 className="text-3xl font-bold text-center text-purple-900 mb-4">Upcoming Events</h2>
-      <p className="text-center text-purple-700 mb-12 max-w-2xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <h2 className="text-2xl font-bold text-center text-purple-900 mb-3">Upcoming Events</h2>
+      <p className="text-center text-purple-700 mb-8 max-w-2xl mx-auto text-sm">
         Discover and join our exciting events. From workshops to conferences, there's something for everyone.
       </p>
 
       {events.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-purple-50 rounded-xl">
-          <div className="bg-purple-100 text-purple-500 p-4 rounded-full mb-6">
-            <Calendar size={32} />
+        <div className="flex flex-col items-center justify-center py-12 text-center bg-purple-50 rounded-xl">
+          <div className="bg-purple-100 text-purple-500 p-3 rounded-full mb-4">
+            <Calendar size={24} />
           </div>
-          <h3 className="text-2xl font-bold text-purple-900 mb-4">No Events Found</h3>
-          <p className="text-purple-700 max-w-md">
+          <h3 className="text-xl font-bold text-purple-900 mb-3">No Events Found</h3>
+          <p className="text-purple-700 max-w-md text-sm">
             There are no upcoming events at the moment. Please check back later for new events.
           </p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {events.slice(0, MAX_VISIBLE_EVENTS).map((event) => (
               <div
                 key={event._id}
-                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2 border border-purple-100"
+                className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1 border border-purple-100"
               >
-                <div className="relative h-52 overflow-hidden">
+                <div className="relative h-36 overflow-hidden">
                   {event.imageUrl ? (
                     <img
                       src={`${import.meta.env.VITE_API_URL}${event.imageUrl}`}
                       alt={event.title}
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                     />
                   ) : (
                     <div className="h-full bg-gradient-to-r from-purple-50 to-purple-100 flex items-center justify-center">
-                      <Calendar className="h-12 w-12 text-purple-300" />
+                      <Calendar className="h-10 w-10 text-purple-300" />
                     </div>
                   )}
                   {event.status && (
-                    <div className="absolute top-4 right-4">
+                    <div className="absolute top-2 right-2">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           event.status === "active"
                             ? "bg-green-100 text-green-800"
                             : event.status === "cancelled"
@@ -185,38 +184,26 @@ function EventsDisplay() {
                   )}
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow bg-gradient-to-b from-white to-purple-50">
-                  <h3 className="text-xl font-bold text-purple-900 mb-3 line-clamp-2">{event.title}</h3>
+                <div className="p-4 flex flex-col flex-grow">
+                  <h3 className="text-base font-bold text-purple-900 mb-2 line-clamp-1">{event.title}</h3>
 
-                  <div className="space-y-3 mb-4 text-sm text-purple-700">
+                  <div className="space-y-1.5 mb-3 text-xs text-purple-700">
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-purple-500 flex-shrink-0" />
-                      <span className="line-clamp-1">
-                        {formatDate(event.startDate)}
-                        {event.endDate && event.endDate !== event.startDate && (
-                          <span> - {formatDate(event.endDate)}</span>
-                        )}
-                      </span>
+                      <Clock className="h-3 w-3 mr-1.5 text-purple-500 flex-shrink-0" />
+                      <span className="line-clamp-1">{formatDate(event.startDate)}</span>
                     </div>
 
                     {event.location && (
                       <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-2 text-purple-500 flex-shrink-0" />
+                        <MapPin className="h-3 w-3 mr-1.5 text-purple-500 flex-shrink-0" />
                         <span className="line-clamp-1">{event.location}</span>
-                      </div>
-                    )}
-
-                    {event.organizer && (
-                      <div className="flex items-center">
-                        <User className="h-4 w-4 mr-2 text-purple-500 flex-shrink-0" />
-                        <span className="line-clamp-1">{event.organizer}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-purple-100">
+                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-purple-50">
                     {event.category ? (
-                      <span className="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full">
+                      <span className="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">
                         {event.category}
                       </span>
                     ) : (
@@ -224,11 +211,11 @@ function EventsDisplay() {
                     )}
                     <button
                       onClick={() => openEventModal(event)}
-                      className="text-purple-700 hover:text-purple-900 font-medium flex items-center group"
+                      className="text-purple-700 hover:text-purple-900 text-xs font-medium flex items-center group"
                       aria-label={`View details for ${event.title}`}
                     >
-                      View Details
-                      <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                      Details
+                      <ChevronRight className="w-3 h-3 ml-0.5 transition-transform group-hover:translate-x-0.5" />
                     </button>
                   </div>
                 </div>
@@ -237,10 +224,10 @@ function EventsDisplay() {
           </div>
 
           {events.length > MAX_VISIBLE_EVENTS && (
-            <div className="flex justify-center mt-16">
+            <div className="flex justify-center mt-10">
               <button
                 onClick={handleSeeMore}
-                className="px-8 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105 shadow-md hover:shadow-lg"
+                className="px-8 py-3 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-105 shadow-md hover:shadow-lg text-sm font-medium"
                 aria-label="See more events"
               >
                 See More Events
@@ -270,7 +257,7 @@ function EventsDisplay() {
             {/* Modal Header */}
             <div className="relative">
               {selectedEvent.imageUrl ? (
-                <div className="h-64 sm:h-80 overflow-hidden">
+                <div className="h-56 sm:h-72 overflow-hidden">
                   <img
                     src={`${import.meta.env.VITE_API_URL}${selectedEvent.imageUrl}`}
                     alt={selectedEvent.title}
@@ -279,7 +266,7 @@ function EventsDisplay() {
                   <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 to-transparent"></div>
                 </div>
               ) : (
-                <div className="h-64 sm:h-80 bg-gradient-to-r from-purple-100 to-purple-200 flex items-center justify-center">
+                <div className="h-56 sm:h-72 bg-gradient-to-r from-purple-100 to-purple-200 flex items-center justify-center">
                   <Calendar className="h-16 w-16 text-purple-400" />
                 </div>
               )}

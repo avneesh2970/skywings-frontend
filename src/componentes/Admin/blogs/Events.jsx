@@ -39,8 +39,8 @@ export default function Events() {
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
   const [sortConfig, setSortConfig] = useState({
-    key: "startDate",
-    direction: "asc",
+    key: "createdAt",
+    direction: "desc",
   })
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
@@ -344,8 +344,21 @@ export default function Events() {
         return
       }
 
+      // Load image to check dimensions
+      const img = new Image()
+      img.onload = function () {
+        // Show a warning if dimensions are far from recommended
+        const ratio = this.width / this.height
+        if (ratio < 1.4 || ratio > 1.7) {
+          toast.warning("For best results, use an image with a 3:2 ratio (e.g., 600x400px)")
+        }
+        URL.revokeObjectURL(this.src)
+      }
+
       setEventImage(file)
-      setImagePreview(URL.createObjectURL(file))
+      const previewUrl = URL.createObjectURL(file)
+      setImagePreview(previewUrl)
+      img.src = previewUrl
 
       // Clear any previous file error
       if (formErrors.image) {
@@ -519,7 +532,7 @@ export default function Events() {
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           {/* Search */}
           <div className="relative flex-grow">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Search className="absolute left-3 top-5 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
               ref={searchInputRef}
               type="text"
@@ -616,9 +629,7 @@ export default function Events() {
               }`}
             >
               <Tag className="h-4 w-4" />
-              <span>
-                {filterCategory ? `Category: ${filterCategory}` : "Category"}
-              </span>
+              <span>{filterCategory ? `Category: ${filterCategory}` : "Category"}</span>
               {filterCategory && (
                 <button
                   onClick={(e) => {
@@ -880,10 +891,7 @@ export default function Events() {
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
             {events.map((event) => (
-              <div
-                key={event._id}
-                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
-              >
+              <div key={event._id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center">
                     <div className="h-12 w-12 flex-shrink-0 mr-3">
@@ -956,7 +964,9 @@ export default function Events() {
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-gray-400" />
-                    <span>{formatDate(event.startDate)} - {formatDate(event.endDate)}</span>
+                    <span>
+                      {formatDate(event.startDate)} - {formatDate(event.endDate)}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -1181,14 +1191,9 @@ export default function Events() {
       {/* Event Form Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div
-            ref={modalRef}
-            className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden"
-          >
+          <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
             <div className="flex justify-between items-center border-b p-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {isEditing ? "Edit Event" : "Add New Event"}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900">{isEditing ? "Edit Event" : "Add New Event"}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="h-5 w-5" />
               </button>
@@ -1334,12 +1339,14 @@ export default function Events() {
                           className="h-40 object-contain mb-2"
                         />
                         <p className="text-sm text-gray-500">Click to change image</p>
+                        <p className="text-xs text-gray-400 mt-1">Recommended size: 600x400px or 3:2 ratio</p>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center">
                         <ImageIcon className="h-12 w-12 text-gray-400 mb-2" />
                         <p className="text-sm text-gray-500">Click to upload event image</p>
                         <p className="text-xs text-gray-400 mt-1">JPEG, PNG, WEBP (max 5MB)</p>
+                        <p className="text-xs text-gray-400">Recommended size: 600x400px or 3:2 ratio</p>
                       </div>
                     )}
                   </div>
@@ -1451,8 +1458,8 @@ export default function Events() {
               </div>
               <h3 className="text-lg font-medium text-center text-gray-900 mb-2">Delete Event</h3>
               <p className="text-center text-gray-500 mb-6">
-                Are you sure you want to delete the event{" "}
-                <span className="font-medium">{eventToDelete.title}</span>? This action cannot be undone.
+                Are you sure you want to delete the event <span className="font-medium">{eventToDelete.title}</span>?
+                This action cannot be undone.
               </p>
               <div className="flex justify-center gap-3">
                 <button
