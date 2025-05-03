@@ -1,19 +1,25 @@
-"use client"
+"use client";
 
-import { list } from "../data"
-import { FaArrowLeft } from "react-icons/fa"
-import { useNavigate, useParams } from "react-router-dom"
+import { useEffect, useRef } from "react";
+import { list } from "../data";
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 
 function DetailService() {
-  const navigate = useNavigate()
-  const { id } = useParams()
-  const service = list.find((service) => service.id === Number(id))
-
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const contentRef = useRef(null);
+  const service = list.find((service) => service.id === Number(id));
+  console.log(":service: ", service);
   const handleClick = (service) => {
-    navigate(`/DetailService/${service.id}`)
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }
-
+    navigate(`/DetailService/${service.id}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [id]);
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Back Button */}
@@ -39,15 +45,17 @@ function DetailService() {
 
         {/* Right Section - Scrollable Text Content */}
         <div className="w-full lg:w-1/2">
-          <div className="max-h-[500px] overflow-y-auto scrollbar-hide pr-4">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4">{service.title}</h1>
+          <div ref={contentRef} className="max-h-[500px] overflow-y-auto scrollbar-hide pr-4">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 text-start">
+              {service.title}
+            </h1>
             <div
               className="text-gray-700 text-sm sm:text-base leading-relaxed"
               dangerouslySetInnerHTML={{ __html: service.content }}
             />
             <button
               onClick={() => navigate("/contact")}
-              className="mt-6 w-full sm:w-64 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:translate-y-[-2px] hover:shadow-md"
+              className="mt-6 w-full sm:w-64 bg-blue-400 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 hover:translate-y-[-2px] hover:shadow-md"
               aria-label="Contact us for this service"
             >
               {service.button || "Contact Us"}
@@ -58,7 +66,9 @@ function DetailService() {
 
       {/* Related Products Section */}
       <div className="mt-12">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-6">Related Services</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-6">
+          Related Services
+        </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {list.map((service, index) => (
             <div
@@ -91,7 +101,12 @@ function DetailService() {
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
                     </svg>
                   </span>
                 </div>
@@ -112,7 +127,7 @@ function DetailService() {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
-export default DetailService
+export default DetailService;

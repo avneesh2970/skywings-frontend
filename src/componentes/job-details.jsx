@@ -8,8 +8,6 @@ import emailjs from "@emailjs/browser"
 import { useNavigate } from "react-router-dom"
 
 import { format, isToday, isYesterday, parseISO } from "date-fns"
-// Remove the import for static data
-// import { jobs } from "../data";
 
 const JobDetails = () => {
   const navigate = useNavigate()
@@ -18,32 +16,43 @@ const JobDetails = () => {
   const location = useLocation()
   const [showFullText, setShowFullText] = useState(false)
 
-  // const [isOpen, setIsOpen] = useState(false);
-  // const toggleModal = () => setIsOpen(!isOpen);
-  // const closeModal = () => setIsOpen(false);
   const { id } = useParams()
   const formatJobDate = (dateString) => {
     if (!dateString) return "Not available"
 
-    const date = parseISO(dateString) // Convert to Date object
+    try {
+      const date = parseISO(dateString) // Convert to Date object
 
-    if (isToday(date)) {
-      return "Today"
-    } else if (isYesterday(date)) {
-      return "Yesterday"
-    } else {
-      return format(date, "do MMM yyyy") // Example: 12/01/2025
+      if (isToday(date)) {
+        return "Today"
+      } else if (isYesterday(date)) {
+        return "Yesterday"
+      } else {
+        return format(date, "do MMM yyyy") // Example: 12/01/2025
+      }
+    } catch (error) {
+      console.error("Date parsing error:", error)
+      return dateString // Return the original string if parsing fails
     }
   }
+
   // State for job details and related jobs
   const [job, setJob] = useState(null)
   const [relatedJobs, setRelatedJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const description = job?.job_description || job?.details?.summary || ""
+  // Function to safely get job description
+  const getJobDescription = () => {
+    if (!job) return ""
+    return job.job_description || job.details?.summary || ""
+  }
+
+  const description = getJobDescription()
 
   function cleanHtmlContent(htmlString) {
+    if (!htmlString) return ""
+
     // Create a temporary DOM element
     const tempDiv = document.createElement("div")
     tempDiv.innerHTML = htmlString
@@ -94,6 +103,7 @@ const JobDetails = () => {
     const fetchJobDetails = async () => {
       try {
         setLoading(true)
+        setError(null)
 
         // First, try to get job data from URL search params
         const searchParams = new URLSearchParams(location.search)
@@ -117,63 +127,163 @@ const JobDetails = () => {
           }
         }
 
-        // If no source data or parsing failed, fetch directly from API
-        // This is more efficient than fetching all jobs
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`)
+        // Try multiple approaches to get the job data
+        let jobData = null
 
-        if (!response.ok) {
-          // If direct fetch fails, try the old method of fetching all jobs
-          const allJobsResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`)
+        // Approach 1: Try direct job fetch by ID
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs/${id}`)
 
-          if (!allJobsResponse.ok) {
-            throw new Error(`HTTP error! Status: ${allJobsResponse.status}`)
+          if (response.ok) {
+            jobData = await response.json()
+            console.log("Successfully fetched job by ID:", jobData)
           }
-
-          const allJobsData = await allJobsResponse.json()
-          const foundJob = allJobsData.results.find((job) => job.id.toString() === id.toString())
-
-          if (!foundJob) {
-            throw new Error("Job not found")
-          }
-
-          setJob(foundJob)
-        } else {
-          const jobData = await response.json()
-          setJob(jobData)
+        } catch (directFetchError) {
+          console.error("Error in direct job fetch:", directFetchError)
         }
 
-        setError(null)
+        // Approach 2: If direct fetch failed, try getting all jobs
+        if (!jobData) {
+          try {
+            const allJobsResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`)
+
+            if (allJobsResponse.ok) {
+              const allJobsData = await allJobsResponse.json()
+
+              // Make sure results exists and is an array before using find
+              if (allJobsData && Array.isArray(allJobsData.results)) {
+                const foundJob = allJobsData.results.find((job) => job && job.id && job.id.toString() === id.toString())
+
+                if (foundJob) {
+                  jobData = foundJob
+                  console.log("Found job in all jobs data:", jobData)
+                }
+              } else {
+                console.error("Invalid job data structure:", allJobsData)
+              }
+            }
+          } catch (allJobsError) {
+            console.error("Error fetching all jobs:", allJobsError)
+          }
+        }
+
+        // Approach 3: Try fetching from Skywings jobs endpoint
+        if (!jobData) {
+          try {
+            const skywingsResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/skywingsjobs`)
+
+            if (skywingsResponse.ok) {
+              const skywingsData = await skywingsResponse.json()
+
+              // Make sure results exists and is an array before using find
+              if (skywingsData && Array.isArray(skywingsData.results)) {
+                const foundJob = skywingsData.results.find(
+                  (job) => job && job.id && job.id.toString() === id.toString(),
+                )
+
+                if (foundJob) {
+                  jobData = foundJob
+                  console.log("Found job in skywings data:", jobData)
+                }
+              }
+            }
+          } catch (skywingsError) {
+            console.error("Error fetching skywings jobs:", skywingsError)
+          }
+        }
+
+        // If we found job data through any approach, set it
+        if (jobData) {
+          setJob(jobData)
+          setError(null)
+        } else {
+          // If all approaches failed, try local data as last resort
+          throw new Error("Job not found in any data source")
+        }
       } catch (err) {
         console.error("Error fetching job details:", err)
         setError("Failed to load job details. Please try again later.")
+
         // Fallback to local data if API fails
-        import("../data").then((module) => {
-          const localJob = module.jobs.find((j) => j.id.toString() === id.toString())
-          if (localJob) {
-            setJob(localJob)
-          }
-        })
+        try {
+          import("../data")
+            .then((module) => {
+              if (module.jobs) {
+                const localJob = module.jobs.find((j) => j.id.toString() === id.toString())
+                if (localJob) {
+                  setJob(localJob)
+                  setError(null)
+                }
+              }
+            })
+            .catch((importError) => {
+              console.error("Error importing local data:", importError)
+            })
+        } catch (localDataError) {
+          console.error("Error with local data fallback:", localDataError)
+        }
       } finally {
         setLoading(false)
+        fetchRelatedJobs()
       }
     }
 
     const fetchRelatedJobs = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`)
+        // Try multiple endpoints to get related jobs
+        let jobsData = null
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
+        // Try the main jobs endpoint
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/jobs`)
+
+          if (response.ok) {
+            const data = await response.json()
+            if (data && Array.isArray(data.results)) {
+              jobsData = data.results
+            }
+          }
+        } catch (mainJobsError) {
+          console.error("Error fetching main jobs:", mainJobsError)
         }
 
-        const data = await response.json()
-        setRelatedJobs(data.results.filter((j) => j.id.toString() !== id.toString()))
+        // If main endpoint failed, try skywings endpoint
+        if (!jobsData) {
+          try {
+            const skywingsResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/skywingsjobs`)
+
+            if (skywingsResponse.ok) {
+              const data = await skywingsResponse.json()
+              if (data && Array.isArray(data.results)) {
+                jobsData = data.results
+              }
+            }
+          } catch (skywingsError) {
+            console.error("Error fetching skywings jobs:", skywingsError)
+          }
+        }
+
+        // If we have jobs data, filter out the current job and set related jobs
+        if (jobsData) {
+          setRelatedJobs(jobsData.filter((j) => j && j.id && j.id.toString() !== id.toString()))
+        } else {
+          // Fallback to local data if API fails
+          try {
+            import("../data")
+              .then((module) => {
+                if (module.jobs) {
+                  setRelatedJobs(module.jobs.filter((j) => j.id.toString() !== id.toString()))
+                }
+              })
+              .catch((importError) => {
+                console.error("Error importing local data for related jobs:", importError)
+              })
+          } catch (localDataError) {
+            console.error("Error with local data fallback for related jobs:", localDataError)
+          }
+        }
       } catch (err) {
         console.error("Error fetching related jobs:", err)
-        // Fallback to local data if API fails
-        import("../data").then((module) => {
-          setRelatedJobs(module.jobs.filter((j) => j.id.toString() !== id.toString()))
-        })
       }
     }
 
@@ -191,7 +301,6 @@ const JobDetails = () => {
         () => {
           console.log("SUCCESS!")
           alert(`Applied successfully: ${job.title}`)
-          // closeModal();
         },
         (error) => {
           console.log("FAILED...", error.text)
@@ -227,32 +336,30 @@ const JobDetails = () => {
               <div key={index} className="bg-[#F7F7F7] rounded-2xl p-6">
                 <div className="flex items-center space-x-3">
                   <div>
-                    <h3 className="md:text-lg text-sm font-semibold">{relatedJob.title}</h3>
-                    {/* <p className="text-gray-500">{relatedJob.company}</p> */}
+                    <h3 className="md:text-lg text-sm font-semibold">{relatedJob.title || relatedJob.job_title}</h3>
                   </div>
                 </div>
 
                 <div className="mt-4 text-gray-600 space-y-2">
                   <div className="">
-                    <h3 className="min-h-[52px] max-h-[52px]  flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
+                    <h3 className="min-h-[52px] max-h-[52px] flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
                       {relatedJob.job_title}
                     </h3>
                   </div>
                   <p className="flex items-center space-x-2">
                     <MdLocationOn />
-                    <span>{relatedJob.location}</span>
+                    <span>
+                      {relatedJob.location || relatedJob.city || relatedJob.country || "Location not specified"}
+                    </span>
                   </p>
-                  {/* <p className="flex items-center text-sm lg:text-base space-x-2">
-                      <img src={bag || "/placeholder.svg"} alt="" />
-                      <span>
-                        {relatedJob.experience || "Experience not specified"}
-                      </span>
-                    </p> */}
                   <span>{relatedJob.job_start_date || "Date of posting not Found"}</span>
                 </div>
                 <div className="space-y-1 mb-2">
                   <p className="text-gray-600 font-semibold">
-                    Experience: <span>{relatedJob.experience} yr</span>
+                    Experience:{" "}
+                    <span>
+                      {relatedJob.experience || "Not specified"} {relatedJob.experience ? "yr" : ""}
+                    </span>
                   </p>
                 </div>
                 <button
@@ -263,14 +370,14 @@ const JobDetails = () => {
                       `/jobdetails/${relatedJob.id}?source=${encodeURIComponent(
                         JSON.stringify({
                           id: relatedJob.id,
-                          job_title: relatedJob.job_title,
-                          client: relatedJob.client,
+                          job_title: relatedJob.job_title || relatedJob.title,
+                          client: relatedJob.client || relatedJob.company,
                           city: relatedJob.city,
                           country: relatedJob.country,
                           experience: relatedJob.experience,
                           job_start_date: relatedJob.job_start_date,
                           apply_job_without_registration: relatedJob.apply_job_without_registration,
-                          job_description: relatedJob.job_description,
+                          job_description: relatedJob.job_description || relatedJob.description,
                           // Add any other essential fields
                         }),
                       )}`,
@@ -288,23 +395,24 @@ const JobDetails = () => {
         {/* ------------------------- Job Details (Right Side) ------------------------- */}
         <div className="bg-white w-full md:w-6/12 p-6 rounded-lg shadow-lg">
           <div>
-            <h2 className="text-2xl font-bold text-purple-600">{job.job_title}</h2>
+            <h2 className="text-2xl font-bold text-purple-600">{job.job_title || job.title}</h2>
             <p className="mt-2 text-gray-700">
-              <strong>Company:</strong> {job.client}
+              <strong>Company:</strong> {job.client || job.company || "Not specified"}
             </p>
             <p className="text-gray-700">
-              <strong>Location:</strong> {job.location || job.city || job.states || job.country}
+              <strong>Location:</strong>{" "}
+              {job.location || job.city || job.states || job.country || "Location not specified"}
             </p>
             <p className="text-gray-700">
               <strong>Experience:</strong> {job.experience || "Experience not specified"}
-              {job.experience && "yr"}
+              {job.experience && " yr"}
             </p>
             <p className="text-gray-700">
               <strong>Job posted:</strong> {formatJobDate(job.job_start_date)}
             </p>
             {job.salary && (
               <p className="text-gray-700">
-                <strong>Salary:</strong> {job.pay_rate___salary}
+                <strong>Salary:</strong> {job.pay_rate___salary || job.salary}
               </p>
             )}
             {job.job_code && (
@@ -316,52 +424,26 @@ const JobDetails = () => {
             <div className="mt-4">
               <h3 className="text-lg font-semibold">About the Job:</h3>
               <p className="text-gray-600 mt-2">
-                {/* {console.log("job details: ", job.description)} */}
-                {/* {job.description || job.details?.summary} */}
-                {showFullText ? cleanDescription : `${cleanDescription.slice(0, 300)}...`}
+                {cleanDescription
+                  ? showFullText
+                    ? cleanDescription
+                    : `${cleanDescription.slice(0, 300)}...`
+                  : "No job description available."}
               </p>
               {/* Button to toggle text */}
-              {cleanDescription.length > 300 && (
+              {cleanDescription && cleanDescription.length > 300 && (
                 <button onClick={toggleText} className="mt-2 text-blue-600 hover:underline focus:outline-none">
                   {showFullText ? "See Less ▲" : "See More ▼"}
                 </button>
               )}
             </div>
 
-            {/* key responsiblities need to do  */}
-            {/* <div className="mt-4">
-              <h3 className="text-lg font-semibold">Key Responsibilities:</h3>
-              <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-600">
-                {Array.isArray(job.details.responsibilities) ? (
-                  job.details.responsibilities.map((resp, idx) => (
-                    <li key={idx}>{resp}</li>
-                  ))
-                ) : (
-                  <li>
-                    {job.details.responsibilities ||
-                      "No responsibilities specified"}
-                  </li>
-                )}
-              </ul>
-            </div> */}
-            {/* need to do  */}
-            {/* {job.details?.qualifications &&
-              job.details.qualifications.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold">Qualifications:</h3>
-                  <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-600">
-                    {job.details.qualifications.map((qual, idx) => (
-                      <li key={idx}>{qual}</li>
-                    ))}
-                  </ul>
-                </div>
-              )} */}
-
             {job.details?.skills && job.details.skills.length > 0 && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold">Skills:</h3>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {job.primary_skills &&
+                    typeof job.primary_skills === "string" &&
                     job.primary_skills.split &&
                     job.primary_skills.split(",").map((skill, idx) => (
                       <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-sm">
@@ -373,12 +455,9 @@ const JobDetails = () => {
             )}
 
             <div className="mt-4">
-              {/* <p className="text-gray-600">
-                <strong>Total Experience:</strong>{" "}
-                {job.experience || "Experience not specified"}
-              </p> */}
               <p className="text-gray-600">
-                <strong>Work Location:</strong> {job.location || job.city || job.states || job.country}
+                <strong>Work Location:</strong>{" "}
+                {job.location || job.city || job.states || job.country || "Location not specified"}
               </p>
               {job.remoteOpportunity && (
                 <p className="text-gray-600">
@@ -386,143 +465,24 @@ const JobDetails = () => {
                 </p>
               )}
             </div>
-            <button
-              className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              onClick={() => window.open(job.apply_job_without_registration, "_blank")}
-            >
-              Apply Now
-            </button>
+            {job.apply_job_without_registration ? (
+              <button
+                className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                onClick={() => window.open(job.apply_job_without_registration, "_blank")}
+              >
+                Apply Now
+              </button>
+            ) : (
+              <button
+                className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                onClick={() => navigate("/contact")}
+              >
+                Contact Us to Apply
+              </button>
+            )}
           </div>
         </div>
       </div>
-
-      {/*--------------------------- Modal toggle--------------------- */}
-      {/* {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-gray-50">
-          <div
-            className="relative w-full h-fit sm:max-w-md md:max-w-lg lg:max-w-xl bg-white rounded-lg shadow-lg p-6 dark:bg-gray-800"
-            style={{ boxShadow: "10px 10px #2979FE" }}
-          >
-            <div className="flex justify-between items-center pb-4 border-b">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                User Information
-              </h3>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
-              >
-                ✖
-              </button>
-            </div>
-
-            <div className="">
-              <form className="space-y-2" ref={form} onSubmit={sendEmail}>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter Your Name"
-                    name="to_name"
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium">
-                    Applying for Company
-                  </label>
-                  <input
-                    value={`${job.company} - ${job.title}`}
-                    name="company_and_title"
-                    readOnly
-                    className="w-full p-2 border rounded-lg focus:ring-2 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium">
-                    Gender
-                  </label>
-                  <select
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium">
-                    Contact
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="+91 999 777 4321"
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="Enter Your Email"
-                    name="to_email"
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium">
-                    Country
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Country"
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium">
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="City"
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
-                  />
-                </div>
-
-                <div className="flex flex-col sm:flex-row justify-between gap-2 mt-4">
-                  <div className="w-full sm:w-1/2">
-                    <input
-                      type="file"
-                      className="w-full border border-purple-500 text-purple-600 py-2 rounded-lg cursor-pointer file:mr-2 file:py-1 file:px-2 file:border file:rounded-lg file:bg-purple-500 file:text-white hover:file:bg-purple-700"
-                    />
-                  </div>
-                  <input
-                    className="w-full sm:w-1/2 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 cursor-pointer"
-                    type="submit"
-                    value="Send"
-                  />
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )} */}
     </>
   )
 }

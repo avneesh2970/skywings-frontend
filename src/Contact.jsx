@@ -68,19 +68,7 @@ function Contact() {
     ],
     germany: ["Berlin", "Hamburg", "Munich", "Frankfurt", "Cologne", "Other"],
     france: ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Other"],
-    // india: [
-    //   "Mumbai",
-    //   "Delhi",
-    //   "Bangalore",
-    //   "Hyderabad",
-    //   "Chennai",
-    //   "Kolkata",
-    //   "Pune",
-    //   "Jaipur",
-    //   "Ahmedabad",
-    //   "Lucknow",
-    //   "Other",
-    // ],
+
     india: [
       "Andhra Pradesh",
       "Arunachal Pradesh",
@@ -269,86 +257,111 @@ function Contact() {
 
       {/* Form Section */}
 
-      <div className="grid bg-gray-50 grid-cols-1 lg:grid-cols-2 gap-10  px-6 md:px-12 lg:px-20 py-10">
-        {/* Image Section */}
-        <div className="flex ">
-          <div className="flex flex-col  mt-20 ">
-            <div className="mb-4">
-              <h3 className="text-3xl text-zinc-800 font-bold mb-2">
-                Contact Details
-              </h3>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-500">Email</h3>
-                <div className="flex flex-col space-y-3">
-                  {/* Email Section */}
-                  {/* <div className="flex  items-center space-x-3">
-                    <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none">hiring@assuredjob.com</li>
-                  </div> */}
-                  <div className="flex items-center space-x-3">
-                    <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none">
-                      <span className="font-bold">c</span>areer@assuredjob.com
-                    </li>
-                  </div>
-                  {/* <div className="flex items-center space-x-3">
-                    <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none">business@assuredjob.com</li>
-                  </div> */}
-                  <div className="flex items-center  space-x-3">
-                    <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    <li className="list-none">
-                      <span className="font-bold">h</span>r@assurejob.com
-                    </li>
-                  </div>
+      <div className="grid bg-gray-50 grid-cols-1 lg:grid-cols-2 gap-10 px-6 md:px-12 lg:px-20 py-10">
+  {/* Contact Details Section with Animation */}
+  <motion.div
+    className="flex"
+    initial={{ opacity: 0, y: 50 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+  >
+    <div className="flex flex-col mt-20">
+      <motion.div
+        className="mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.8 }}
+      >
+        <motion.h3
+          className="text-3xl text-zinc-800 font-bold mb-2"
+          initial={{ x: -50 }}
+          animate={{ x: 0 }}
+          transition={{ delay: 0.4, duration: 0.6, type: "spring", stiffness: 100 }}
+        >
+          Contact Details
+        </motion.h3>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}>
+          <motion.h3
+            className="text-xl font-semibold text-gray-500"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            Email
+          </motion.h3>
+          <div className="flex flex-col space-y-3">
+            <motion.div
+              className="flex items-center space-x-3"
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
+              whileHover={{ scale: 1.05, x: 10 }}
+            >
+              <motion.div whileHover={{ rotate: 15 }} transition={{ type: "spring", stiffness: 300 }}>
+                <HiMail className="w-5 h-5 text-blue-500" alt="" />
+              </motion.div>
+              <li className="list-none">
+                <span className="font-bold">c</span>areer@assuredjob.com
+              </li>
+            </motion.div>
 
-                  {/* <p className="text-lg font-semibold text-zinc-800">hr@assuredjob.com</p>
-      <p className="text-lg font-semibold text-zinc-800"> <Mail/>hiring@assuredjob.com</p>
-      <p className="text-lg font-semibold text-zinc-800">      <p className="text-lg font-semibold text-zinc-800"> <Mail/>business@assuredjob.com</p></p> */}
-                  <div className="flex flex-col font-semibold text-lg">
-                    {/*        
-        <li className="list-none">business@assuredjob.com</li>
-        <li className="list-none">hiring@assuredjob.com</li>
-        <li className="list-none">careers@assuredjob.com</li> */}
-                  </div>
-
-                  {/* Phone Section */}
-                </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-500">
-                  Phone Number
-                </h3>
-                <div className="flex flex-col space-y-3">
-                  {/* Email Section */}
-
-                  <div className="flex items-center space-x-3">
-                    <Phone className="w-5 h-5 text-blue-500  " />
-                    <li className="list-none">+91 8368002731</li>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Phone className="w-5 h-5 text-blue-500  " />
-
-                    <li className="list-none">+91-8860159136</li>
-                  </div>
-
-                  {/* <p className="text-lg font-semibold text-zinc-800">hr@assuredjob.com</p>
-      <p className="text-lg font-semibold text-zinc-800"> <Mail/>hiring@assuredjob.com</p>
-      <p className="text-lg font-semibold text-zinc-800">      <p className="text-lg font-semibold text-zinc-800"> <Mail/>business@assuredjob.com</p></p> */}
-                  <div className="flex flex-col font-semibold text-lg">
-                    {/*        
-        <li className="list-none">business@assuredjob.com</li>
-        <li className="list-none">hiring@assuredjob.com</li>
-        <li className="list-none">careers@assuredjob.com</li> */}
-                  </div>
-
-                  {/* Phone Section */}
-                </div>
-              </div>
-            </div>
+            <motion.div
+              className="flex items-center space-x-3"
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              whileHover={{ scale: 1.05, x: 10 }}
+            >
+              <motion.div whileHover={{ rotate: 15 }} transition={{ type: "spring", stiffness: 300 }}>
+                <HiMail className="w-5 h-5 text-blue-500" alt="" />
+              </motion.div>
+              <li className="list-none">
+                <span className="font-bold">h</span>r@assurejob.com
+              </li>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.8 }}>
+          <motion.h3
+            className="text-xl font-semibold text-gray-500"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 1.0, duration: 0.5 }}
+          >
+            Phone Number
+          </motion.h3>
+          <div className="flex flex-col space-y-3">
+            <motion.div
+              className="flex items-center space-x-3"
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 1.1, duration: 0.5 }}
+              whileHover={{ scale: 1.05, x: 10 }}
+            >
+              <motion.div whileHover={{ rotate: 15 }} transition={{ type: "spring", stiffness: 300 }}>
+                <Phone className="w-5 h-5 text-blue-500" />
+              </motion.div>
+              <li className="list-none">+91 8368002731</li>
+            </motion.div>
+            <motion.div
+              className="flex items-center space-x-3"
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 1.2, duration: 0.5 }}
+              whileHover={{ scale: 1.05, x: 10 }}
+            >
+              <motion.div whileHover={{ rotate: 15 }} transition={{ type: "spring", stiffness: 300 }}>
+                <Phone className="w-5 h-5 text-blue-500" />
+              </motion.div>
+              <li className="list-none">+91-8860159136</li>
+            </motion.div>
 
+            <div className="flex flex-col font-semibold text-lg"></div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  </motion.div>
         {/* Form Section */}
         <div
           className="p-6 rounded-2xl bg-white  w-full"

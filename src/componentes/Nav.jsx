@@ -1,39 +1,39 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { NavLink } from "react-router-dom"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { useState, useRef } from "react";
+import { NavLink } from "react-router-dom";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const Nav = ({ toggle, fun }) => {
-  const baseStyles = "lg:px-3 py-2 rounded-md text-sm font-medium"
+  const baseStyles = "lg:px-3 py-2 rounded-md text-sm font-medium";
 
-  const [openDropdown, setOpenDropdown] = useState(null)
-  const closeTimeout = useRef(null)
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const closeTimeout = useRef(null);
 
   const toggleDropdown = (menu) => {
-    setOpenDropdown(openDropdown === menu ? null : menu)
-  }
+    setOpenDropdown(openDropdown === menu ? null : menu);
+  };
 
   const closeMenuOnMobile = () => {
     if (toggle) {
-      fun(false)
+      fun(false);
     }
-  }
+  };
 
   const handleMouseEnter = (menu) => {
     if (window.innerWidth >= 1024) {
-      clearTimeout(closeTimeout.current)
-      setOpenDropdown(menu)
+      clearTimeout(closeTimeout.current);
+      setOpenDropdown(menu);
     }
-  }
+  };
 
   const handleMouseLeave = () => {
     if (window.innerWidth >= 1024) {
       closeTimeout.current = setTimeout(() => {
-        setOpenDropdown(null)
-      }, 150) // slight delay for allowing click
+        setOpenDropdown(null);
+      }, 150); // slight delay for allowing click
     }
-  }
+  };
 
   const menuItems = [
     {
@@ -103,7 +103,7 @@ const Nav = ({ toggle, fun }) => {
         },
       ],
     },
-  ]
+  ];
 
   return (
     <nav className="flex flex-col lg:flex-row items-start lg:items-center lg:space-x-4 h-auto w-full relative gap-2">
@@ -129,7 +129,11 @@ const Nav = ({ toggle, fun }) => {
             aria-expanded={openDropdown === menu.label}
           >
             {menu.label}
-            {openDropdown === menu.label ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            {openDropdown === menu.label ? (
+              <ChevronUp size={18} />
+            ) : (
+              <ChevronDown size={18} />
+            )}
             <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
           </span>
 
@@ -137,7 +141,11 @@ const Nav = ({ toggle, fun }) => {
             <div
               className={`
                 z-50 dropdown-menu
-                ${window.innerWidth < 1024 ? "static w-full" : "absolute left-1/2 transform -translate-x-1/2 top-full"}
+                ${
+                  window.innerWidth < 1024
+                    ? "static w-full"
+                    : "absolute left-1/2 transform -translate-x-1/2 top-10"
+                }
               `}
               onClick={() => setOpenDropdown(null)}
             >
@@ -145,13 +153,17 @@ const Nav = ({ toggle, fun }) => {
                 className={
                   menu.label === "Services"
                     ? `bg-white p-4 rounded-md shadow-2xl transition-all duration-300 overflow-y-auto
-                       ${window.innerWidth < 1024 ? "w-full max-h-[60vh]" : "w-[600px] h-[450px]"} 
+                       ${
+                         window.innerWidth < 1024
+                           ? "w-full max-h-[60vh]"
+                           : "w-[600px] h-[450px]"
+                       } 
                        grid ${
                          window.innerWidth < 640
                            ? "grid-cols-1"
                            : window.innerWidth < 1024
-                             ? "grid-cols-2"
-                             : "grid-cols-3"
+                           ? "grid-cols-2"
+                           : "grid-cols-3"
                        } gap-2`
                     : `bg-white shadow-lg transition-all duration-200 ease-in-out z-10 rounded-md
                        ${window.innerWidth < 1024 ? "w-full" : "w-56 mt-2"}`
@@ -166,8 +178,8 @@ const Nav = ({ toggle, fun }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => {
-                        closeMenuOnMobile()
-                        window.scrollTo({ top: 0, behavior: "smooth" })
+                        closeMenuOnMobile();
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     >
                       {item.name}
@@ -182,13 +194,13 @@ const Nav = ({ toggle, fun }) => {
                         } ml-4`
                       }
                       onClick={() => {
-                        closeMenuOnMobile()
-                        window.scrollTo({ top: 0, behavior: "smooth" })
+                        closeMenuOnMobile();
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     >
                       {item.name}
                     </NavLink>
-                  ),
+                  )
                 )}
               </div>
             </div>
@@ -196,7 +208,7 @@ const Nav = ({ toggle, fun }) => {
         </div>
       ))}
     </nav>
-  )
-}
+  );
+};
 
-export default Nav
+export default Nav;

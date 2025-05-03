@@ -70,7 +70,7 @@ export default function Event() {
 
         const params = new URLSearchParams();
         params.append("page", currentPage);
-        params.append("limit", 9);
+        params.append("limit", 12); // Increased from 9 to 12 to better fit 4-column layout
 
         if (searchTerm) params.append("search", searchTerm);
         if (filterStatus) params.append("status", filterStatus);
@@ -192,7 +192,7 @@ export default function Event() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="bg-blue-500 text-white py-16 px-4">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Upcoming Events
           </h1>
@@ -202,7 +202,7 @@ export default function Event() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div className="relative w-full md:w-auto md:flex-grow md:max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -402,8 +402,8 @@ export default function Event() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {[...Array(6)].map((_, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+            {[...Array(8)].map((_, index) => (
               <EventSkeleton key={index} />
             ))}
           </div>
@@ -437,14 +437,14 @@ export default function Event() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
               {events.map((event) => (
                 <motion.div
                   key={event._id}
                   className="relative bg-white rounded-xl overflow-hidden shadow-md flex flex-col h-full group"
                   initial={{ scale: 1, y: 0 }}
                   whileHover={{
-                    scale: 1.05,
+                    scale: 1.03,
                     boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.2)",
                     transition: { duration: 0.3, ease: "easeOut" },
                   }}
@@ -493,18 +493,18 @@ export default function Event() {
 
                   {/* Event Content */}
                   <motion.div
-                    className="p-5 flex-grow flex flex-col relative"
+                    className="p-4 flex-grow flex flex-col relative"
                     initial={{ y: 0 }}
                     whileHover={{
-                      y: -10,
+                      y: -5,
                       transition: { duration: 0.3, ease: "easeOut" },
                     }}
                   >
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-purple-700 transition-colors duration-300">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-purple-700 transition-colors duration-300">
                       {event.title}
                     </h3>
 
-                    <div className="space-y-2 mb-4 text-sm text-gray-600">
+                    <div className="space-y-2 mb-4 text-xs sm:text-sm text-gray-600">
                       <div className="flex items-start">
                         <Clock className="h-4 w-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" />
                         <div>
@@ -520,7 +520,7 @@ export default function Event() {
 
                       <div className="flex items-center">
                         <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-                        <span>{event.location}</span>
+                        <span className="line-clamp-1">{event.location}</span>
                       </div>
 
                       <div className="flex items-center">
@@ -530,20 +530,18 @@ export default function Event() {
                         </span>
                       </div>
 
-                      {event.capacity > 0 && (
+                      {/* {event.capacity > 0 && (
                         <div className="flex items-center">
                           <Users className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                           <span>Capacity: {event.capacity}</span>
                         </div>
-                      )}
+                      )} */}
                     </div>
 
-                    {/* <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p> */}
-
-                    <div className="mt-auto pt-4 flex gap-2">
+                    <div className="mt-auto pt-3 flex gap-2">
                       <motion.button
                         onClick={() => handleViewDetails(event)}
-                        className="flex-grow px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors duration-300"
+                        className="flex-grow px-3 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm"
                         whileHover={{ backgroundColor: "#2563eb" }}
                         whileTap={{ scale: 0.98 }}
                       >
@@ -557,12 +555,12 @@ export default function Event() {
                             href={event.registrationUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors duration-300"
+                            className="flex items-center gap-1 px-3 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors duration-300 text-sm"
                             whileHover={{ backgroundColor: "#eff6ff" }}
                             whileTap={{ scale: 0.98 }}
                           >
                             Register
-                            <ExternalLink className="h-4 w-4" />
+                            <ExternalLink className="h-3 w-3" />
                           </motion.a>
                         )}
                     </div>

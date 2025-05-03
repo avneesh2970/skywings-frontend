@@ -1,77 +1,89 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Home, FileText, Calendar, Mail, Users, Settings, Menu, X, Upload, Bell, Newspaper } from 'lucide-react';
+"use client"
+
+import { useState, useEffect, useRef } from "react"
+import { Link, useLocation } from "react-router-dom"
+import { Home, FileText, Calendar, Mail, Users, Settings, Menu, X, Upload, Bell, Newspaper } from "lucide-react"
 
 function Sidebar({ user }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const sidebarRef = useRef(null);
-  const location = useLocation();
-  const [newsExpanded, setNewsExpanded] = useState(false);
-  
+  const [isOpen, setIsOpen] = useState(false)
+  const sidebarRef = useRef(null)
+  const location = useLocation()
+  const [newsExpanded, setNewsExpanded] = useState(false)
+  const [settingsExpanded, setSettingsExpanded] = useState(false)
+
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
     function handleClickOutside(event) {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target) && isOpen) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
     }
-    
-    document.addEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-  
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isOpen])
+
   // Close sidebar when route changes on mobile
   useEffect(() => {
     if (window.innerWidth < 768) {
-      setIsOpen(false);
+      setIsOpen(false)
     }
-  }, [location.pathname]);
-  
+  }, [location.pathname])
+
   // Prevent body scroll when sidebar is open on mobile
   useEffect(() => {
     if (isOpen && window.innerWidth < 768) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden"
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto"
     }
-    
+
     return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [isOpen]);
-  
+      document.body.style.overflow = "auto"
+    }
+  }, [isOpen])
+
   // Fixed isActive function to only highlight the exact path or its direct children
   const isActive = (path) => {
     // For the dashboard home route, only be active if it's exactly /admin/dashboard
     if (path === "/admin/dashboard") {
-      return location.pathname === "/admin/dashboard";
+      return location.pathname === "/admin/dashboard"
     }
-    
+
     // For other routes, check if the current path starts with this path
-    return location.pathname.startsWith(path);
-  };
-  
+    return location.pathname.startsWith(path)
+  }
+
   const navItems = [
     { path: "/admin/dashboard", icon: <Home size={20} />, label: "Dashboard" },
-    { 
-      path: "/admin/dashboard/news", 
-      icon: <Newspaper size={20} />, 
-      label: "News", 
+    {
+      path: "/admin/dashboard/news",
+      icon: <Newspaper size={20} />,
+      label: "News",
       hasSubmenu: true,
       submenu: [
         { path: "/admin/dashboard/news", label: "All News" },
-        { path: "/admin/dashboard/news/create", label: "Add News" }
-      ]
+        { path: "/admin/dashboard/news/create", label: "Add News" },
+      ],
     },
     { path: "/admin/dashboard/blogs", icon: <FileText size={20} />, label: "Blog" },
     { path: "/admin/dashboard/events", icon: <Calendar size={20} />, label: "Events" },
     { path: "/admin/dashboard/contact-us", icon: <Mail size={20} />, label: "Contact Us" },
     { path: "/admin/dashboard/resumes", icon: <Upload size={20} />, label: "Resumes" },
     { path: "/admin/dashboard/newsletter", icon: <Bell size={20} />, label: "Newsletter" },
-    { path: "/admin/dashboard/settings", icon: <Settings size={20} />, label: "Settings" }
-  ];
+    {
+      path: "/admin/dashboard/settings",
+      icon: <Settings size={20} />,
+      label: "Settings",
+      hasSubmenu: true,
+      submenu: [
+        { path: "/admin/dashboard/settings", label: "Profile" },
+        { path: "/admin/dashboard/settings/security", label: "Security" },
+      ],
+    },
+  ]
 
   return (
     <>
@@ -88,7 +100,7 @@ function Sidebar({ user }) {
 
       {/* Overlay for mobile */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity duration-300"
           aria-hidden="true"
         />
@@ -108,7 +120,7 @@ function Sidebar({ user }) {
             </div>
             <span className="font-semibold text-lg">Admin Panel</span>
           </div>
-          <button 
+          <button
             onClick={() => setIsOpen(false)}
             className="md:hidden text-gray-500 hover:text-gray-700"
             aria-label="Close sidebar"
@@ -116,17 +128,23 @@ function Sidebar({ user }) {
             <X size={20} />
           </button>
         </div>
-        
+
         {/* Navigation */}
-     {/* Navigation */}
-     <nav className="flex-1 overflow-y-auto py-4 px-3">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
           <div className="space-y-1">
             {navItems.map((item) => (
               <div key={item.path}>
                 {item.hasSubmenu ? (
                   <>
                     <button
-                      onClick={() => setNewsExpanded(!newsExpanded)}
+                      onClick={() => {
+                        if (item.label === "News") {
+                          setNewsExpanded(!newsExpanded)
+                        } else if (item.label === "Settings") {
+                          setSettingsExpanded(!settingsExpanded)
+                        }
+                      }}
                       className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-md transition-colors ${
                         isActive(item.path)
                           ? "bg-purple-50 text-blue-700 font-medium"
@@ -134,18 +152,14 @@ function Sidebar({ user }) {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>
-                          {item.icon}
-                        </span>
+                        <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>{item.icon}</span>
                         <span>{item.label}</span>
                       </div>
-                      {isActive(item.path) && (
-                        <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
-                      )}
+                      {isActive(item.path) && <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>}
                     </button>
-                    
+
                     {/* Submenu */}
-                    {newsExpanded && (
+                    {(item.label === "News" && newsExpanded) || (item.label === "Settings" && settingsExpanded) ? (
                       <div className="pl-10 space-y-1 mt-1">
                         {item.submenu.map((subItem) => (
                           <Link
@@ -162,32 +176,26 @@ function Sidebar({ user }) {
                           </Link>
                         ))}
                       </div>
-                    )}
+                    ) : null}
                   </>
                 ) : (
                   <Link
                     to={item.path}
                     className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
-                      isActive(item.path)
-                        ? "bg-purple-50 text-blue-700 font-medium"
-                        : "text-gray-700 hover:bg-gray-100"
+                      isActive(item.path) ? "bg-purple-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-100"
                     }`}
                     onClick={() => window.innerWidth < 768 && setIsOpen(false)}
                   >
-                    <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>
-                      {item.icon}
-                    </span>
+                    <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>{item.icon}</span>
                     <span>{item.label}</span>
-                    {isActive(item.path) && (
-                      <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
-                    )}
+                    {isActive(item.path) && <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>}
                   </Link>
                 )}
               </div>
             ))}
           </div>
         </nav>
-        
+
         {/* User profile section */}
         <div className="p-4 border-t">
           <div className="flex items-center gap-3">
@@ -195,17 +203,17 @@ function Sidebar({ user }) {
               <Users size={20} className="text-gray-600" />
             </div>
             <div>
-              <p className="font-medium text-sm">{user?.email?.split('@')[0] || 'Admin'}</p>
-              <p className="text-xs text-gray-500">{user?.email || 'admin@example.com'}</p>
+              <p className="font-medium text-sm">{user?.email?.split("@")[0] || "Admin"}</p>
+              <p className="text-xs text-gray-500">{user?.email || "admin@example.com"}</p>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Spacer for mobile to account for the fixed sidebar button */}
       <div className="h-16 md:hidden" />
     </>
-  );
+  )
 }
 
-export default Sidebar;
+export default Sidebar

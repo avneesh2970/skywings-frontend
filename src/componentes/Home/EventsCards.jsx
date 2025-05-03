@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -10,6 +11,7 @@ function EventsDisplay() {
   const [totalEvents, setTotalEvents] = useState(0)
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [hoveredCard, setHoveredCard] = useState(null)
 
   // Maximum number of cards to display
   const MAX_VISIBLE_EVENTS = 4 // Increased to 4 from 3
@@ -18,8 +20,8 @@ function EventsDisplay() {
     const fetchEvents = async () => {
       try {
         setLoading(true)
-        // Fetch events from your API
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/events`)
+        // Fetch events from your API with sort parameters
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/events?sort=createdAt&order=desc`)
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)
@@ -91,7 +93,7 @@ function EventsDisplay() {
           {[...Array(4)].map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg overflow-hidden shadow-sm h-full animate-pulse border border-purple-100"
+              className="bg-white rounded-lg overflow-hidden shadow-md h-full animate-pulse border border-purple-100"
             >
               <div className="h-36 bg-purple-50"></div>
               <div className="p-4">
@@ -132,8 +134,8 @@ function EventsDisplay() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <h2 className="text-2xl font-bold text-center text-purple-900 mb-3">Upcoming Events</h2>
-      <p className="text-center text-purple-700 mb-8 max-w-2xl mx-auto text-sm">
+      <h2 className="text-2xl font-bold text-center text-purple-900 mb-3 animate-fade-in">Upcoming Events</h2>
+      <p className="text-center text-purple-700 mb-8 max-w-2xl mx-auto text-sm animate-fade-in-delay">
         Discover and join our exciting events. From workshops to conferences, there's something for everyone.
       </p>
 
@@ -150,27 +152,61 @@ function EventsDisplay() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {events.slice(0, MAX_VISIBLE_EVENTS).map((event) => (
+            {events.slice(0, MAX_VISIBLE_EVENTS).map((event, index) => (
               <div
                 key={event._id}
-                className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1 border border-purple-100"
+                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 flex flex-col h-full transform hover:-translate-y-2 border border-purple-100 animate-fade-in-up"
+                style={{ animationDelay: `${index * 80}ms` }}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
               >
                 <div className="relative h-36 overflow-hidden">
+                  {/* Animated corner accents */}
+                  <div
+                    className={`absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-purple-500 z-10 transition-all duration-200 ${hoveredCard === index ? "opacity-100 scale-100" : "opacity-0 scale-0"}`}
+                  ></div>
+                  <div
+                    className={`absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-purple-500 z-10 transition-all duration-200 ${hoveredCard === index ? "opacity-100 scale-100" : "opacity-0 scale-0"}`}
+                  ></div>
+                  <div
+                    className={`absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-purple-500 z-10 transition-all duration-200 ${hoveredCard === index ? "opacity-100 scale-100" : "opacity-0 scale-0"}`}
+                  ></div>
+                  <div
+                    className={`absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-purple-500 z-10 transition-all duration-200 ${hoveredCard === index ? "opacity-100 scale-100" : "opacity-0 scale-0"}`}
+                  ></div>
+
+                  {/* Gradient overlay */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-t from-purple-900/70 via-purple-700/30 to-transparent z-10 transition-opacity duration-200 ${hoveredCard === index ? "opacity-100" : "opacity-0"}`}
+                  ></div>
+
+                  {/* Animated border */}
+                  <div
+                    className={`absolute bottom-0 left-0 h-1.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 transition-all duration-200 ${hoveredCard === index ? "w-full" : "w-0"}`}
+                  ></div>
+
                   {event.imageUrl ? (
                     <img
                       src={`${import.meta.env.VITE_API_URL}${event.imageUrl}`}
                       alt={event.title}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      className={`w-full h-full object-cover transition-all duration-300 ${hoveredCard === index ? "scale-110 brightness-110" : ""}`}
                     />
                   ) : (
-                    <div className="h-full bg-gradient-to-r from-purple-50 to-purple-100 flex items-center justify-center">
-                      <Calendar className="h-10 w-10 text-purple-300" />
+                    <div
+                      className={`h-full flex items-center justify-center transition-all duration-200 ${hoveredCard === index ? "bg-gradient-to-r from-purple-100 to-purple-200" : "bg-gradient-to-r from-purple-50 to-purple-100"}`}
+                    >
+                      <Calendar
+                        className={`h-10 w-10 transition-transform duration-200 ${hoveredCard === index ? "scale-125 text-purple-400" : "text-purple-300"}`}
+                      />
                     </div>
                   )}
+
                   {event.status && (
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-2 right-2 z-20">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                          hoveredCard === index ? "transform -translate-y-1 shadow-lg" : ""
+                        } ${
                           event.status === "active"
                             ? "bg-green-100 text-green-800"
                             : event.status === "cancelled"
@@ -185,17 +221,29 @@ function EventsDisplay() {
                 </div>
 
                 <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="text-base font-bold text-purple-900 mb-2 line-clamp-1">{event.title}</h3>
+                  <h3
+                    className={`text-base font-bold mb-2 line-clamp-1 transition-colors duration-200 ${hoveredCard === index ? "text-purple-700" : "text-purple-900"}`}
+                  >
+                    {event.title}
+                  </h3>
 
                   <div className="space-y-1.5 mb-3 text-xs text-purple-700">
-                    <div className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1.5 text-purple-500 flex-shrink-0" />
+                    <div
+                      className={`flex items-center transition-transform duration-200 ${hoveredCard === index ? "translate-x-1" : ""}`}
+                    >
+                      <Clock
+                        className={`h-3 w-3 mr-1.5 text-purple-500 flex-shrink-0 transition-transform duration-200 ${hoveredCard === index ? "rotate-12" : ""}`}
+                      />
                       <span className="line-clamp-1">{formatDate(event.startDate)}</span>
                     </div>
 
                     {event.location && (
-                      <div className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1.5 text-purple-500 flex-shrink-0" />
+                      <div
+                        className={`flex items-center transition-transform duration-200 ${hoveredCard === index ? "translate-x-1" : ""}`}
+                      >
+                        <MapPin
+                          className={`h-3 w-3 mr-1.5 text-purple-500 flex-shrink-0 transition-transform duration-200 ${hoveredCard === index ? "scale-125" : ""}`}
+                        />
                         <span className="line-clamp-1">{event.location}</span>
                       </div>
                     )}
@@ -203,7 +251,9 @@ function EventsDisplay() {
 
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-purple-50">
                     {event.category ? (
-                      <span className="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">
+                      <span
+                        className={`bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full transition-all duration-200 ${hoveredCard === index ? "transform -translate-y-1 bg-purple-100 shadow-md" : ""}`}
+                      >
                         {event.category}
                       </span>
                     ) : (
@@ -211,14 +261,25 @@ function EventsDisplay() {
                     )}
                     <button
                       onClick={() => openEventModal(event)}
-                      className="text-purple-700 hover:text-purple-900 text-xs font-medium flex items-center group"
+                      className={`text-purple-700 text-xs font-medium flex items-center group transition-colors duration-200 ${hoveredCard === index ? "text-purple-900" : ""}`}
                       aria-label={`View details for ${event.title}`}
                     >
                       Details
-                      <ChevronRight className="w-3 h-3 ml-0.5 transition-transform group-hover:translate-x-0.5" />
+                      <ChevronRight
+                        className={`w-3 h-3 ml-0.5 transition-transform duration-200 ${hoveredCard === index ? "translate-x-1" : ""}`}
+                      />
                     </button>
                   </div>
                 </div>
+
+                {/* Enhanced glow effect on hover */}
+                <div
+                  className={`absolute inset-0 rounded-lg pointer-events-none transition-all duration-200 ${
+                    hoveredCard === index
+                      ? "shadow-[0_10px_25px_-5px_rgba(139,92,246,0.4),0_8px_10px_-6px_rgba(139,92,246,0.3),0_0_0_2px_rgba(139,92,246,0.1)]"
+                      : ""
+                  }`}
+                ></div>
               </div>
             ))}
           </div>
@@ -227,10 +288,11 @@ function EventsDisplay() {
             <div className="flex justify-center mt-10">
               <button
                 onClick={handleSeeMore}
-                className="px-8 py-3 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-105 shadow-md hover:shadow-lg text-sm font-medium"
+                className="px-8 py-3 bg-purple-700 text-white rounded-lg hover:bg-purple-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-105 shadow-md hover:shadow-xl text-sm font-medium relative overflow-hidden group"
                 aria-label="See more events"
               >
-                See More Events
+                <span className="absolute inset-0 w-0 bg-purple-600 transition-all duration-200 group-hover:w-full"></span>
+                <span className="relative z-10">See More Events</span>
               </button>
             </div>
           )}
@@ -248,10 +310,10 @@ function EventsDisplay() {
           aria-labelledby="modal-title"
         >
           <div
-            className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-[modalIn_0.3s_ease-out_forwards]"
+            className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-[modalIn_0.25s_ease-out_forwards]"
             onClick={(e) => e.stopPropagation()}
             style={{
-              animation: "0.3s ease-out 0s 1 normal forwards running modalIn",
+              animation: "0.25s ease-out 0s 1 normal forwards running modalIn",
             }}
           >
             {/* Modal Header */}
@@ -263,7 +325,7 @@ function EventsDisplay() {
                     alt={selectedEvent.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/40 to-transparent"></div>
                 </div>
               ) : (
                 <div className="h-56 sm:h-72 bg-gradient-to-r from-purple-100 to-purple-200 flex items-center justify-center">
@@ -272,7 +334,7 @@ function EventsDisplay() {
               )}
               <button
                 onClick={closeEventModal}
-                className="absolute top-4 right-4 bg-purple-900 bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+                className="absolute top-4 right-4 bg-purple-900 bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2 transition-all duration-200 hover:rotate-90 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white"
                 aria-label="Close modal"
               >
                 <X className="h-5 w-5" />
@@ -282,12 +344,12 @@ function EventsDisplay() {
             {/* Modal Content */}
             <div className="p-6 sm:p-8">
               <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-                <h2 id="modal-title" className="text-2xl sm:text-3xl font-bold text-purple-900">
+                <h2 id="modal-title" className="text-2xl sm:text-3xl font-bold text-purple-900 animate-fade-in">
                   {selectedEvent.title}
                 </h2>
                 {selectedEvent.status && (
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    className={`px-3 py-1 rounded-full text-sm font-medium animate-fade-in ${
                       selectedEvent.status === "active"
                         ? "bg-green-100 text-green-800"
                         : selectedEvent.status === "cancelled"
@@ -301,19 +363,22 @@ function EventsDisplay() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <div className="col-span-2">
+                <div className="col-span-2 animate-fade-in-up" style={{ animationDelay: "80ms" }}>
                   <h3 className="text-lg font-semibold text-purple-900 mb-4">About This Event</h3>
                   <div className="prose text-purple-800">
                     <p>{selectedEvent.description || "No description available for this event."}</p>
                   </div>
                 </div>
 
-                <div className="bg-purple-50 p-6 rounded-xl border border-purple-100">
+                <div
+                  className="bg-purple-50 p-6 rounded-xl border border-purple-100 animate-fade-in-up shadow-md"
+                  style={{ animationDelay: "160ms" }}
+                >
                   <h3 className="text-lg font-semibold text-purple-900 mb-5">Event Details</h3>
                   <div className="space-y-5">
-                    <div>
+                    <div className="animate-fade-in-up" style={{ animationDelay: "200ms" }}>
                       <div className="flex items-center text-purple-900 mb-2">
-                        <Calendar className="h-5 w-5 mr-3 text-purple-600" />
+                        <Calendar className="h-5 w-5 mr-3 text-purple-600 hover:rotate-12 transition-transform duration-200" />
                         <span className="font-medium">Date & Time</span>
                       </div>
                       <p className="text-purple-700 ml-8">
@@ -325,9 +390,9 @@ function EventsDisplay() {
                     </div>
 
                     {selectedEvent.location && (
-                      <div>
+                      <div className="animate-fade-in-up" style={{ animationDelay: "240ms" }}>
                         <div className="flex items-center text-purple-900 mb-2">
-                          <MapPin className="h-5 w-5 mr-3 text-purple-600" />
+                          <MapPin className="h-5 w-5 mr-3 text-purple-600 hover:scale-125 transition-transform duration-200" />
                           <span className="font-medium">Location</span>
                         </div>
                         <p className="text-purple-700 ml-8">{selectedEvent.location}</p>
@@ -335,13 +400,13 @@ function EventsDisplay() {
                     )}
 
                     {selectedEvent.category && (
-                      <div>
+                      <div className="animate-fade-in-up" style={{ animationDelay: "280ms" }}>
                         <div className="flex items-center text-purple-900 mb-2">
-                          <Tag className="h-5 w-5 mr-3 text-purple-600" />
+                          <Tag className="h-5 w-5 mr-3 text-purple-600 hover:rotate-12 transition-transform duration-200" />
                           <span className="font-medium">Category</span>
                         </div>
                         <p className="text-purple-700 ml-8">
-                          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-sm">
+                          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-sm hover:bg-purple-200 transition-colors duration-200 hover:shadow-md">
                             {selectedEvent.category}
                           </span>
                         </p>
@@ -349,9 +414,9 @@ function EventsDisplay() {
                     )}
 
                     {selectedEvent.organizer && (
-                      <div>
+                      <div className="animate-fade-in-up" style={{ animationDelay: "320ms" }}>
                         <div className="flex items-center text-purple-900 mb-2">
-                          <User className="h-5 w-5 mr-3 text-purple-600" />
+                          <User className="h-5 w-5 mr-3 text-purple-600 hover:scale-125 transition-transform duration-200" />
                           <span className="font-medium">Organizer</span>
                         </div>
                         <p className="text-purple-700 ml-8">{selectedEvent.organizer}</p>
@@ -359,9 +424,9 @@ function EventsDisplay() {
                     )}
 
                     {selectedEvent.capacity > 0 && (
-                      <div>
+                      <div className="animate-fade-in-up" style={{ animationDelay: "360ms" }}>
                         <div className="flex items-center text-purple-900 mb-2">
-                          <Users className="h-5 w-5 mr-3 text-purple-600" />
+                          <Users className="h-5 w-5 mr-3 text-purple-600 hover:rotate-12 transition-transform duration-200" />
                           <span className="font-medium">Capacity</span>
                         </div>
                         <p className="text-purple-700 ml-8">{selectedEvent.capacity} attendees</p>
@@ -373,14 +438,18 @@ function EventsDisplay() {
 
               {/* Registration Button */}
               {selectedEvent.registrationUrl && (
-                <div className="mt-8 border-t border-purple-100 pt-8">
+                <div
+                  className="mt-8 border-t border-purple-100 pt-8 animate-fade-in-up"
+                  style={{ animationDelay: "400ms" }}
+                >
                   <a
                     href={selectedEvent.registrationUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block w-full sm:w-auto px-8 py-4 bg-purple-700 text-white text-center font-medium rounded-lg hover:bg-purple-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-105 shadow-md"
+                    className="inline-block w-full sm:w-auto px-8 py-4 bg-purple-700 text-white text-center font-medium rounded-lg hover:bg-purple-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transform hover:scale-105 shadow-lg hover:shadow-xl relative overflow-hidden group"
                   >
-                    Register for Event
+                    <span className="absolute inset-0 w-0 bg-purple-600 transition-all duration-200 group-hover:w-full"></span>
+                    <span className="relative z-10">Register for Event</span>
                   </a>
                 </div>
               )}
@@ -424,6 +493,38 @@ function EventsDisplay() {
         .prose p {
           margin-top: 1.25em;
           margin-bottom: 1.25em;
+        }
+        
+        /* Animation classes */
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        .animate-fade-in-delay {
+          animation: fadeIn 0.3s ease-out 0.15s forwards;
+          opacity: 0;
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.3s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </div>

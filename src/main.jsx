@@ -40,6 +40,8 @@ import AdminProtectedRoute from "./componentes/protectedRoute/AdminProtectedRout
 import NewsListPage from "./componentes/Admin/news/NewsListPage";
 import CreateNewsPage from "./componentes/Admin/news/CreateNewsPage";
 import EditNewsPage from "./componentes/Admin/news/EditNewsPage";
+import SecuritySettings from "./componentes/Admin/SecuritySettings";
+import { Toaster } from "react-hot-toast";
 
 const router = createBrowserRouter([
   {
@@ -136,6 +138,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/dashboard/settings",
         element: <Settings />,
+      },
+      {
+        path: "/admin/dashboard/settings/security",
+        element: <SecuritySettings />,
       },
     ],
   },

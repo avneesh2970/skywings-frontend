@@ -120,16 +120,30 @@ const Career = () => {
           Why Work with Us?
         </h2>
 
-        <div className="hidden md:flex justify-between gap-4 mx-10 px-7 py-2 b">
-          {cards.map((card, index) => (
-            <div
-              key={index}
-              className="group relative flex flex-col items-center bg-white border-2 border-blue-500 hover:bg-[#2b7fff] hover:text-white rounded-lg p-4 transition-all duration-300 ease-in-out"
-            >
-              <h3 className="font-semibold text-lg">{card.title}</h3>
-              <p>{card.description}</p>
-            </div>
-          ))}
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {cards.map((card, index) => (
+              <div
+                key={index}
+                className="group relative flex flex-col items-center bg-white border-2 border-blue-600 rounded-2xl p-6 transition-all duration-700 ease-in-out transform animate-[flip-glow_0.8s_ease-out_forwards] hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-700 hover:to-blue-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300"
+                style={{ animationDelay: `${index * 0.12}s` }}
+                role="article"
+                aria-labelledby={`card-title-${index}`}
+                tabIndex={0}
+              >
+                <h3
+                  id={`card-title-${index}`}
+                  className="font-bold text-center text-xl mb-3 transition-transform duration-300 group-hover:scale-110 group-hover:text-blue-100"
+                >
+                  {card.title}
+                </h3>
+                <p className="text-center text-sm opacity-90 group-hover:opacity-100">
+                  {card.description}
+                </p>
+                <div className="absolute inset-0 rounded-2xl bg-blue-500 opacity-0 group-hover:opacity-20 group-hover:animate-[pulse-glow_1.5s_ease-in-out_infinite] transition-opacity duration-300"></div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <Element name="full_time">
@@ -231,7 +245,7 @@ const Career = () => {
     transform: translateY(-5px);
   }
 }
-}
+
 
 `}</style>
         </div>
@@ -271,13 +285,19 @@ const Career = () => {
         Join 100K+ professionals who trust AssuredJob for career growth.
       </h3>
 
-      <div className="flex justify-center w-full px-4 mb-14">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl w-full place-items-center">
-          {platFormCard.map((info, index) => (
-            <StatCard key={index} count={info.count} platform={info.platform} />
-          ))}
+      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800">Our Social Media Presence</h2>
+
+        <div className="flex justify-center w-full px-4 mb-14">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl w-full place-items-center">
+            {platFormCard.map((info, index) => (
+              <StatCard key={index} count={info.count} platform={info.platform} />
+            ))}
+          </div>
         </div>
       </div>
+    </section>
 
       {/* <div className="md:hidden w-full flex flex-col items-center relative overflow-hidden my-3">
         <div

@@ -54,18 +54,33 @@ export const AppProvider = ({ children }) => {
 
   // Login function
   // Login function
+  // const login = (email, password) => {
+  //   // In a real app, you would validate credentials against your backend
+  //   // This is a simplified example
+  //   if (email === "career@assuredjob.com" && password === "admin123") {
+  //     const userData = { email, role: "admin" };
+  //     sessionStorage.setItem("user", JSON.stringify(userData));
+  //     setUser(userData);
+  //     setIsAuthenticated(true);
+  //     return true;
+  //   }
+  //   return false;
+  // };
   const login = (email, password) => {
+    // Get stored password from localStorage or use default
+    const storedPassword = localStorage.getItem("adminPassword") || "admin123"
+
     // In a real app, you would validate credentials against your backend
     // This is a simplified example
-    if (email === "career@assuredjob.com" && password === "admin123") {
-      const userData = { email, role: "admin" };
-      sessionStorage.setItem("user", JSON.stringify(userData));
-      setUser(userData);
-      setIsAuthenticated(true);
-      return true;
+    if (email === "career@assuredjob.com" && password === storedPassword) {
+      const userData = { email, role: "admin" }
+      sessionStorage.setItem("user", JSON.stringify(userData))
+      setUser(userData)
+      setIsAuthenticated(true)
+      return true
     }
-    return false;
-  };
+    return false
+  }
 
   // Logout function
   const logout = () => {

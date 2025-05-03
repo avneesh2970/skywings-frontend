@@ -201,6 +201,17 @@ export default function ContactUs() {
 
   return (
     <div className="w-full bg-white p-4 md:p-6 rounded-lg shadow-md">
+       <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Welcome to <span className="text-blue-600">Skywings</span> Contacts
+          </h1>
+          <p className="text-lg text-gray-600 mb-8">
+            Discover stories, insights, and knowledge from our community
+          </p>
+         
+        </div>
+      </div>
       {/* Header with search and filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold text-blue-700">Contact Submissions</h2>
