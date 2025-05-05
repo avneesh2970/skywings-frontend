@@ -1,7 +1,5 @@
 /* eslint-disable no-unused-vars */
-import Cont5 from "./componentes/Home/cont5";
-import { Mail } from "lucide-react";
-import img from "./assets/gmail.jpg";
+
 import { Phone } from "lucide-react";
 import { HiPhone, HiMail } from "react-icons/hi";
 import { useState } from "react";
@@ -11,234 +9,235 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { motion } from "framer-motion";
 
-function Contact() {
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // Form validation state
-  const [errors, setErrors] = useState({
-    name: "",
-    contact: "",
-    email: "",
-    state: "",
-    city: "",
-    enquire: "",
-    enquireDetail: "",
-  });
-
-  // Track if form was submitted to show all errors
-  const [formSubmitted, setFormSubmitted] = useState(false);
-
-  const [contactData, setContactData] = useState({
-    name: "",
-    contact: "",
-    email: "",
-    state: "",
-    city: "",
-    enquire: "",
-    enquireDetail: "",
-  });
-
-  const countryCityMap = {
-    usa: [
-      "New York",
-      "Los Angeles",
-      "Chicago",
-      "San Francisco",
-      "Miami",
-      "Other",
-    ],
-    canada: ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Other"],
-    uk: [
-      "London",
-      "Manchester",
-      "Birmingham",
-      "Liverpool",
-      "Edinburgh",
-      "Other",
-    ],
-    australia: [
-      "Sydney",
-      "Melbourne",
-      "Brisbane",
-      "Perth",
-      "Adelaide",
-      "Other",
-    ],
-    germany: ["Berlin", "Hamburg", "Munich", "Frankfurt", "Cologne", "Other"],
-    france: ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Other"],
-
-    india: [
-      "Andhra Pradesh",
-      "Arunachal Pradesh",
-      "Assam",
-      "Bihar",
-      "Chhattisgarh",
-      "Goa",
-      "Gujarat",
-      "Haryana",
-      "Himachal Pradesh",
-      "Jharkhand",
-      "Karnataka",
-      "Kerala",
-      "Madhya Pradesh",
-      "Maharashtra",
-      "Manipur",
-      "Meghalaya",
-      "Mizoram",
-      "Nagaland",
-      "Odisha",
-      "Punjab",
-      "Rajasthan",
-      "Sikkim",
-      "Tamil Nadu",
-      "Telangana",
-      "Tripura",
-      "Uttar Pradesh",
-      "Uttarakhand",
-      "West Bengal",
-      "Other",
-    ],
-
-    japan: ["Tokyo", "Osaka", "Kyoto", "Nagoya", "Fukuoka", "Other"],
-    china: ["Beijing", "Shanghai", "Shenzhen", "Guangzhou", "Chengdu", "Other"],
-    brazil: [
-      "São Paulo",
-      "Rio de Janeiro",
-      "Brasilia",
-      "Salvador",
-      "Fortaleza",
-      "Other",
-    ],
-    "south-africa": [
-      "Cape Town",
-      "Johannesburg",
-      "Durban",
-      "Pretoria",
-      "Port Elizabeth",
-      "Other",
-    ],
-    russia: [
-      "Moscow",
-      "Saint Petersburg",
-      "Novosibirsk",
-      "Yekaterinburg",
-      "Kazan",
-      "Other",
-    ],
-    mexico: [
-      "Mexico City",
-      "Guadalajara",
-      "Monterrey",
-      "Cancún",
-      "Puebla",
-      "Other",
-    ],
-    italy: ["Rome", "Milan", "Naples", "Florence", "Venice", "Other"],
-    spain: ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Other"],
-  };
-
-  // Validate a single field
-  const validateField = (name, value) => {
-    let errorMessage = "";
-    if (!value || value.trim() === "") {
-      errorMessage = `${
-        name.charAt(0).toUpperCase() + name.slice(1)
-      } is required`;
-    } else if (name === "email" && !/^\S+@\S+\.\S+$/.test(value)) {
-      errorMessage = "Please enter a valid email address";
-    } else if (
-      name === "contact" &&
-      !/^\d{10,15}$/.test(value.replace(/[^0-9]/g, ""))
-    ) {
-      errorMessage = "Please enter a valid contact number (10-15 digits)";
-    }
-
-    return errorMessage;
-  };
-
-  // Validate all fields
-  const validateForm = () => {
-    const newErrors = {};
-    let isValid = true;
-
-    // Validate each field
-    Object.keys(contactData).forEach((key) => {
-      const error = validateField(key, contactData[key]);
-      newErrors[key] = error;
-      if (error) isValid = false;
+export default function Contact() {
+    const [selectedCountry, setSelectedCountry] = useState("");
+    const [selectedCity, setSelectedCity] = useState("");
+    const [loading, setLoading] = useState(false);
+  
+    // Form validation state
+    const [errors, setErrors] = useState({
+      name: "",
+      contact: "",
+      email: "",
+      state: "",
+      city: "",
+      enquire: "",
+      enquireDetail: "",
     });
-
-    setErrors(newErrors);
-    return isValid;
-  };
-  function onChangeHandler(e) {
-    const { id, value } = e.target;
-    setContactData((prev) => ({ ...prev, [id]: value }));
-
-    // Clear error when user types if form was already submitted once
-    if (formSubmitted) {
-      setErrors((prev) => ({ ...prev, [id]: validateField(id, value) }));
+  
+    // Track if form was submitted to show all errors
+    const [formSubmitted, setFormSubmitted] = useState(false);
+  
+    const [contactData, setContactData] = useState({
+      name: "",
+      contact: "",
+      email: "",
+      state: "",
+      city: "",
+      enquire: "",
+      enquireDetail: "",
+    });
+  
+    const countryCityMap = {
+      usa: [
+        "New York",
+        "Los Angeles",
+        "Chicago",
+        "San Francisco",
+        "Miami",
+        "Other",
+      ],
+      canada: ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Other"],
+      uk: [
+        "London",
+        "Manchester",
+        "Birmingham",
+        "Liverpool",
+        "Edinburgh",
+        "Other",
+      ],
+      australia: [
+        "Sydney",
+        "Melbourne",
+        "Brisbane",
+        "Perth",
+        "Adelaide",
+        "Other",
+      ],
+      germany: ["Berlin", "Hamburg", "Munich", "Frankfurt", "Cologne", "Other"],
+      france: ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Other"],
+  
+      india: [
+        "Andhra Pradesh",
+        "Arunachal Pradesh",
+        "Assam",
+        "Bihar",
+        "Chhattisgarh",
+        "Goa",
+        "Gujarat",
+        "Haryana",
+        "Himachal Pradesh",
+        "Jharkhand",
+        "Karnataka",
+        "Kerala",
+        "Madhya Pradesh",
+        "Maharashtra",
+        "Manipur",
+        "Meghalaya",
+        "Mizoram",
+        "Nagaland",
+        "Odisha",
+        "Punjab",
+        "Rajasthan",
+        "Sikkim",
+        "Tamil Nadu",
+        "Telangana",
+        "Tripura",
+        "Uttar Pradesh",
+        "Uttarakhand",
+        "West Bengal",
+        "Other",
+      ],
+  
+      japan: ["Tokyo", "Osaka", "Kyoto", "Nagoya", "Fukuoka", "Other"],
+      china: ["Beijing", "Shanghai", "Shenzhen", "Guangzhou", "Chengdu", "Other"],
+      brazil: [
+        "São Paulo",
+        "Rio de Janeiro",
+        "Brasilia",
+        "Salvador",
+        "Fortaleza",
+        "Other",
+      ],
+      "south-africa": [
+        "Cape Town",
+        "Johannesburg",
+        "Durban",
+        "Pretoria",
+        "Port Elizabeth",
+        "Other",
+      ],
+      russia: [
+        "Moscow",
+        "Saint Petersburg",
+        "Novosibirsk",
+        "Yekaterinburg",
+        "Kazan",
+        "Other",
+      ],
+      mexico: [
+        "Mexico City",
+        "Guadalajara",
+        "Monterrey",
+        "Cancún",
+        "Puebla",
+        "Other",
+      ],
+      italy: ["Rome", "Milan", "Naples", "Florence", "Venice", "Other"],
+      spain: ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Other"],
+    };
+  
+    // Validate a single field
+    const validateField = (name, value) => {
+      let errorMessage = "";
+      if (!value || value.trim() === "") {
+        errorMessage = `${
+          name.charAt(0).toUpperCase() + name.slice(1)
+        } is required`;
+      } else if (name === "email" && !/^\S+@\S+\.\S+$/.test(value)) {
+        errorMessage = "Please enter a valid email address";
+      } else if (
+        name === "contact" &&
+        !/^\d{10,15}$/.test(value.replace(/[^0-9]/g, ""))
+      ) {
+        errorMessage = "Please enter a valid contact number (10-15 digits)";
+      }
+  
+      return errorMessage;
+    };
+  
+    // Validate all fields
+    const validateForm = () => {
+      const newErrors = {};
+      let isValid = true;
+  
+      // Validate each field
+      Object.keys(contactData).forEach((key) => {
+        const error = validateField(key, contactData[key]);
+        newErrors[key] = error;
+        if (error) isValid = false;
+      });
+  
+      setErrors(newErrors);
+      return isValid;
+    };
+    function onChangeHandler(e) {
+      const { id, value } = e.target;
+      setContactData((prev) => ({ ...prev, [id]: value }));
+  
+      // Clear error when user types if form was already submitted once
+      if (formSubmitted) {
+        setErrors((prev) => ({ ...prev, [id]: validateField(id, value) }));
+      }
     }
-  }
-
-  async function submitHandler(e) {
-    e.preventDefault();
-    setFormSubmitted(true);
-    // Validate all fields before submission
-    if (!validateForm()) {
-      toast.error("Please fill in all required fields correctly");
-      return;
+  
+    async function submitHandler(e) {
+      e.preventDefault();
+      setFormSubmitted(true);
+      // Validate all fields before submission
+      if (!validateForm()) {
+        toast.error("Please fill in all required fields correctly");
+        return;
+      }
+  
+      setLoading(true);
+  
+      try {
+        const serviceId = import.meta.env.VITE_SERVICE_ID;
+        const templateId = import.meta.env.VITE_TEMPLATE_ID;
+        const publicKey = import.meta.env.VITE_PUBLIC_KEY;
+  
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/enquiries`,
+          contactData
+        );
+        toast.success("Enquiry saved successfully!");
+  
+        emailjs
+          .send(serviceId, templateId, contactData, {
+            publicKey,
+          })
+          .then(
+            () => {
+              console.log("SUCCESS!");
+              toast.success("Your message has been sent successfully!");
+              // Reset form after success
+              setContactData({
+                name: "",
+                contact: "",
+                email: "",
+                state: "",
+                city: "",
+                enquire: "",
+                enquireDetail: "",
+              });
+              setFormSubmitted(false);
+            },
+            (error) => {
+              console.log("FAILED...", error.text);
+              toast.error("Failed to send message. Please try again later.");
+            }
+          )
+          .finally(() => {
+            setLoading(false); // Make sure loading is set to false after the promise resolves
+          });
+      } catch (error) {
+        console.log(error);
+        toast.error("An error occurred. Please try again.");
+        setLoading(false); // Set loading to false in case of error
+      }
     }
-
-    setLoading(true);
-
-    try {
-      const serviceId = import.meta.env.VITE_SERVICE_ID;
-      const templateId = import.meta.env.VITE_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_PUBLIC_KEY;
-
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/enquiries`,
-        contactData
-      );
-      toast.success("Enquiry saved successfully!");
-
-      emailjs
-        .send(serviceId, templateId, contactData, {
-          publicKey,
-        })
-        .then(
-          () => {
-            console.log("SUCCESS!");
-            toast.success("Your message has been sent successfully!");
-            // Reset form after success
-            setContactData({
-              name: "",
-              contact: "",
-              email: "",
-              state: "",
-              city: "",
-              enquire: "",
-              enquireDetail: "",
-            });
-            setFormSubmitted(false);
-          },
-          (error) => {
-            console.log("FAILED...", error.text);
-            toast.error("Failed to send message. Please try again later.");
-          }
-        )
-        .finally(() => {
-          setLoading(false); // Make sure loading is set to false after the promise resolves
-        });
-    } catch (error) {
-      console.log(error);
-      toast.error("An error occurred. Please try again.");
-      setLoading(false); // Set loading to false in case of error
-    }
-  }
   return (
     <>
       {/* Header Section */}
@@ -638,21 +637,6 @@ function Contact() {
           </motion.form>
         </div>
       </div>
-      <div className="flex w-full ">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3443.5282803438927!2d78.0209715745825!3d30.335932804703045!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390929ec1f76b89d%3A0xf5c5f81fa6e9af6c!2sSkywings%20Advisors%20Private%20Limited!5e0!3m2!1sen!2sin!4v1741413952815!5m2!1sen!2sin"
-          width=""
-          height=""
-          className="w-full mx-10 h-96"
-          allowFullscreen=""
-          loading="fast"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </div>
-
-      <Cont5></Cont5>
     </>
   );
 }
-
-export default Contact;

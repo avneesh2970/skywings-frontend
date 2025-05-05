@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import { useState, useEffect, useRef } from "react"
+import axios from "axios"
 import {
   Calendar,
   MapPin,
@@ -13,104 +13,121 @@ import {
   ArrowLeft,
   ArrowRight,
   Clock,
-  Users,
   ExternalLink,
-} from "lucide-react";
-import EventDetailsModal from "./EventDetailsModal";
-import { motion } from "framer-motion";
+  CalendarCheck,
+  CalendarX,
+  CalendarOff,
+} from "lucide-react"
+import EventDetailsModal from "./EventDetailsModal"
+import { motion } from "framer-motion"
 
 export default function Event() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalEvents, setTotalEvents] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterFeatured, setFilterFeatured] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false);
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalEvents, setTotalEvents] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterStatus, setFilterStatus] = useState("")
+  const [filterCategory, setFilterCategory] = useState("")
+  const [filterFeatured, setFilterFeatured] = useState("")
+  const [categories, setCategories] = useState([])
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false)
   const [sortConfig, setSortConfig] = useState({
     key: "startDate",
     direction: "asc",
-  });
+  })
 
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const filterRef = useRef(null);
-  const categoryFilterRef = useRef(null);
+  const filterRef = useRef(null)
+  const categoryFilterRef = useRef(null)
 
   useEffect(() => {
     function handleClickOutside(event) {
       if (filterRef.current && !filterRef.current.contains(event.target)) {
-        setIsFilterOpen(false);
+        setIsFilterOpen(false)
       }
-      if (
-        categoryFilterRef.current &&
-        !categoryFilterRef.current.contains(event.target)
-      ) {
-        setIsCategoryFilterOpen(false);
+      if (categoryFilterRef.current && !categoryFilterRef.current.contains(event.target)) {
+        setIsCategoryFilterOpen(false)
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  // Calculate real-time status based on current date and event dates
+  const calculateEventStatus = (event) => {
+    // If manually set to cancelled, keep it that way
+    if (event.status === "cancelled") {
+      return "cancelled"
+    }
+
+    const now = new Date()
+    const startDate = new Date(event.startDate)
+    const endDate = new Date(event.endDate)
+
+    if (now < startDate) {
+      return "upcoming"
+    } else if (now >= startDate && now <= endDate) {
+      return "ongoing"
+    } else if (now > endDate) {
+      return "past"
+    }
+
+    // Fallback to the stored status if something goes wrong
+    return event.status
+  }
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        setLoading(true);
+        setLoading(true)
 
-        const params = new URLSearchParams();
-        params.append("page", currentPage);
-        params.append("limit", 12); // Increased from 9 to 12 to better fit 4-column layout
+        const params = new URLSearchParams()
+        params.append("page", currentPage)
+        params.append("limit", 12) // Increased from 9 to 12 to better fit 4-column layout
 
-        if (searchTerm) params.append("search", searchTerm);
-        if (filterStatus) params.append("status", filterStatus);
-        if (filterCategory) params.append("category", filterCategory);
-        if (filterFeatured) params.append("featured", filterFeatured);
-        params.append("sort", "createdAt"); // Use the field that stores creation timestamp
-        params.append("order", "desc");
+        if (searchTerm) params.append("search", searchTerm)
+        if (filterStatus) params.append("status", filterStatus)
+        if (filterCategory) params.append("category", filterCategory)
+        if (filterFeatured) params.append("featured", filterFeatured)
+        params.append("sort", "createdAt") // Use the field that stores creation timestamp
+        params.append("order", "desc")
 
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/events?${params.toString()}`
-        );
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/events?${params.toString()}`)
 
-        setEvents(response.data.data);
-        setTotalPages(response.data.totalPages);
-        setTotalEvents(response.data.total);
+        // Process events to update status based on current date
+        const processedEvents = response.data.data.map((event) => ({
+          ...event,
+          calculatedStatus: calculateEventStatus(event),
+        }))
 
-        const uniqueCategories = [
-          ...new Set(response.data.data.map((event) => event.category)),
-        ];
-        setCategories(uniqueCategories);
+        setEvents(processedEvents)
+        setTotalPages(response.data.totalPages)
+        setTotalEvents(response.data.total)
 
-        setError(null);
+        const uniqueCategories = [...new Set(response.data.data.map((event) => event.category))]
+        setCategories(uniqueCategories)
+
+        setError(null)
       } catch (err) {
-        console.error("Error fetching events:", err);
-        setError("Failed to load events. Please try again later.");
-        setEvents([]);
+        console.error("Error fetching events:", err)
+        setError("Failed to load events. Please try again later.")
+        setEvents([])
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchEvents();
-  }, [
-    currentPage,
-    searchTerm,
-    filterStatus,
-    filterCategory,
-    filterFeatured,
-    sortConfig,
-  ]);
+    fetchEvents()
+  }, [currentPage, searchTerm, filterStatus, filterCategory, filterFeatured, sortConfig])
 
   const formatDate = (dateString) => {
     const options = {
@@ -119,9 +136,9 @@ export default function Event() {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+    }
+    return new Date(dateString).toLocaleDateString(undefined, options)
+  }
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -129,47 +146,51 @@ export default function Event() {
         return {
           color: "bg-blue-100 text-blue-700",
           icon: <Calendar className="h-3 w-3 mr-1" />,
-        };
+        }
       case "ongoing":
         return {
           color: "bg-green-100 text-green-700",
-          icon: <Calendar className="h-3 w-3 mr-1" />,
-        };
+          icon: <CalendarCheck className="h-3 w-3 mr-1" />,
+        }
       case "past":
         return {
           color: "bg-gray-100 text-gray-700",
-          icon: <Calendar className="h-3 w-3 mr-1" />,
-        };
+          icon: <CalendarX className="h-3 w-3 mr-1" />,
+        }
       case "cancelled":
         return {
           color: "bg-red-100 text-red-700",
-          icon: <Calendar className="h-3 w-3 mr-1" />,
-        };
+          icon: <CalendarOff className="h-3 w-3 mr-1" />,
+        }
       default:
         return {
           color: "bg-purple-100 text-purple-700",
           icon: <Calendar className="h-3 w-3 mr-1" />,
-        };
+        }
     }
-  };
+  }
 
   const clearFilters = () => {
-    setSearchTerm("");
-    setFilterStatus("");
-    setFilterCategory("");
-    setFilterFeatured("");
-    setCurrentPage(1);
-  };
+    setSearchTerm("")
+    setFilterStatus("")
+    setFilterCategory("")
+    setFilterFeatured("")
+    setCurrentPage(1)
+  }
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
+    setSearchTerm(e.target.value)
+    setCurrentPage(1)
+  }
 
   const handleViewDetails = (event) => {
-    setSelectedEvent(event);
-    setIsModalOpen(true);
-  };
+    // Make sure we're passing the calculated status to the modal
+    setSelectedEvent({
+      ...event,
+      status: event.calculatedStatus || event.status,
+    })
+    setIsModalOpen(true)
+  }
 
   const EventSkeleton = () => (
     <div className="bg-white rounded-lg overflow-hidden shadow-md animate-pulse">
@@ -187,15 +208,13 @@ export default function Event() {
         </div>
       </div>
     </div>
-  );
+  )
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="bg-blue-500 text-white py-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Upcoming Events
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Upcoming Events</h1>
           <p className="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">
             Join us for workshops, webinars, and networking opportunities
           </p>
@@ -216,8 +235,8 @@ export default function Event() {
             {searchTerm && (
               <button
                 onClick={() => {
-                  setSearchTerm("");
-                  setCurrentPage(1);
+                  setSearchTerm("")
+                  setCurrentPage(1)
                 }}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
               >
@@ -230,8 +249,8 @@ export default function Event() {
             <div className="relative" ref={filterRef}>
               <button
                 onClick={() => {
-                  setIsFilterOpen(!isFilterOpen);
-                  setIsCategoryFilterOpen(false);
+                  setIsFilterOpen(!isFilterOpen)
+                  setIsCategoryFilterOpen(false)
                 }}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-300 ${
                   isFilterOpen || filterStatus
@@ -241,19 +260,14 @@ export default function Event() {
               >
                 <Filter className="h-4 w-4" />
                 <span>
-                  {filterStatus
-                    ? `${
-                        filterStatus.charAt(0).toUpperCase() +
-                        filterStatus.slice(1)
-                      }`
-                    : "Status"}
+                  {filterStatus ? `${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}` : "Status"}
                 </span>
                 {filterStatus && (
                   <button
                     onClick={(e) => {
-                      e.stopPropagation();
-                      setFilterStatus("");
-                      setCurrentPage(1);
+                      e.stopPropagation()
+                      setFilterStatus("")
+                      setCurrentPage(1)
                     }}
                     className="ml-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
                   >
@@ -265,28 +279,24 @@ export default function Event() {
               {isFilterOpen && (
                 <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg">
                   <div className="p-2">
-                    {["upcoming", "ongoing", "past", "cancelled"].map(
-                      (status) => (
-                        <button
-                          key={status}
-                          onClick={() => {
-                            setFilterStatus(status);
-                            setIsFilterOpen(false);
-                            setCurrentPage(1);
-                          }}
-                          className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
-                            filterStatus === status
-                              ? "bg-purple-100 text-purple-700"
-                              : "hover:bg-gray-100"
-                          }`}
-                        >
-                          <div className="flex items-center">
-                            {getStatusBadge(status).icon}
-                            <span className="capitalize">{status}</span>
-                          </div>
-                        </button>
-                      )
-                    )}
+                    {["upcoming", "ongoing", "past", "cancelled"].map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => {
+                          setFilterStatus(status)
+                          setIsFilterOpen(false)
+                          setCurrentPage(1)
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
+                          filterStatus === status ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          {getStatusBadge(status).icon}
+                          <span className="capitalize">{status}</span>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
@@ -295,8 +305,8 @@ export default function Event() {
             <div className="relative" ref={categoryFilterRef}>
               <button
                 onClick={() => {
-                  setIsCategoryFilterOpen(!isCategoryFilterOpen);
-                  setIsFilterOpen(false);
+                  setIsCategoryFilterOpen(!isCategoryFilterOpen)
+                  setIsFilterOpen(false)
                 }}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-300 ${
                   isCategoryFilterOpen || filterCategory
@@ -309,9 +319,9 @@ export default function Event() {
                 {filterCategory && (
                   <button
                     onClick={(e) => {
-                      e.stopPropagation();
-                      setFilterCategory("");
-                      setCurrentPage(1);
+                      e.stopPropagation()
+                      setFilterCategory("")
+                      setCurrentPage(1)
                     }}
                     className="ml-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
                   >
@@ -327,14 +337,12 @@ export default function Event() {
                       <button
                         key={category}
                         onClick={() => {
-                          setFilterCategory(category);
-                          setIsCategoryFilterOpen(false);
-                          setCurrentPage(1);
+                          setFilterCategory(category)
+                          setIsCategoryFilterOpen(false)
+                          setCurrentPage(1)
                         }}
                         className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors duration-200 ${
-                          filterCategory === category
-                            ? "bg-purple-100 text-purple-700"
-                            : "hover:bg-gray-100"
+                          filterCategory === category ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100"
                         }`}
                       >
                         <div className="flex items-center">
@@ -350,14 +358,8 @@ export default function Event() {
 
             <button
               onClick={() => {
-                setFilterFeatured(
-                  filterFeatured === ""
-                    ? "true"
-                    : filterFeatured === "true"
-                    ? "false"
-                    : ""
-                );
-                setCurrentPage(1);
+                setFilterFeatured(filterFeatured === "" ? "true" : filterFeatured === "true" ? "false" : "")
+                setCurrentPage(1)
               }}
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-all duration-300 ${
                 filterFeatured !== ""
@@ -367,18 +369,14 @@ export default function Event() {
             >
               <Star className="h-4 w-4" />
               <span>
-                {filterFeatured === "true"
-                  ? "Featured"
-                  : filterFeatured === "false"
-                  ? "Not Featured"
-                  : "Featured"}
+                {filterFeatured === "true" ? "Featured" : filterFeatured === "false" ? "Not Featured" : "Featured"}
               </span>
               {filterFeatured !== "" && (
                 <button
                   onClick={(e) => {
-                    e.stopPropagation();
-                    setFilterFeatured("");
-                    setCurrentPage(1);
+                    e.stopPropagation()
+                    setFilterFeatured("")
+                    setCurrentPage(1)
                   }}
                   className="ml-2 text-gray-400 hover:text-gray-600 transition-colors duration-300"
                 >
@@ -387,10 +385,7 @@ export default function Event() {
               )}
             </button>
 
-            {(searchTerm ||
-              filterStatus ||
-              filterCategory ||
-              filterFeatured) && (
+            {(searchTerm || filterStatus || filterCategory || filterFeatured) && (
               <button
                 onClick={clearFilters}
                 className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-300"
@@ -415,18 +410,13 @@ export default function Event() {
         ) : events.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
             <Calendar className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-medium text-gray-800 mb-2">
-              No Events Found
-            </h3>
+            <h3 className="text-xl font-medium text-gray-800 mb-2">No Events Found</h3>
             <p className="text-gray-500 mb-6 max-w-md mx-auto">
               {searchTerm || filterStatus || filterCategory || filterFeatured
                 ? "No events match your current filters. Try adjusting your search criteria."
                 : "There are no upcoming events at the moment. Please check back later."}
             </p>
-            {(searchTerm ||
-              filterStatus ||
-              filterCategory ||
-              filterFeatured) && (
+            {(searchTerm || filterStatus || filterCategory || filterFeatured) && (
               <button
                 onClick={clearFilters}
                 className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
@@ -438,119 +428,109 @@ export default function Event() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-              {events.map((event) => (
-                <motion.div
-                  key={event._id}
-                  className="relative bg-white rounded-xl overflow-hidden shadow-md flex flex-col h-full group"
-                  initial={{ scale: 1, y: 0 }}
-                  whileHover={{
-                    scale: 1.03,
-                    boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.2)",
-                    transition: { duration: 0.3, ease: "easeOut" },
-                  }}
-                >
-                  {/* Event Image */}
-                  <div className="relative h-48 bg-gray-200 overflow-hidden">
-                    {event.imageUrl ? (
-                      <>
-                        <img
-                          src={`${import.meta.env.VITE_API_URL}${
-                            event.imageUrl
-                          }`}
-                          alt={event.title}
-                          className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/community-celebration.png";
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-purple-100">
-                        <Calendar className="h-16 w-16 text-purple-300" />
-                      </div>
-                    )}
+              {events.map((event) => {
+                // Use the calculated status instead of the database status
+                const displayStatus = event.calculatedStatus || event.status
 
-                    {/* Status Badge */}
-                    <div
-                      className={`absolute top-3 left-3 ${
-                        getStatusBadge(event.status).color
-                      } px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-sm`}
-                    >
-                      {getStatusBadge(event.status).icon}
-                      <span className="capitalize">{event.status}</span>
-                    </div>
-
-                    {/* Featured Badge */}
-                    {event.featured && (
-                      <div className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-sm">
-                        <Star className="h-3 w-3 mr-1" />
-                        Featured
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Event Content */}
+                return (
                   <motion.div
-                    className="p-4 flex-grow flex flex-col relative"
-                    initial={{ y: 0 }}
+                    key={event._id}
+                    className="relative bg-white rounded-xl overflow-hidden shadow-md flex flex-col h-full group"
+                    initial={{ scale: 1, y: 0 }}
                     whileHover={{
-                      y: -5,
+                      scale: 1.03,
+                      boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.2)",
                       transition: { duration: 0.3, ease: "easeOut" },
                     }}
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-purple-700 transition-colors duration-300">
-                      {event.title}
-                    </h3>
-
-                    <div className="space-y-2 mb-4 text-xs sm:text-sm text-gray-600">
-                      <div className="flex items-start">
-                        <Clock className="h-4 w-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" />
-                        <div>
-                          <div>{formatDate(event.startDate)}</div>
-                          {event.endDate &&
-                            event.startDate !== event.endDate && (
-                              <div className="text-gray-500">
-                                to {formatDate(event.endDate)}
-                              </div>
-                            )}
+                    {/* Event Image */}
+                    <div className="relative h-48 bg-gray-200 overflow-hidden">
+                      {event.imageUrl ? (
+                        <>
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}${event.imageUrl}`}
+                            alt={event.title}
+                            className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110"
+                            onError={(e) => {
+                              e.target.onerror = null
+                              e.target.src = "/community-event.png"
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-purple-100">
+                          <Calendar className="h-16 w-16 text-purple-300" />
                         </div>
+                      )}
+
+                      {/* Status Badge - Using calculated status */}
+                      <div
+                        className={`absolute top-3 left-3 ${
+                          getStatusBadge(displayStatus).color
+                        } px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-sm`}
+                      >
+                        {getStatusBadge(displayStatus).icon}
+                        <span className="capitalize">{displayStatus}</span>
                       </div>
 
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-                        <span className="line-clamp-1">{event.location}</span>
-                      </div>
-
-                      <div className="flex items-center">
-                        <Tag className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-                        <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs">
-                          {event.category}
-                        </span>
-                      </div>
-
-                      {/* {event.capacity > 0 && (
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
-                          <span>Capacity: {event.capacity}</span>
+                      {/* Featured Badge */}
+                      {event.featured && (
+                        <div className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-sm">
+                          <Star className="h-3 w-3 mr-1" />
+                          Featured
                         </div>
-                      )} */}
+                      )}
                     </div>
 
-                    <div className="mt-auto pt-3 flex gap-2">
-                      <motion.button
-                        onClick={() => handleViewDetails(event)}
-                        className="flex-grow px-3 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm"
-                        whileHover={{ backgroundColor: "#2563eb" }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        View Details
-                      </motion.button>
+                    {/* Event Content */}
+                    <motion.div
+                      className="p-4 flex-grow flex flex-col relative"
+                      initial={{ y: 0 }}
+                      whileHover={{
+                        y: -5,
+                        transition: { duration: 0.3, ease: "easeOut" },
+                      }}
+                    >
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-purple-700 transition-colors duration-300">
+                        {event.title}
+                      </h3>
 
-                      {event.registrationUrl &&
-                        event.status !== "past" &&
-                        event.status !== "cancelled" && (
+                      <div className="space-y-2 mb-4 text-xs sm:text-sm text-gray-600">
+                        <div className="flex items-start">
+                          <Clock className="h-4 w-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" />
+                          <div>
+                            <div>{formatDate(event.startDate)}</div>
+                            {event.endDate && event.startDate !== event.endDate && (
+                              <div className="text-gray-500">to {formatDate(event.endDate)}</div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                          <span className="line-clamp-1">{event.location}</span>
+                        </div>
+
+                        <div className="flex items-center">
+                          <Tag className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs">
+                            {event.category}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-auto pt-3 flex gap-2">
+                        <motion.button
+                          onClick={() => handleViewDetails(event)}
+                          className="flex-grow px-3 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition-colors duration-300 text-sm"
+                          whileHover={{ backgroundColor: "#2563eb" }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          View Details
+                        </motion.button>
+
+                        {event.registrationUrl && displayStatus !== "past" && displayStatus !== "cancelled" && (
                           <motion.a
                             href={event.registrationUrl}
                             target="_blank"
@@ -563,19 +543,18 @@ export default function Event() {
                             <ExternalLink className="h-3 w-3" />
                           </motion.a>
                         )}
-                    </div>
+                      </div>
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              ))}
+                )
+              })}
             </div>
 
             {totalPages > 1 && (
               <div className="flex justify-center mt-8 mb-12">
                 <div className="flex space-x-2">
                   <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
                     className="flex items-center px-4 py-2 border rounded-md disabled:opacity-50 transition-colors duration-300"
                   >
@@ -591,34 +570,28 @@ export default function Event() {
                           page === totalPages ||
                           Math.abs(page - currentPage) <= 1 ||
                           (page === 2 && currentPage === 1) ||
-                          (page === totalPages - 1 &&
-                            currentPage === totalPages)
-                        );
+                          (page === totalPages - 1 && currentPage === totalPages)
+                        )
                       })
                       .map((page, index, array) => {
                         if (index > 0 && array[index - 1] !== page - 1) {
                           return (
-                            <span
-                              key={`ellipsis-${page}`}
-                              className="px-4 py-2 border rounded-md text-gray-400"
-                            >
+                            <span key={`ellipsis-${page}`} className="px-4 py-2 border rounded-md text-gray-400">
                               ...
                             </span>
-                          );
+                          )
                         }
                         return (
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
                             className={`px-4 py-2 border rounded-md transition-colors duration-300 ${
-                              currentPage === page
-                                ? "bg-purple-600 text-white border-purple-600"
-                                : "hover:bg-gray-50"
+                              currentPage === page ? "bg-purple-600 text-white border-purple-600" : "hover:bg-gray-50"
                             }`}
                           >
                             {page}
                           </button>
-                        );
+                        )
                       })}
                   </div>
 
@@ -627,9 +600,7 @@ export default function Event() {
                   </span>
 
                   <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                    }
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
                     className="flex items-center px-4 py-2 border rounded-md disabled:opacity-50 transition-colors duration-300"
                   >
@@ -654,5 +625,5 @@ export default function Event() {
         />
       )}
     </div>
-  );
+  )
 }

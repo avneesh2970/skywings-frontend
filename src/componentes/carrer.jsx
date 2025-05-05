@@ -125,7 +125,7 @@ const Career = () => {
             {cards.map((card, index) => (
               <div
                 key={index}
-                className="group relative flex flex-col items-center bg-white border-2 border-blue-600 rounded-2xl p-6 transition-all duration-700 ease-in-out transform animate-[flip-glow_0.8s_ease-out_forwards] hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-700 hover:to-blue-900 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300"
+                className="group relative flex flex-col items-center bg-white border-2 border-blue-600 rounded-2xl p-6 transition-all duration-700 ease-in-out transform animate-[flip-glow_0.8s_ease-out_forwards] hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.7)] hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-700 hover:to-blue-900 hover:text-white focus Outline-none focus:ring-4 focus:ring-blue-300"
                 style={{ animationDelay: `${index * 0.12}s` }}
                 role="article"
                 aria-labelledby={`card-title-${index}`}
@@ -133,11 +133,11 @@ const Career = () => {
               >
                 <h3
                   id={`card-title-${index}`}
-                  className="font-bold text-center text-xl mb-3 transition-transform duration-300 group-hover:scale-110 group-hover:text-blue-100"
+                  className="font-bold text-center text-xl mb-3 transition-transform duration-300 group-hover:scale-110 group-hover:text-white"
                 >
                   {card.title}
                 </h3>
-                <p className="text-center text-sm opacity-90 group-hover:opacity-100">
+                <p className="text-center text-sm opacity-90 group-hover:opacity-100 group-hover:text-white">
                   {card.description}
                 </p>
                 <div className="absolute inset-0 rounded-2xl bg-blue-500 opacity-0 group-hover:opacity-20 group-hover:animate-[pulse-glow_1.5s_ease-in-out_infinite] transition-opacity duration-300"></div>
@@ -151,7 +151,6 @@ const Career = () => {
             <p className="font-semibold">Open Position (10)</p>
             <p className="my-8">Send Your Resume : careers@assuredjob.com</p>
           </div>
-          {/* <Cont2 className="z-40" /> */}
           <CareerPageJobs className="z-40" />
         </Element>
         <div className="md:hidden w-full flex flex-col items-center relative overflow-hidden my-3">
@@ -184,12 +183,10 @@ const Career = () => {
                   key={index}
                   className="flex flex-col items-center bg-white shadow-lg rounded-lg pt-5 bounce-on-hover"
                 >
-                  {/* Contact Text */}
                   <p className="text-center text-lg font-semibold text-gray-800">
                     Contact us on {list.name}
                   </p>
 
-                  {/* Profile Image */}
                   <div className="flex z-10 justify-center mt-2">
                     <img
                       src={img_}
@@ -225,60 +222,33 @@ const Career = () => {
           </div>
 
           <style jsx>{`
-  /* Bounce animation */
-.bounce-on-hover {
-  transition: transform 0.4s ease;
-}
+            /* Bounce animation */
+            .bounce-on-hover {
+              transition: transform 0.4s ease;
+            }
 
-.bounce-on-hover:hover {
-  animation: bounce 0.5s ease; /* remove 'infinite' */
-}
+            .bounce-on-hover:hover {
+              animation: bounce 0.5s ease; /* remove 'infinite' */
+            }
 
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
-
-`}</style>
+            @keyframes bounce {
+              0%,
+              20%,
+              50%,
+              80%,
+              100% {
+                transform: translateY(0);
+              }
+              40% {
+                transform: translateY(-10px);
+              }
+              60% {
+                transform: translateY(-5px);
+              }
+            }
+          `}</style>
         </div>
       </div>
-
-      {/* 
-            <div className="bg-[#F5F5F5] py-2 px-5">
-                <h3 className="text-[#42307D] text-2xl px-3">Open Positions</h3>
-                <SearchBar />
-
-                <div className="hidden md:flex gap-5 py-5 px-2">
-                    {jobCards.map((job, index) => (
-                        <JobCard key={index} title={job.title} location={job.location} experience={job.experience} />
-                    ))}
-                </div>
-
-                <div className="hidden md:flex gap-5 py-5 px-2">
-                    {jobCards.map((job, index) => (
-                        <JobCard key={index} title={job.title} location={job.location} experience={job.experience} />
-                    ))}
-                </div>
-
-                <div className="md:hidden w-full flex flex-col items-center relative overflow-hidden my-3">
-                    <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${jobIndex * 100}%)`, width: "100%" }}>
-                        {jobCards.map((job, index) => (
-                            <div key={index} className="w-full flex-shrink-0 flex justify-center">
-                                <JobCard title={job.title} location={job.location} experience={job.experience} />
-                            </div>
-                        ))}
-                    </div>
-                    <Arrows nextSlide={nextJobSlide} prevSlide={prevJobSlide} />
-                </div>
-            </div> */}
 
       <Resume />
       <h3 className="text-center text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-700 mb-8 sm:mb-12 max-w-2xl mx-auto mt-14 leading-snug sm:leading-tight">
@@ -286,18 +256,24 @@ const Career = () => {
       </h3>
 
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800">Our Social Media Presence</h2>
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800">
+            Our Social Media Presence
+          </h2>
 
-        <div className="flex justify-center w-full px-4 mb-14">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl w-full place-items-center">
-            {platFormCard.map((info, index) => (
-              <StatCard key={index} count={info.count} platform={info.platform} />
-            ))}
+          <div className="flex justify-center w-full px-4 mb-14">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl w-full place-items-center">
+              {platFormCard.map((info, index) => (
+                <StatCard
+                  key={index}
+                  count={info.count}
+                  platform={info.platform}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* <div className="md:hidden w-full flex flex-col items-center relative overflow-hidden my-3">
         <div

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 // 1️⃣ Create a context
@@ -66,21 +67,29 @@ export const AppProvider = ({ children }) => {
   //   }
   //   return false;
   // };
-  const login = (email, password) => {
-    // Get stored password from localStorage or use default
-    const storedPassword = localStorage.getItem("adminPassword") || "admin123"
-
-    // In a real app, you would validate credentials against your backend
-    // This is a simplified example
-    if (email === "career@assuredjob.com" && password === storedPassword) {
-      const userData = { email, role: "admin" }
-      sessionStorage.setItem("user", JSON.stringify(userData))
-      setUser(userData)
-      setIsAuthenticated(true)
-      return true
+  const login = async (email, password) => {
+    try {
+      // Get stored password from localStorage or use default
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/admin/login-admin`,
+        { email, password }
+      );
+      console.log("response", response.data);
+      if (response.data.success) {
+        const userData = { email, role: "admin" };
+        sessionStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.log("error: ", error);
+      toast.error(
+        error.response.data.message || "Error logging in. Please try again."
+      );
     }
-    return false
-  }
+  };
 
   // Logout function
   const logout = () => {
@@ -106,6 +115,7 @@ export const AppProvider = ({ children }) => {
       }}
     >
       {children}
+      <Toaster/>
     </AppContext.Provider>
   );
 };

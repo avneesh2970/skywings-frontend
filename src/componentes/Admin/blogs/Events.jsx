@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unknown-property */
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
@@ -78,6 +78,8 @@ export default function Events() {
   const [editingEventId, setEditingEventId] = useState(null)
   const [formSubmitting, setFormSubmitting] = useState(false)
   const [categories, setCategories] = useState([])
+  const [selectedEvent, setSelectedEvent] = useState(null)
+  const [hoveredCard, setHoveredCard] = useState(null)
 
   const filterRef = useRef(null)
   const categoryFilterRef = useRef(null)
@@ -513,18 +515,145 @@ export default function Events() {
     }
   }
 
+  // Maximum number of cards to display
+  const MAX_VISIBLE_EVENTS = 4 // Increased to 4 from 3
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsFilterOpen(false)
+      }
+      if (categoryFilterRef.current && !categoryFilterRef.current.contains(event.target)) {
+        setIsCategoryFilterOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isFilterOpen, isCategoryFilterOpen])
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true)
+
+        // Build query parameters
+        const params = new URLSearchParams()
+        if (searchTerm) params.append("search", searchTerm)
+        if (filterStatus) params.append("status", filterStatus)
+        if (filterCategory) params.append("category", filterCategory)
+        params.append("sort", "startDate")
+        params.append("order", "asc")
+        params.append("page", currentPage.toString())
+        params.append("limit", "8") // Fetch 8 events per page
+
+        // Fetch events from your API with sort parameters
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/events?${params.toString()}`)
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        // Update events with real-time status calculation
+        const updatedEvents = data.data.map((event) => {
+          // Calculate the current status based on dates
+          const now = new Date()
+          let calculatedStatus = event.status
+
+          if (event.status !== "cancelled") {
+            if (now < new Date(event.startDate)) {
+              calculatedStatus = "upcoming"
+            } else if (now >= new Date(event.startDate) && now <= new Date(event.endDate)) {
+              calculatedStatus = "ongoing"
+            } else if (now > new Date(event.endDate)) {
+              calculatedStatus = "past"
+            }
+          }
+
+          return {
+            ...event,
+            status: calculatedStatus,
+          }
+        })
+
+        setEvents(updatedEvents)
+        setTotalEvents(data.total || 0)
+        setTotalPages(data.totalPages || 1)
+
+        // Extract unique categories for filtering
+        const uniqueCategories = [...new Set(updatedEvents.map((event) => event.category))]
+        setCategories(uniqueCategories)
+      } catch (err) {
+        console.error("Error fetching events:", err)
+        setError("Failed to load events. Please try again later.")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [searchTerm, filterStatus, filterCategory, currentPage])
+
+  // Handle modal open
+  const openEventModal = (event) => {
+    setSelectedEvent(event)
+    setIsModalOpen(true)
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = "hidden"
+  }
+
+  // Handle modal close
+  const closeEventModal = () => {
+    setIsModalOpen(false)
+    // Re-enable body scrolling
+    document.body.style.overflow = "auto"
+  }
+
+  // Handle redirection to events page
+  const handleSeeMore = () => {
+    window.location.href = "/events"
+  }
+
+  // Handle click outside modal to close
+  const handleOutsideClick = (e) => {
+    if (e.target.id === "modal-backdrop") {
+      closeEventModal()
+    }
+  }
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscKey = (e) => {
+      if (e.key === "Escape" && isModalOpen) {
+        closeEventModal()
+      }
+    }
+
+    window.addEventListener("keydown", handleEscKey)
+    return () => window.removeEventListener("keydown", handleEscKey)
+  }, [isModalOpen])
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchTerm("")
+    setFilterStatus("")
+    setFilterCategory("")
+    setCurrentPage(1)
+  }
+
   return (
     <div className="w-full bg-white p-4 md:p-6 rounded-lg shadow-md">
-       <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Welcome to <span className="text-blue-600">Skywings</span> Events
-              </h1>
-              <p className="text-lg text-gray-600 mb-8">
-                Discover stories, insights, and knowledge from our community
-              </p>
-            </div>
-          </div>
+      <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Welcome to <span className="text-blue-600">Skywings</span> Events
+          </h1>
+          <p className="text-lg text-gray-600 mb-8">Discover stories, insights, and knowledge from our community</p>
+        </div>
+      </div>
       {/* Header with search and filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-2">

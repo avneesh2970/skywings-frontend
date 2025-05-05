@@ -10,6 +10,9 @@ import testm_4 from "../../assets/products/testm_4.jpg";
 import Newslettr from "../newsletter/Newslettr";
 import FAQAccordion from "../Carrier/FAQAccordion";
 import EventsDisplay from "./EventsCards";
+import Contact from "./contactForm/Contact";
+import BlogDisplay from "./BlogsCards";
+import NewsDisplay from "./NewsCards";
 
 const Cont5 = () => {
   const clientTestimonials = [
@@ -820,25 +823,23 @@ const Cont5 = () => {
         height: "220px",
       }}
     >
-   
-        <div className="mb-4">
-          <p className="text-gray-600 text-sm line-clamp-5 text-start leading-relaxed">
-            {data.text}
-          </p>
-        </div>
+      <div className="mb-4">
+        <p className="text-gray-600 text-sm line-clamp-5 text-start leading-relaxed">
+          {data.text}
+        </p>
+      </div>
 
-        <div className="flex items-center w-full mt-auto pt-2 border-t border-gray-100">
-          <div className="flex-1 text-center">
-            <p className="text-base font-semibold text-gray-800">{data.name}</p>
-            {data.ac && (
-              <span className="text-xs text-purple-500 font-medium mt-1 block">
-                {data.ac}
-              </span>
-            )}
-          </div>
+      <div className="flex items-center w-full mt-auto pt-2 border-t border-gray-100">
+        <div className="flex-1 text-center">
+          <p className="text-base font-semibold text-gray-800">{data.name}</p>
+          {data.ac && (
+            <span className="text-xs text-purple-500 font-medium mt-1 block">
+              {data.ac}
+            </span>
+          )}
         </div>
       </div>
- 
+    </div>
   );
 
   const renderScrollingSection = (
@@ -899,6 +900,8 @@ const Cont5 = () => {
   return (
     <>
       <EventsDisplay />
+      <BlogDisplay/>
+      <NewsDisplay/>
 
       <div className="bg-purple-50 py-16 text-center flex flex-col items-center px-4 md:px-12">
         <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-4 py-1.5 rounded-full">
@@ -932,6 +935,7 @@ const Cont5 = () => {
           "freelancer"
         )}
       </div>
+      <Contact />
       <FAQAccordion />
       <Newslettr />
     </>
