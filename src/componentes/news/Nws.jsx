@@ -275,7 +275,7 @@ export default function Nws() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
-          News About Us
+          Our News
         </motion.h1>
         <motion.p
           className="text-gray-500 mt-4 text-lg max-w-2xl mx-auto"

@@ -134,41 +134,61 @@ const Cont6A = () => {
   return (
     <>
       <style>{`
-       
-       .slider-container {
-               overflow: hidden;
-               width: 100%;
-               background: white;
-               padding: 20px 0;
-          }
+.slider-container {
+  overflow: hidden;
+  width: 100%;
+  background: white;
+  padding: 20px 0;
+  position: relative;
+}
 
-          .slider {
-               display: flex;
-               gap: 8px;
-               /* width: max-content; */
-               animation: scroll 8s linear infinite;
-          }
+/* Create two identical sliders for seamless looping */
+.slider {
+  display: flex;
+  gap: 8px;
+  animation: scroll 60s linear infinite; /* Increased from 30s to 60s for slower scrolling */
+  width: max-content; /* Allow the slider to size based on content */
+}
 
-          .slider img {
-               height: 80px;
-          }
+/* Clone the first set of logos */
+.slider-content {
+  display: flex;
+  gap: 8px;
+}
 
-          @media (max-width: 480px) {
-               .slider img {
-                    height: 40px;
-               }
-          }
+/* Make logos responsive */
+.slider img {
+  height: 80px;
+  object-fit: contain;
+}
 
-          @keyframes scroll {
-               0% {
-                    transform: translateX(0);
-               }
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .slider img {
+    height: 60px;
+  }
+  .slider {
+    animation: scroll 45s linear infinite; /* Slower on mobile */
+  }
+}
 
-               100% {
-                    transform: translateX(-50%);
-               }
-          }
+@media (max-width: 480px) {
+  .slider img {
+    height: 40px;
+  }
+  .slider {
+    animation: scroll 35s linear infinite; /* Slower on small screens */
+  }
+}
 
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50%)); /* Move exactly half the width */
+  }
+}
           
       `}</style>
 
@@ -250,43 +270,84 @@ const Cont6A = () => {
           {/* Infinite Scrolling Wrapper */}
           <div className="slider-container">
             <div className="slider">
-              <img src={logo1} alt="" />
-              <img src={logo2} alt="" />
-              <img src={logo3} alt="" />
-              <img src={logo4} alt="" />
-              <img src={logo5} alt="" />
-              <img src={logo6} alt="" />
-              <img src={logo7} alt="" />
-              <img src={logo8} alt="" />
-              <img src={logo9} alt="" />
-              <img src={logo10} alt="" />
-              <img src={logo11} alt="" />
-              <img src={logo12} alt="" />
-              <img src={logo13} alt="" />
-              <img src={logo14} alt="" />
-              <img src={logo15} alt="" />
-              <img src={logo16} alt="" />
-              <img src={logo17} alt="" />
-              <img src={logo18} alt="" />
-              <img src={logo19} alt="" />
-              <img src={logo20} alt="" />
-              <img src={logo21} alt="" />
-              <img src={logo22} alt="" />
-              <img src={logo23} alt="" />
-              <img src={logo24} alt="" />
-              <img src={logo25} alt="" />
-              <img src={logo26} alt="" />
-              <img src={logo27} alt="" />
-              <img src={logo28} alt="" />
-              <img src={logo29} alt="" />
-              <img src={logo30} alt="" />
-              <img src={logo31} alt="" />
-              <img src={logo32} alt="" />
-              <img src={logo33} alt="" />
-              <img src={logo34} alt="" />
-              <img src={logo35} alt="" />
-              <img src={logo36} alt="" />
-              <img src={logo37} alt="" />
+              <div className="slider-content">
+                <img src={logo1} alt="" />
+                <img src={logo2} alt="" />
+                <img src={logo3} alt="" />
+                <img src={logo4} alt="" />
+                <img src={logo5} alt="" />
+                <img src={logo6} alt="" />
+                <img src={logo7} alt="" />
+                <img src={logo8} alt="" />
+                <img src={logo9} alt="" />
+                <img src={logo10} alt="" />
+                <img src={logo11} alt="" />
+                <img src={logo12} alt="" />
+                <img src={logo13} alt="" />
+                <img src={logo14} alt="" />
+                <img src={logo15} alt="" />
+                <img src={logo16} alt="" />
+                <img src={logo17} alt="" />
+                <img src={logo18} alt="" />
+                <img src={logo19} alt="" />
+                <img src={logo20} alt="" />
+                <img src={logo21} alt="" />
+                <img src={logo22} alt="" />
+                <img src={logo23} alt="" />
+                <img src={logo24} alt="" />
+                <img src={logo25} alt="" />
+                <img src={logo26} alt="" />
+                <img src={logo27} alt="" />
+                <img src={logo28} alt="" />
+                <img src={logo29} alt="" />
+                <img src={logo30} alt="" />
+                <img src={logo31} alt="" />
+                <img src={logo32} alt="" />
+                <img src={logo33} alt="" />
+                <img src={logo34} alt="" />
+                <img src={logo35} alt="" />
+                <img src={logo36} alt="" />
+                <img src={logo37} alt="" />
+              </div>
+              <div className="slider-content">
+                <img src={logo1} alt="" />
+                <img src={logo2} alt="" />
+                <img src={logo3} alt="" />
+                <img src={logo4} alt="" />
+                <img src={logo5} alt="" />
+                <img src={logo6} alt="" />
+                <img src={logo7} alt="" />
+                <img src={logo8} alt="" />
+                <img src={logo9} alt="" />
+                <img src={logo10} alt="" />
+                <img src={logo11} alt="" />
+                <img src={logo12} alt="" />
+                <img src={logo13} alt="" />
+                <img src={logo14} alt="" />
+                <img src={logo15} alt="" />
+                <img src={logo16} alt="" />
+                <img src={logo17} alt="" />
+                <img src={logo18} alt="" />
+                <img src={logo19} alt="" />
+                <img src={logo20} alt="" />
+                <img src={logo21} alt="" />
+                <img src={logo22} alt="" />
+                <img src={logo23} alt="" />
+                <img src={logo24} alt="" />
+                <img src={logo25} alt="" />
+                <img src={logo26} alt="" />
+                <img src={logo27} alt="" />
+                <img src={logo28} alt="" />
+                <img src={logo29} alt="" />
+                <img src={logo30} alt="" />
+                <img src={logo31} alt="" />
+                <img src={logo32} alt="" />
+                <img src={logo33} alt="" />
+                <img src={logo34} alt="" />
+                <img src={logo35} alt="" />
+                <img src={logo36} alt="" />
+                <img src={logo37} alt="" />
+              </div>
             </div>
           </div>
         </section>

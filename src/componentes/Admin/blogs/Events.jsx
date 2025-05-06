@@ -487,7 +487,10 @@ export default function Events() {
   }
 
   // Get status badge color
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (event) => {
+    // Use calculatedStatus if available, otherwise fall back to status
+    const status = event.calculatedStatus || event.status
+
     switch (status) {
       case "upcoming":
         return { color: "bg-blue-100 text-blue-700", icon: <Calendar className="h-3 w-3 mr-1" /> }
@@ -563,19 +566,23 @@ export default function Events() {
           const now = new Date()
           let calculatedStatus = event.status
 
+          // Only recalculate if not cancelled
           if (event.status !== "cancelled") {
-            if (now < new Date(event.startDate)) {
+            const startDate = new Date(event.startDate)
+            const endDate = new Date(event.endDate)
+
+            if (now < startDate) {
               calculatedStatus = "upcoming"
-            } else if (now >= new Date(event.startDate) && now <= new Date(event.endDate)) {
+            } else if (now >= startDate && now <= endDate) {
               calculatedStatus = "ongoing"
-            } else if (now > new Date(event.endDate)) {
+            } else if (now > endDate) {
               calculatedStatus = "past"
             }
           }
 
           return {
             ...event,
-            status: calculatedStatus,
+            calculatedStatus: calculatedStatus, // Store as a separate property
           }
         })
 
@@ -747,7 +754,7 @@ export default function Events() {
                       }`}
                     >
                       <div className="flex items-center">
-                        {getStatusBadge(status).icon}
+                        {getStatusBadge({ status }).icon}
                         <span className="capitalize">{status}</span>
                       </div>
                     </button>
@@ -977,11 +984,11 @@ export default function Events() {
                       <td className="px-3 py-4 text-sm text-gray-500">
                         <div
                           className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
-                            getStatusBadge(event.status).color
+                            getStatusBadge(event).color
                           }`}
                         >
-                          {getStatusBadge(event.status).icon}
-                          <span className="capitalize">{event.status}</span>
+                          {getStatusBadge(event).icon}
+                          <span className="capitalize">{event.calculatedStatus || event.status}</span>
                         </div>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 text-center">
@@ -1051,11 +1058,11 @@ export default function Events() {
                       <div className="flex items-center gap-1 mt-1">
                         <div
                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${
-                            getStatusBadge(event.status).color
+                            getStatusBadge(event).color
                           }`}
                         >
-                          {getStatusBadge(event.status).icon}
-                          <span className="capitalize">{event.status}</span>
+                          {getStatusBadge(event).icon}
+                          <span className="capitalize">{event.calculatedStatus || event.status}</span>
                         </div>
                         {event.featured && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
