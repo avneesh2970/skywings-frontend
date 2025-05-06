@@ -45,7 +45,7 @@ const ArticleSkeleton = () => (
 
 // Function to estimate reading time
 const getReadingTime = (text) => {
-  const wordsPerMinute = 200
+  const wordsPerMinute = 5
   const words = text.trim().split(/\s+/).length
   const minutes = Math.ceil(words / wordsPerMinute)
   return minutes < 1 ? 1 : minutes
