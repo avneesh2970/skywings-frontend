@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import img19 from "../../assets/products/image 19.png";
+import { useNavigate } from "react-router-dom";
 
 //logo images imorts
 import logo1 from "../../assets/brands/logo1.png";
@@ -85,6 +86,7 @@ import logo37 from "../../assets/brands/logo37.png";
 
 const Cont6A = () => {
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
@@ -191,77 +193,88 @@ const Cont6A = () => {
 }
           
       `}</style>
-<div className="bg-gray-100">
-
-      <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
-        {/* ABOUT TAG */}
-        <motion.div
-          className="text-center mb-6 md:mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <span className="bg-purple-200 text-purple-700 px-4 py-1 rounded-full text-sm font-medium">
-            ABOUT
-          </span>
-        </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 overflow-hidden">
+      <div className="bg-gray-100">
+        <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
+          {/* ABOUT TAG */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            className="text-center mb-6 md:mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col justify-center"
+            transition={{ duration: 0.5 }}
           >
-            <motion.h2
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-2xl md:text-3xl font-bold mb-4"
-            >
-              Assured Job started as a simple idea: to make job searching
-              stress-free and recruitment faster.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-gray-600 mb-4"
-            >
-              Skywings Advisors Private Limited, headquartered in New Delhi, is
-              a leading force in the placement and recruitment industry. Our
-              expertise spans across diverse recruitment disciplines, including
-              Legal, Finance, IT, Sales & Marketing, Healthcare, Automobile,
-              Training & Education, Industrial & Warehouse, Construction,
-              E-Commerce, and more. We are committed to understanding your
-              business as deeply as you do—tailoring our services to align
-              perfectly with your goals. Building that connection is paramount,
-              allowing us to bring both comprehensive recruitment knowledge and
-              cutting-edge assessment methods to the table.
-            </motion.p>
+            <span className="bg-purple-200 text-purple-700 px-4 py-1 rounded-full text-sm font-medium">
+              ABOUT
+            </span>
           </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col justify-center"
+            >
+              <motion.h2
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-2xl md:text-3xl font-bold mb-4"
+              >
+                Assured Job started as a simple idea: to make job searching
+                stress-free and recruitment faster.
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="text-gray-600 mb-4"
+              >
+                Skywings Advisors Private Limited, headquartered in New Delhi,
+                is a leading force in the placement and recruitment industry.
+                Our expertise spans across diverse recruitment disciplines,
+                including Legal, Finance, IT, Sales & Marketing, Healthcare,
+                Automobile, Training & Education, Industrial & Warehouse,
+                Construction, E-Commerce, and more. We are committed to
+                understanding your business as deeply as you do—tailoring our
+                services to align perfectly with your goals. Building that
+                connection is paramount, allowing us to bring both comprehensive
+                recruitment knowledge and cutting-edge assessment methods to the
+                table.
+              </motion.p>
+              <div className="flex justify-start">
+                <button
+                  onClick={() => {
+                    navigate("/about");
+                  }}
+                  className="text-blue-500 px-14 mt-2 rounded-full hover:bg-blue-500 hover:text-white mb-10 font-semibold py-2 border border-blue-500"
+                >
+                  See more
+                </button>
+              </div>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex justify-center items-center"
-          >
-            <img
-              src={
-                img19 || "/placeholder.svg?height=400&width=500&query=interview"
-              }
-              alt="Interview Illustration"
-              className="w-full max-w-md rounded-lg"
-            />
-          </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="flex justify-center items-center"
+            >
+              <img
+                src={
+                  img19 ||
+                  "/placeholder.svg?height=400&width=500&query=interview"
+                }
+                alt="Interview Illustration"
+                className="w-full max-w-md rounded-lg"
+              />
+            </motion.div>
+          </div>
         </div>
       </div>
-</div>
       <div className="flex flex-col">
         <section className="py-10 bg-white text-center">
           {/* Heading */}

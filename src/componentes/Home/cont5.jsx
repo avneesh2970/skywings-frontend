@@ -668,6 +668,7 @@ const Cont5 = () => {
   const duplicatedFreelancerTestimonials = duplicateTestimonials(
     freelancerTestimonials
   );
+
   useEffect(() => {
     const animateScroll = (scrollRef, contentWidth, key) => {
       if (!scrollRef.current) return;
@@ -900,8 +901,8 @@ const Cont5 = () => {
   return (
     <>
       <EventsDisplay />
-      <BlogDisplay/>
-      <NewsDisplay/>
+      <BlogDisplay />
+      <NewsDisplay />
 
       <div className="bg-purple-50 py-16 text-center flex flex-col items-center px-4 md:px-12">
         <span className="bg-purple-100 text-purple-700 text-xs font-semibold px-4 py-1.5 rounded-full">

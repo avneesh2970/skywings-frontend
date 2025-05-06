@@ -56,7 +56,7 @@ function Cont3() {
               alt={service.title}
               className="w-full h-40 object-cover"
             />
-            <div className="py-4">
+            <div className="p-4">
               <h3 className="text-base font-semibold">{service.title}</h3>
               <a
                 href="#"
