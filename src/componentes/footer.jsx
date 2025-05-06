@@ -168,13 +168,13 @@ const Footer = () => {
               <div className="flex">
                 <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center" />
                 <p>
-                  <span className="font-bold">h</span>r@assuredjob.com
+                  <span className="font-semibold">h</span>r@assuredjob.com
                 </p>
               </div>
               <div className="flex">
                 <HiMail className="mr-2 my-auto w-4 h-5 pt-1 text-gray-600 hover:text-blue-500 flex items-center" />
                 <p>
-                  <span className="font-bold">c</span>areer@assuredjob.com
+                  <span className="font-semibold">c</span>areer@assuredjob.com
                 </p>
               </div>
             </ul>
