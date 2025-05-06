@@ -65,7 +65,7 @@ const Cont7 = () => {
             <img
               src={img19 || "/placeholder.svg?height=400&width=500&query=interview"}
               alt="Interview Illustration"
-              className="w-full max-w-md rounded-lg shadow-md"
+              className="w-full max-w-md rounded-lg"
             />
           </motion.div>
         </div>
@@ -82,7 +82,7 @@ const Cont7 = () => {
             <img
               src={img20 || "/placeholder.svg?height=400&width=500&query=work balance"}
               alt="Work Balance Illustration"
-              className="w-full max-w-md rounded-lg shadow-md"
+              className="w-full max-w-md rounded-lg"
             />
           </motion.div>
 
@@ -192,7 +192,7 @@ const Cont7 = () => {
             <img
               src={img21 || "/placeholder.svg?height=400&width=500&query=ISO certification"}
               alt="ISO Certification"
-              className="w-full max-w-md rounded-lg shadow-md"
+              className="w-full max-w-md rounded-lg"
             />
           </motion.div>
         </div>

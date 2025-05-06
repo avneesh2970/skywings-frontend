@@ -191,6 +191,7 @@ const Cont6A = () => {
 }
           
       `}</style>
+<div className="bg-gray-100">
 
       <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
         {/* ABOUT TAG */}
@@ -255,11 +256,12 @@ const Cont6A = () => {
                 img19 || "/placeholder.svg?height=400&width=500&query=interview"
               }
               alt="Interview Illustration"
-              className="w-full max-w-md rounded-lg shadow-md"
+              className="w-full max-w-md rounded-lg"
             />
           </motion.div>
         </div>
       </div>
+</div>
       <div className="flex flex-col">
         <section className="py-10 bg-white text-center">
           {/* Heading */}

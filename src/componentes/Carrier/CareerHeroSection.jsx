@@ -14,8 +14,8 @@ const CareerHeroSection = () => {
   }
 
   return (
-    <div className="w-full overflow-hidden">
-      <section className="flex flex-col md:flex-row items-center justify-between mx-auto max-w-7xl p-6 bg-white rounded-lg my-4 md:my-8">
+    <div className="w-full overflow-hidden bg-gray-100">
+      <section className="flex flex-col md:flex-row items-center justify-between mx-auto max-w-7xl p-6 bg-gray-100 rounded-lg my-4 md:my-8">
         <motion.div
           className="md:w-1/2 text-center md:text-left"
           initial={{ x: -50, opacity: 0 }}

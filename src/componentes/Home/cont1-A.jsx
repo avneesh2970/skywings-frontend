@@ -62,24 +62,34 @@ const Cont1A = () => {
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-[#f5f5f5] py-8 sm:py-12 md:py-16">
+    <section ref={sectionRef} className="bg-gradient-to-br from-gray-50 to-gray-100 py-8 sm:py-12 md:py-16 overflow-hidden">
       <div className="container mx-auto px-4 max-w-screen-xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-          {box.map((item, index) => (
-            <div
-              key={index}
-              className="text-center px-4 py-6 sm:py-8 bg-white shadow-md rounded-lg hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1"
-            >
-              <CountUp
-                end={item.value}
-                format={item.format}
-                isVisible={isVisible}
-                duration={2000}
-                className="font-bold text-xl sm:text-2xl md:text-3xl text-[#647DE7] mb-2"
-              />
-              <span className="text-sm sm:text-base text-gray-700">{item.text}</span>
-            </div>
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+          {box.map((item, index) => {
+            // Alternate between purple and blue gradients
+            const gradientClass = index % 2 === 0 
+              ? "from-purple-600 to-blue-600" 
+              : "from-blue-600 to-purple-600";
+              
+            return (
+              <div
+                key={index}
+                className="text-center px-3 py-6 sm:py-8 bg-white shadow-md rounded-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative"
+              >
+                {/* Top gradient bar */}
+                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradientClass}`}></div>
+                
+                <CountUp
+                  end={item.value}
+                  format={item.format}
+                  isVisible={isVisible}
+                  duration={2000}
+                  className={`font-bold text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}
+                />
+                {/* Text labels removed as requested */}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

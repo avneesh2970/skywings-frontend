@@ -1,90 +1,103 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { FaInstagram, FaFacebookF, FaLinkedinIn, FaYoutube } from "react-icons/fa"
+import { useState, useEffect, useRef } from "react";
+import {
+  FaInstagram,
+  FaFacebookF,
+  FaLinkedinIn,
+  FaYoutube,
+} from "react-icons/fa";
 
 const StatCard = ({ count, platform }) => {
-  const [isVisible, setIsVisible] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
-  const cardRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef(null);
 
   // Parse the count value
   const parseCount = () => {
     if (count.includes("K")) {
-      return Number.parseFloat(count.replace("K", "")) * 1000
+      return Number.parseFloat(count.replace("K", "")) * 1000;
     }
-    return Number.parseFloat(count.replace(/,/g, ""))
-  }
+    return Number.parseFloat(count.replace(/,/g, ""));
+  };
 
   // Format the count value
   const formatCount = (value) => {
     if (count.includes("K")) {
-      return `${(value / 1000).toFixed(1).replace(".0", "")}K`
+      return `${(value / 1000).toFixed(1).replace(".0", "")}K`;
     }
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-  }
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
-  const finalValue = parseCount()
+  const finalValue = parseCount();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
+          setIsVisible(true);
+          observer.disconnect();
         }
       },
-      { threshold: 0.1 },
-    )
+      { threshold: 0.1 }
+    );
 
     if (cardRef.current) {
-      observer.observe(cardRef.current)
+      observer.observe(cardRef.current);
     }
 
     return () => {
       if (cardRef.current) {
-        observer.unobserve(cardRef.current)
+        observer.unobserve(cardRef.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Get platform icon and color
   const getPlatformDetails = () => {
     switch (platform.toLowerCase()) {
-      case "instagram":
+      case "instagram followers":
         return {
-          icon: <FaInstagram className="text-2xl transition-transform duration-500 ease-out" />,
+          icon: (
+            <FaInstagram className="text-2xl transition-transform duration-500 ease-out" />
+          ),
           color: "from-purple-500 to-pink-500",
           hoverColor: "from-purple-600 to-pink-600",
-        }
-      case "facebook":
+        };
+      case "facebook followers":
         return {
-          icon: <FaFacebookF className="text-2xl transition-transform duration-500 ease-out" />,
+          icon: (
+            <FaFacebookF className="text-2xl transition-transform duration-500 ease-out" />
+          ),
           color: "from-blue-500 to-blue-600",
           hoverColor: "from-blue-600 to-blue-700",
-        }
-      case "linkedin":
+        };
+      case "linkedin followers":
         return {
-          icon: <FaLinkedinIn className="text-2xl transition-transform duration-500 ease-out" />,
+          icon: (
+            <FaLinkedinIn className="text-2xl transition-transform duration-500 ease-out" />
+          ),
           color: "from-blue-600 to-cyan-600",
           hoverColor: "from-blue-700 to-cyan-700",
-        }
-      case "youtube":
+        };
+      case "youtube subscribers":
         return {
-          icon: <FaYoutube className="text-2xl transition-transform duration-500 ease-out" />,
+          icon: (
+            <FaYoutube className="text-2xl transition-transform duration-500 ease-out" />
+          ),
           color: "from-red-500 to-red-600",
           hoverColor: "from-red-600 to-red-700",
-        }
+        };
       default:
         return {
           icon: null,
           color: "from-gray-500 to-gray-600",
           hoverColor: "from-gray-600 to-gray-700",
-        }
+        };
     }
-  }
+  };
 
-  const { icon, color, hoverColor } = getPlatformDetails()
+  const { icon, color, hoverColor } = getPlatformDetails();
 
   return (
     <div
@@ -143,56 +156,56 @@ const StatCard = ({ count, platform }) => {
               ${isHovered ? "translate-x-2" : "translate-x-0"}
             `}
             >
-              {platform} Followers
+              {platform}
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 // CountUp component for animating numbers
 const CountUp = ({ end, format, isVisible, duration = 2000, className }) => {
-  const [count, setCount] = useState(0)
-  const countRef = useRef(0)
-  const frameRef = useRef(0)
-  const startTimeRef = useRef(null)
+  const [count, setCount] = useState(0);
+  const countRef = useRef(0);
+  const frameRef = useRef(0);
+  const startTimeRef = useRef(null);
 
   useEffect(() => {
-    if (!isVisible) return
+    if (!isVisible) return;
 
     const animate = (timestamp) => {
-      if (!startTimeRef.current) startTimeRef.current = timestamp
-      const progress = timestamp - startTimeRef.current
-      const percentage = Math.min(progress / duration, 1)
+      if (!startTimeRef.current) startTimeRef.current = timestamp;
+      const progress = timestamp - startTimeRef.current;
+      const percentage = Math.min(progress / duration, 1);
 
       // Easing function for smoother animation
-      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
-      const easedProgress = easeOutCubic(percentage)
+      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+      const easedProgress = easeOutCubic(percentage);
 
-      const currentCount = Math.floor(easedProgress * end)
+      const currentCount = Math.floor(easedProgress * end);
 
       if (currentCount !== countRef.current) {
-        countRef.current = currentCount
-        setCount(currentCount)
+        countRef.current = currentCount;
+        setCount(currentCount);
       }
 
       if (percentage < 1) {
-        frameRef.current = requestAnimationFrame(animate)
+        frameRef.current = requestAnimationFrame(animate);
       } else {
-        setCount(end)
+        setCount(end);
       }
-    }
+    };
 
-    frameRef.current = requestAnimationFrame(animate)
+    frameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(frameRef.current)
-    }
-  }, [isVisible, end, duration])
+      cancelAnimationFrame(frameRef.current);
+    };
+  }, [isVisible, end, duration]);
 
-  return <div className={className}>{format(count)}</div>
-}
+  return <div className={className}>{format(count)}</div>;
+};
 
-export default StatCard
+export default StatCard;

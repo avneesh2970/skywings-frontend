@@ -84,10 +84,10 @@ const jobCards = [
 ];
 
 const platFormCard = [
-  { count: "70", platform: "Instagram" },
-  { count: "565", platform: "Facebook" },
-  { count: "10K", platform: "Linkedin" },
-  { count: "600", platform: "YouTube" },
+  { count: "70", platform: "Instagram Followers" },
+  { count: "565", platform: "Facebook Followers" },
+  { count: "10K", platform: "Linkedin Followers" },
+  { count: "600", platform: "YouTube Subscribers" },
 ];
 
 const Career = () => {

@@ -412,15 +412,17 @@ export default function Event() {
   // Section header component
   const SectionHeader = ({ title, count, isOpen, toggleOpen, color, icon }) => (
     <motion.div
-      className={`flex items-center justify-between ${color} px-6 py-4 rounded-xl mb-6 shadow-md`}
+      className={`flex items-center justify-between ${color} px-6 py-4 rounded-xl mb-6`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
       <h2 className="text-xl md:text-2xl font-bold flex items-center">
-        {icon}
+        <span className="text-blue-500">{icon}</span>
         <span className="ml-2">{title}</span>
-        <span className="ml-2 text-sm bg-white bg-opacity-20 px-2 py-0.5 rounded-full text-gray-900">{count}</span>
+        <span className="ml-2 text-sm bg-opacity-20 px-2 py-0.5 rounded-full text-gray-900 border-2 border-blue-500">
+        {count}
+        </span>
       </h2>
       {/* <button
         onClick={toggleOpen}
@@ -457,19 +459,19 @@ export default function Event() {
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-300 to-purple-300 text-white py-20 px-4 relative overflow-hidden">
+      <div className="bg-blue-100 text-white py-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-pattern opacity-10"></div>
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <motion.h1
-            className="text-4xl md:text-6xl font-bold mb-4"
+            className="text-4xl md:text-6xl font-bold mb-4 text-black"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Events Calendar
+            Welcome to <span className="text-blue-500">Events</span>
           </motion.h1>
           <motion.p
-            className="text-xl md:text-2xl max-w-3xl mx-auto opacity-90"
+            className="text-xl md:text-2xl max-w-3xl mx-auto text-gray-700 opacity-90"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -485,14 +487,14 @@ export default function Event() {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-lg">
-              <div className="text-3xl font-bold">{upcomingEvents.length}</div>
-              <div className="text-sm opacity-80">Upcoming Events</div>
+              <div className="text-3xl font-bold text-gray-900">{upcomingEvents.length}</div>
+              <div className="text-sm opacity-80 text-gray-900">Upcoming Events</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-lg">
-              <div className="text-3xl font-bold">{ongoingEvents.length}</div>
-              <div className="text-sm opacity-80">Happening Now</div>
+              <div className="text-3xl font-bold text-gray-900">{ongoingEvents.length}</div>
+              <div className="text-sm opacity-80 text-gray-900">Happening Now</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-lg">
+            <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-lg text-gray-900">
               <div className="text-3xl font-bold">{pastEvents.length}</div>
               <div className="text-sm opacity-80">Past Events</div>
             </div>
@@ -752,7 +754,7 @@ export default function Event() {
                   count={upcomingEvents.length}
                   isOpen={true}
                   toggleOpen={() => {}} // Always open
-                  color="bg-gradient-to-r from-blue-600 to-blue-700 text-white"
+                  color=""
                   icon={<Calendar className="h-6 w-6" />}
                 />
 
@@ -804,7 +806,7 @@ export default function Event() {
                   count={pastEvents.length}
                   isOpen={showPast || filterStatus === "past"}
                   toggleOpen={() => filterStatus !== "past" && setShowPast(!showPast)}
-                  color="bg-gradient-to-r from-gray-600 to-gray-700 text-white"
+                  color=""
                   icon={<CalendarX className="h-6 w-6" />}
                 />
 

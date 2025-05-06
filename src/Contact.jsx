@@ -10,6 +10,7 @@ import { LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { motion } from "framer-motion";
+import contact from "./assets/contact/contact.jpg";
 
 function Contact() {
   const [selectedCountry, setSelectedCountry] = useState("");
@@ -257,387 +258,488 @@ function Contact() {
 
       {/* Form Section */}
 
-      <div className="grid bg-gray-50 grid-cols-1 lg:grid-cols-2 gap-10 px-6 md:px-12 lg:px-20 py-10">
-        {/* Contact Details Section with Animation */}
+      <div className="grid bg-gradient-to-br from-gray-50 to-gray-100 grid-cols-1 lg:grid-cols-2 gap-10 px-6 md:px-12 lg:px-20 py-16">
+        {/* Contact Details Side */}
         <motion.div
           className="flex"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="flex flex-col mt-20">
+          <div className="flex flex-col w-full">
             <motion.div
-              className="mb-4"
+              className="bg-white rounded-xl shadow-lg overflow-hidden h-full"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
             >
-              <motion.h3
-                className="text-3xl text-zinc-800 font-bold mb-2"
-                initial={{ x: -50 }}
-                animate={{ x: 0 }}
-                transition={{
-                  delay: 0.4,
-                  duration: 0.6,
-                  type: "spring",
-                  stiffness: 100,
-                }}
-              >
-                Contact Details
-              </motion.h3>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-              >
-                <motion.h3
-                  className="text-xl font-semibold text-gray-500"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
-                >
-                  Email
-                </motion.h3>
-                <div className="flex flex-col space-y-3">
-                  <motion.div
-                    className="flex items-center space-x-3"
-                    initial={{ x: -30, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.7, duration: 0.5 }}
-                    whileHover={{ scale: 1.05, x: 10 }}
-                  >
-                    <motion.div
-                      whileHover={{ rotate: 15 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    </motion.div>
-                    <li className="list-none">
-                      <span className="font-bold">c</span>areer@assuredjob.com
-                    </li>
-                  </motion.div>
+              {/* Image with overlay */}
+              <div className="relative h-64 overflow-hidden">
+                <img
+                  src={contact}
+                  alt="Contact Us"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 to-blue-600/30"></div>
+              </div>
 
-                  <motion.div
-                    className="flex items-center space-x-3"
-                    initial={{ x: -30, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.8, duration: 0.5 }}
-                    whileHover={{ scale: 1.05, x: 10 }}
-                  >
-                    <motion.div
-                      whileHover={{ rotate: 15 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <HiMail className="w-5 h-5 text-blue-500" alt="" />
-                    </motion.div>
-                    <li className="list-none">
-                      <span className="font-bold">h</span>r@assurejob.com
-                    </li>
-                  </motion.div>
-                </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.9, duration: 0.8 }}
-              >
+              <div className="p-6">
                 <motion.h3
-                  className="text-xl font-semibold text-gray-500"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.0, duration: 0.5 }}
+                  className="text-3xl text-zinc-800 font-bold mb-6 relative"
+                  initial={{ x: -50 }}
+                  animate={{ x: 0 }}
+                  transition={{
+                    delay: 0.4,
+                    duration: 0.6,
+                    type: "spring",
+                    stiffness: 100,
+                  }}
                 >
-                  Phone Number
+                  Contact Details
+                  <span className="block h-1 w-20 bg-blue-500 mt-2"></span>
                 </motion.h3>
-                <div className="flex flex-col space-y-3">
-                  <motion.div
-                    className="flex items-center space-x-3"
-                    initial={{ x: -30, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 1.1, duration: 0.5 }}
-                    whileHover={{ scale: 1.05, x: 10 }}
-                  >
-                    <motion.div
-                      whileHover={{ rotate: 15 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <Phone className="w-5 h-5 text-blue-500" />
-                    </motion.div>
-                    <li className="list-none">+91 8368002731</li>
-                  </motion.div>
-                  <motion.div
-                    className="flex items-center space-x-3"
-                    initial={{ x: -30, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 1.2, duration: 0.5 }}
-                    whileHover={{ scale: 1.05, x: 10 }}
-                  >
-                    <motion.div
-                      whileHover={{ rotate: 15 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <Phone className="w-5 h-5 text-blue-500" />
-                    </motion.div>
-                    <li className="list-none">+91-8860159136</li>
-                  </motion.div>
 
-                  <div className="flex flex-col font-semibold text-lg"></div>
-                </div>
-              </motion.div>
+                {/* Address Section */}
+                <motion.div
+                  className="mb-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                >
+                  <motion.h3
+                    className="text-xl font-semibold text-gray-700 mb-4 flex items-center"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                  >
+                    <div className="bg-blue-100 p-2 rounded-full mr-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5 text-blue-600"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                    </div>
+                    Office Address
+                  </motion.h3>
+
+                  <div className="flex flex-col space-y-3 pl-12">
+                    <motion.div
+                      className="text-gray-600"
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.7, duration: 0.5 }}
+                    >
+                      <p className="leading-relaxed">
+                        AssuredJob Pvt. Ltd.
+                        <br />
+                        2nd floor, Sirmour Plaza, Kaulagarh Rd,
+                        <br />
+                        Anand Vihar Colony, Sector 62, Noida
+                        <br />
+                        Dehradun, Uttarakhand 248001
+                      </p>
+                    </motion.div>
+                  </div>
+                </motion.div>
+
+                {/* Email Section */}
+                <motion.div
+                  className="mb-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8, duration: 0.8 }}
+                >
+                  <motion.h3
+                    className="text-xl font-semibold text-gray-700 mb-4 flex items-center"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.9, duration: 0.5 }}
+                  >
+                    <div className="bg-blue-100 p-2 rounded-full mr-3">
+                      <HiMail className="w-5 h-5 text-blue-600" />
+                    </div>
+                    Email
+                  </motion.h3>
+
+                  <div className="flex flex-col space-y-3 pl-12">
+                    <motion.div
+                      className="flex items-center space-x-3 group"
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 1.0, duration: 0.5 }}
+                      whileHover={{ x: 5 }}
+                      whileTap={{ x: 2 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
+                        hover: { duration: 0.2 },
+                      }}
+                    >
+                      <a
+                        href="mailto:career@assuredjob.com"
+                        className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
+                      >
+                        <span className="font-bold">c</span>areer@assuredjob.com
+                      </a>
+                    </motion.div>
+
+                    <motion.div
+                      className="flex items-center space-x-3 group"
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 1.1, duration: 0.5 }}
+                      whileHover={{ x: 5 }}
+                      whileTap={{ x: 2 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
+                        hover: { duration: 0.2 },
+                      }}
+                    >
+                      <a
+                        href="mailto:hr@assurejob.com"
+                        className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
+                      >
+                        <span className="font-bold">h</span>r@assurejob.com
+                      </a>
+                    </motion.div>
+                  </div>
+                </motion.div>
+
+                {/* Phone Section */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2, duration: 0.8 }}
+                >
+                  <motion.h3
+                    className="text-xl font-semibold text-gray-700 mb-4 flex items-center"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 1.3, duration: 0.5 }}
+                  >
+                    <div className="bg-blue-100 p-2 rounded-full mr-3">
+                      <Phone className="w-5 h-5 text-blue-600" />
+                    </div>
+                    Phone Number
+                  </motion.h3>
+
+                  <div className="flex flex-col space-y-3 pl-12">
+                    <motion.div
+                      className="flex items-center space-x-3 group"
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 1.4, duration: 0.5 }}
+                      whileHover={{ x: 5 }}
+                      whileTap={{ x: 2 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
+                        hover: { duration: 0.2 },
+                      }}
+                    >
+                      <a
+                        href="tel:+918368002731"
+                        className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
+                      >
+                        +91 8368002731
+                      </a>
+                    </motion.div>
+
+                    <motion.div
+                      className="flex items-center space-x-3 group"
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 1.5, duration: 0.5 }}
+                      whileHover={{ x: 5 }}
+                      whileTap={{ x: 2 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
+                        hover: { duration: 0.2 },
+                      }}
+                    >
+                      <a
+                        href="tel:+918860159136"
+                        className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
+                      >
+                        +91 8860159136
+                      </a>
+                    </motion.div>
+                  </div>
+                </motion.div>
+
+                {/* Business Hours Section */}
+              </div>
             </motion.div>
           </div>
         </motion.div>
-        {/* Form Section */}
-        <div
-          className="p-6 rounded-2xl bg-white  w-full"
-          style={{ boxShadow: "10px -10px  blue" }}
-        >
-          <motion.form
-            className="grid grid-cols-1 gap-4"
-            onSubmit={submitHandler}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            {/* Name Field */}
-            <div>
-              <label htmlFor="name" className="block text-gray-700 font-medium">
-                Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                placeholder="Enter Your Name"
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.name ? "border-red-500" : ""
-                }`}
-                onChange={onChangeHandler}
-                value={contactData.name}
-                required
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-              )}
-            </div>
 
-            {/* Contact Field */}
-            <div>
-              <label
-                htmlFor="contact"
-                className="block text-gray-700 font-medium"
-              >
-                Contact <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                id="contact"
-                placeholder="Enter Your Contact Number"
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.contact ? "border-red-500" : ""
-                }`}
-                onChange={onChangeHandler}
-                value={contactData.contact}
-                required
-              />
-              {errors.contact && (
-                <p className="mt-1 text-sm text-red-500">{errors.contact}</p>
-              )}
-            </div>
+        {/* Form Side */}
+        <div className="flex items-center">
+          <div className="p-8 rounded-xl bg-white w-full shadow-lg border-t-4 border-blue-600 h-full">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              Send Us a Message
+            </h2>
 
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-gray-700 font-medium"
-              >
-                Email <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Enter Your Email"
-                className={`w-full px-4 py-2 text-black mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.email ? "border-red-500" : ""
-                }`}
-                onChange={onChangeHandler}
-                value={contactData.email}
-                required
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {/* State Field */}
+            <motion.form
+              className="grid grid-cols-1 gap-5"
+              onSubmit={submitHandler}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
               <div>
                 <label
-                  htmlFor="state"
-                  className="block text-gray-800 font-medium"
+                  htmlFor="name"
+                  className="block text-gray-700 font-medium mb-1"
                 >
-                  State <span className="text-red-500">*</span>
+                  Name <span className="text-red-500">*</span>
                 </label>
-                <select
-                  id="state"
-                  className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.state ? "border-red-500" : "border-black"
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="Enter Your Name"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.name ? "border-red-500" : "border-gray-300"
                   }`}
                   onChange={onChangeHandler}
-                  value={contactData.state}
+                  value={contactData.name}
                   required
-                >
-                  <option value="" disabled className="text-gray-400">
-                    Select a state
-                  </option>
-                  {countryCityMap["india"].map((city) => (
-                    <option key={city} value={city} className="text-gray-800">
-                      {city}
-                    </option>
-                  ))}
-                </select>
-                {errors.state && (
-                  <p className="mt-1 text-sm text-red-500">{errors.state}</p>
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
                 )}
               </div>
-            </div>
 
-            {/* City field */}
-            <div>
-              <label htmlFor="city" className="block text-gray-800 font-medium">
-                City <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="city"
-                placeholder="Enter Your City"
-                className={`w-full px-4 py-2 text-gray-800 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.city ? "border-red-500" : ""
-                }`}
-                onChange={onChangeHandler}
-                value={contactData.city}
-                required
-              />
-              {errors.city && (
-                <p className="mt-1 text-sm text-red-500">{errors.city}</p>
-              )}
-            </div>
-
-            {/* Enquire Field */}
-            <div>
-              <label
-                htmlFor="enquire"
-                className="block text-gray-700 font-medium"
-              >
-                Enquiry Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="enquire"
-                className={`w-full text-gray-800 px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.enquire ? "border-red-500" : ""
-                }`}
-                onChange={onChangeHandler}
-                value={contactData.enquire}
-                required
-              >
-                <option value="" disabled>
-                  Select Enquiry Type
-                </option>
-                <option value="permanent-staffing">Permanent Staffing</option>
-                <option value="temporary-staffing">Temporary Staffing</option>
-                <option value="contract-staffing">Contract Staffing</option>
-                <option value="executive-search">Executive Search</option>
-                <option value="recruitment-process-outsourcing-rpo">
-                  Recruitment Process Outsourcing (RPO)
-                </option>
-                <option value="skill-gap-assessment">
-                  Skill Gap Assessment
-                </option>
-                <option value="internship-program-management">
-                  Internship Program Management
-                </option>
-                <option value="diversity-inclusion-hiring-initiatives">
-                  Diversity & Inclusion Hiring Initiatives
-                </option>
-                <option value="onboarding-and-training-support">
-                  Onboarding and Training Support
-                </option>
-                <option value="pre-placement-offer-ppo-recruitment">
-                  Pre-Placement Offer (PPO) Recruitment
-                </option>
-                <option value="remote-talent-pooling">
-                  Remote Talent Pooling
-                </option>
-                <option value="payroll-management">Payroll Management</option>
-                <option value="labour-compliance-management">
-                  Labour Compliance Management
-                </option>
-                <option value="freelance-recruiter-partnership">
-                  Freelance Recruiter Partnership
-                </option>
-                <option value="outplacement-services">
-                  Outplacement Services
-                </option>
-                <option value="hr-consulting-and-strategy">
-                  HR Consulting and Strategy
-                </option>
-                <option value="talent-mapping-and-market-intelligence">
-                  Talent Mapping and Market Intelligence
-                </option>
-                <option value="graduate-trainee-programs">
-                  Graduate Trainee Programs
-                </option>
-              </select>
-              {errors.enquire && (
-                <p className="mt-1 text-sm text-red-500">{errors.enquire}</p>
-              )}
-            </div>
-
-            {/* Enquire Detail Field */}
-            <div>
-              <label
-                htmlFor="enquireDetail"
-                className="block text-gray-700 font-medium"
-              >
-                Enquiry Details <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                id="enquireDetail"
-                placeholder="Your requirement"
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.enquireDetail ? "border-red-500" : ""
-                }`}
-                onChange={onChangeHandler}
-                value={contactData.enquireDetail}
-                rows="4"
-                required
-              ></textarea>
-              {errors.enquireDetail && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.enquireDetail}
-                </p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                className="w-full bg-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-purple-400 disabled:cursor-not-allowed"
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <LoaderCircle className="animate-spin h-5 w-5 mr-2" />
-                    <span>Submitting...</span>
-                  </div>
-                ) : (
-                  "Submit"
+              <div>
+                <label
+                  htmlFor="contact"
+                  className="block text-gray-700 font-medium mb-1"
+                >
+                  Contact <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  id="contact"
+                  placeholder="Enter Your Contact Number"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.contact ? "border-red-500" : "border-gray-300"
+                  }`}
+                  onChange={onChangeHandler}
+                  value={contactData.contact}
+                  required
+                />
+                {errors.contact && (
+                  <p className="mt-1 text-sm text-red-500">{errors.contact}</p>
                 )}
-              </button>
-            </div>
-          </motion.form>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-gray-700 font-medium mb-1"
+                >
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="Enter Your Email"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  }`}
+                  onChange={onChangeHandler}
+                  value={contactData.email}
+                  required
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label
+                    htmlFor="state"
+                    className="block text-gray-700 font-medium mb-1"
+                  >
+                    State <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="state"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                      errors.state ? "border-red-500" : "border-gray-300"
+                    }`}
+                    onChange={onChangeHandler}
+                    value={contactData.state}
+                    required
+                  >
+                    <option value="" disabled className="text-gray-400">
+                      Select a state
+                    </option>
+                    {countryCityMap["india"].map((city) => (
+                      <option key={city} value={city} className="text-gray-800">
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.state && (
+                    <p className="mt-1 text-sm text-red-500">{errors.state}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="city"
+                    className="block text-gray-700 font-medium mb-1"
+                  >
+                    City <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    placeholder="Enter Your City"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                      errors.city ? "border-red-500" : "border-gray-300"
+                    }`}
+                    onChange={onChangeHandler}
+                    value={contactData.city}
+                    required
+                  />
+                  {errors.city && (
+                    <p className="mt-1 text-sm text-red-500">{errors.city}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="enquire"
+                  className="block text-gray-700 font-medium mb-1"
+                >
+                  Enquiry Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="enquire"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.enquire ? "border-red-500" : "border-gray-300"
+                  }`}
+                  onChange={onChangeHandler}
+                  value={contactData.enquire}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Enquiry Type
+                  </option>
+                  <option value="permanent-staffing">Permanent Staffing</option>
+                  <option value="temporary-staffing">Temporary Staffing</option>
+                  <option value="contract-staffing">Contract Staffing</option>
+                  <option value="executive-search">Executive Search</option>
+                  <option value="recruitment-process-outsourcing-rpo">
+                    Recruitment Process Outsourcing (RPO)
+                  </option>
+                  <option value="skill-gap-assessment">
+                    Skill Gap Assessment
+                  </option>
+                  <option value="internship-program-management">
+                    Internship Program Management
+                  </option>
+                  <option value="diversity-inclusion-hiring-initiatives">
+                    Diversity & Inclusion Hiring Initiatives
+                  </option>
+                  <option value="onboarding-and-training-support">
+                    Onboarding and Training Support
+                  </option>
+                  <option value="pre-placement-offer-ppo-recruitment">
+                    Pre-Placement Offer (PPO) Recruitment
+                  </option>
+                  <option value="remote-talent-pooling">
+                    Remote Talent Pooling
+                  </option>
+                  <option value="payroll-management">Payroll Management</option>
+                  <option value="labour-compliance-management">
+                    Labour Compliance Management
+                  </option>
+                  <option value="freelance-recruiter-partnership">
+                    Freelance Recruiter Partnership
+                  </option>
+                  <option value="outplacement-services">
+                    Outplacement Services
+                  </option>
+                  <option value="hr-consulting-and-strategy">
+                    HR Consulting and Strategy
+                  </option>
+                  <option value="talent-mapping-and-market-intelligence">
+                    Talent Mapping and Market Intelligence
+                  </option>
+                  <option value="graduate-trainee-programs">
+                    Graduate Trainee Programs
+                  </option>
+                </select>
+                {errors.enquire && (
+                  <p className="mt-1 text-sm text-red-500">{errors.enquire}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="enquireDetail"
+                  className="block text-gray-700 font-medium mb-1"
+                >
+                  Enquiry Details <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="enquireDetail"
+                  placeholder="Your requirement"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.enquireDetail ? "border-red-500" : "border-gray-300"
+                  }`}
+                  onChange={onChangeHandler}
+                  value={contactData.enquireDetail}
+                  rows="4"
+                  required
+                ></textarea>
+                {errors.enquireDetail && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.enquireDetail}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <LoaderCircle className="animate-spin h-5 w-5 mr-2" />
+                      <span>Submitting...</span>
+                    </div>
+                  ) : (
+                    "Submit Enquiry"
+                  )}
+                </button>
+              </div>
+            </motion.form>
+          </div>
         </div>
       </div>
+
       <div className="flex w-full ">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3443.5282803438927!2d78.0209715745825!3d30.335932804703045!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390929ec1f76b89d%3A0xf5c5f81fa6e9af6c!2sSkywings%20Advisors%20Private%20Limited!5e0!3m2!1sen!2sin!4v1741413952815!5m2!1sen!2sin"
@@ -650,7 +752,7 @@ function Contact() {
         ></iframe>
       </div>
 
-      <Cont5></Cont5>
+      {/* <Cont5></Cont5> */}
     </>
   );
 }
