@@ -74,7 +74,6 @@ export const AppProvider = ({ children }) => {
         `${import.meta.env.VITE_API_URL}/api/admin/login-admin`,
         { email, password }
       );
-      console.log("response", response.data);
       if (response.data.success) {
         const userData = { email, role: "admin" };
         sessionStorage.setItem("user", JSON.stringify(userData));

@@ -9,7 +9,7 @@ import Cont6B from "./componentes/Home/cont6-B";
 const Home = () => {
   return (
     <>
-      <Cont1></Cont1>
+      {/* <Cont1></Cont1> */}
       <Cont2></Cont2>
       <Cont3></Cont3>
       <Cont4></Cont4>

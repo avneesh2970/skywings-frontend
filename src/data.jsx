@@ -1739,7 +1739,7 @@ export const list = [
     title: "Outplacement Services | AssuredJobs",
     image: img17,
     content: `<body class=" text-gray-800">
-    <header class="bg-gray-100 text-gray-600  p-6">
+    <header class="text-gray-600 p-6">
         <h1 class="text-2xl text-start font-bold">Empowering Employees with Career Transition Support</h1>
     </header>
     

@@ -95,11 +95,10 @@
 
 // export default Services;
 
-
-import { list } from '../data.jsx';
-import Cont5 from './Home/cont5';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { list } from "../data.jsx";
+import Cont5 from "./Home/cont5";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 // Animation variants
 const containerVariants = {
@@ -116,7 +115,7 @@ const cardVariants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: 'easeOut' },
+    transition: { duration: 0.4, ease: "easeOut" },
   },
 };
 
@@ -135,7 +134,8 @@ function Services() {
           SERVICES
         </span>
         <p className="text-purple-700 mb-8 text-center">
-          Our complete assistance will be with you, and we guide you accordingly.
+          Our complete assistance will be with you, and we guide you
+          accordingly.
         </p>
 
         <motion.div
@@ -153,7 +153,7 @@ function Services() {
               whileHover={{
                 scale: 1.05,
                 y: -5,
-                transition: { duration: 0.3, ease: 'easeInOut' },
+                transition: { duration: 0.3, ease: "easeInOut" },
               }}
               className="bg-[#F5F5F5] overflow-hidden cursor-pointer p-2"
             >
@@ -162,7 +162,7 @@ function Services() {
                 alt={service.title}
                 className="w-full h-40 object-cover"
               />
-              <div>
+              <div className="px-3">
                 <h3 className="text-base font-semibold">{service.title}</h3>
                 <a
                   href="#"
@@ -185,4 +185,3 @@ function Services() {
 }
 
 export default Services;
-

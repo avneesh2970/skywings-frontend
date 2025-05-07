@@ -18,6 +18,9 @@ import {
   Phone,
   MapPin,
   FileText,
+  ChevronFirst,
+  ChevronLast,
+  RefreshCw,
 } from "lucide-react"
 
 export default function ContactUs() {
@@ -35,28 +38,43 @@ export default function ContactUs() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filterType, setFilterType] = useState("")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [jumpToPage, setJumpToPage] = useState("")
+  const [isJumpToPageOpen, setIsJumpToPageOpen] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+
   const modalRef = useRef(null)
   const filterRef = useRef(null)
+  const jumpToPageRef = useRef(null)
+  const searchInputRef = useRef(null)
 
   // Fetch enquiries from the backend
-  useEffect(() => {
-    const fetchEnquiries = async () => {
-      try {
+  const fetchEnquiries = async (showRefreshAnimation = false) => {
+    try {
+      if (showRefreshAnimation) {
+        setRefreshing(true)
+      } else {
         setLoading(true)
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/enquiries`)
-        setEnquiries(response.data)
-        setLoading(false)
-      } catch (err) {
-        console.error("Error fetching enquiries:", err)
-        setError("Failed to load enquiries. Please try again later.")
-        setLoading(false)
+      }
+
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/enquiries`)
+      setEnquiries(response.data)
+      setError(null)
+    } catch (err) {
+      console.error("Error fetching enquiries:", err)
+      setError("Failed to load enquiries. Please try again later.")
+    } finally {
+      setLoading(false)
+      if (showRefreshAnimation) {
+        setTimeout(() => setRefreshing(false), 500)
       }
     }
+  }
 
+  useEffect(() => {
     fetchEnquiries()
   }, [])
 
-  // Handle click outside modal
+  // Handle click outside modal and dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -65,13 +83,48 @@ export default function ContactUs() {
       if (filterRef.current && !filterRef.current.contains(event.target) && isFilterOpen) {
         setIsFilterOpen(false)
       }
+      if (jumpToPageRef.current && !jumpToPageRef.current.contains(event.target) && isJumpToPageOpen) {
+        setIsJumpToPageOpen(false)
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [isFilterOpen])
+  }, [isFilterOpen, isJumpToPageOpen])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Escape to close modals
+      if (e.key === "Escape") {
+        if (isFilterOpen) setIsFilterOpen(false)
+        if (isJumpToPageOpen) setIsJumpToPageOpen(false)
+        if (isModalOpen) setIsModalOpen(false)
+      }
+
+      // Pagination with Alt+arrow keys
+      if (!isModalOpen) {
+        if (e.altKey && e.key === "ArrowRight" && currentPage < totalPages) {
+          e.preventDefault()
+          setCurrentPage((prev) => prev + 1)
+        } else if (e.altKey && e.key === "ArrowLeft" && currentPage > 1) {
+          e.preventDefault()
+          setCurrentPage((prev) => prev - 1)
+        } else if (e.altKey && e.key === "Home") {
+          e.preventDefault()
+          setCurrentPage(1)
+        } else if (e.altKey && e.key === "End") {
+          e.preventDefault()
+          setCurrentPage(totalPages)
+        }
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [currentPage, isFilterOpen, isJumpToPageOpen, isModalOpen])
 
   // Handle sorting
   const requestSort = (key) => {
@@ -157,7 +210,21 @@ export default function ContactUs() {
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = getSortedEnquiries().slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(getSortedEnquiries().length / itemsPerPage)
+  const totalItems = getSortedEnquiries().length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+
+  // Handle jump to page
+  const handleJumpToPage = (e) => {
+    e.preventDefault()
+    const pageNum = Number.parseInt(jumpToPage)
+    if (pageNum >= 1 && pageNum <= totalPages) {
+      setCurrentPage(pageNum)
+      setIsJumpToPageOpen(false)
+      setJumpToPage("")
+    } else {
+      alert(`Please enter a page number between 1 and ${totalPages}`)
+    }
+  }
 
   // Export to CSV
   const exportToCSV = () => {
@@ -201,26 +268,35 @@ export default function ContactUs() {
 
   return (
     <div className="w-full bg-white p-4 md:p-6 rounded-lg shadow-md">
-       <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
+      <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Welcome to <span className="text-blue-600">Skywings</span> Contacts
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Discover stories, insights, and knowledge from our community
-          </p>
-         
+          <p className="text-lg text-gray-600 mb-8">Discover stories, insights, and knowledge from our community</p>
         </div>
       </div>
+
       {/* Header with search and filters */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-blue-700">Contact Submissions</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-blue-700">Contact Submissions</h2>
+          <button
+            onClick={() => fetchEnquiries(true)}
+            className={`p-1 rounded-full hover:bg-gray-100 ${refreshing ? "animate-spin" : ""}`}
+            title="Refresh data"
+            aria-label="Refresh data"
+          >
+            <RefreshCw className="h-5 w-5 text-gray-500" />
+          </button>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           {/* Search */}
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search submissions..."
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -296,7 +372,7 @@ export default function ContactUs() {
           {/* Export Button */}
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             disabled={getSortedEnquiries().length === 0}
           >
             <Download className="h-4 w-4" />
@@ -314,7 +390,25 @@ export default function ContactUs() {
       ) : error ? (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center">{error}</div>
       ) : getSortedEnquiries().length === 0 ? (
-        <div className="text-center py-10 text-gray-500">No submissions found.</div>
+        <div className="text-center py-10 text-gray-500 border border-dashed rounded-lg">
+          <Mail className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+          <h3 className="text-lg font-medium mb-1">No submissions found</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            {searchTerm || filterType ? "Try adjusting your search or filters" : "Contact submissions will appear here"}
+          </p>
+          {(searchTerm || filterType) && (
+            <button
+              className="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              onClick={() => {
+                setSearchTerm("")
+                setFilterType("")
+                setCurrentPage(1)
+              }}
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
       ) : (
         <>
           {/* Desktop Table View - With improved responsive design */}
@@ -452,19 +546,31 @@ export default function ContactUs() {
             ))}
           </div>
 
-          {/* Enhanced Pagination - Made more responsive */}
-          {getSortedEnquiries().length > itemsPerPage && (
+          {/* Enhanced Pagination - Similar to NewsLetter Component */}
+          {totalItems > 0 && (
             <div className="mt-6 border-t border-gray-100 pt-4">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                 {/* Pagination Info */}
                 <div className="text-sm text-gray-500 order-2 sm:order-1">
                   Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
-                  <span className="font-medium">{Math.min(indexOfLastItem, getSortedEnquiries().length)}</span> of{" "}
-                  <span className="font-medium">{getSortedEnquiries().length}</span> entries
+                  <span className="font-medium">{Math.min(indexOfLastItem, totalItems)}</span> of{" "}
+                  <span className="font-medium">{totalItems}</span> entries
                 </div>
 
                 {/* Pagination Controls */}
                 <div className="flex items-center gap-1 order-1 sm:order-2">
+                  {/* First Page Button */}
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    aria-label="First page"
+                    className={`p-2 rounded-md ${
+                      currentPage === 1 ? "text-gray-300 cursor-not-allowed" : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <ChevronFirst className="h-5 w-5" />
+                  </button>
+
                   {/* Previous Button */}
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -477,26 +583,25 @@ export default function ContactUs() {
                     <ArrowLeft className="h-5 w-5" />
                   </button>
 
-                  {/* Page Numbers - Simplified for mobile */}
-                  <div className="flex items-center">
+                  {/* Page Numbers - Hidden on mobile */}
+                  <div className="hidden sm:flex items-center">
                     {(() => {
                       // Calculate which page numbers to show
                       let pages = []
-                      const maxVisiblePages = window.innerWidth < 640 ? 3 : 5
+                      const maxVisiblePages = 5
 
                       if (totalPages <= maxVisiblePages) {
-                        // Show all pages if there are fewer than maxVisiblePages
+                        // Show all pages if there are 5 or fewer
                         pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-                      } else if (currentPage <= 2) {
+                      } else if (currentPage <= 3) {
                         // Near the start
-                        pages = Array.from({ length: maxVisiblePages }, (_, i) => i + 1)
-                      } else if (currentPage >= totalPages - 1) {
+                        pages = [1, 2, 3, 4, 5]
+                      } else if (currentPage >= totalPages - 2) {
                         // Near the end
-                        pages = Array.from({ length: maxVisiblePages }, (_, i) => totalPages - maxVisiblePages + 1 + i)
+                        pages = Array.from({ length: 5 }, (_, i) => totalPages - 4 + i)
                       } else {
                         // In the middle
-                        const offset = Math.floor(maxVisiblePages / 2)
-                        pages = Array.from({ length: maxVisiblePages }, (_, i) => currentPage - offset + i)
+                        pages = [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2]
                       }
 
                       return pages.map((pageNum) => (
@@ -505,7 +610,7 @@ export default function ContactUs() {
                           onClick={() => setCurrentPage(pageNum)}
                           aria-label={`Page ${pageNum}`}
                           aria-current={currentPage === pageNum ? "page" : undefined}
-                          className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-md transition-colors ${
+                          className={`w-10 h-10 flex items-center justify-center rounded-md transition-colors ${
                             currentPage === pageNum
                               ? "bg-purple-100 text-purple-700 font-medium"
                               : "text-gray-600 hover:bg-gray-100"
@@ -515,6 +620,55 @@ export default function ContactUs() {
                         </button>
                       ))
                     })()}
+                  </div>
+
+                  {/* Jump to Page Button (Mobile & Desktop) */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsJumpToPageOpen(!isJumpToPageOpen)}
+                      className="sm:hidden px-3 py-2 border rounded-md text-gray-600 hover:bg-gray-100"
+                    >
+                      {currentPage} / {totalPages}
+                    </button>
+
+                    <button
+                      onClick={() => setIsJumpToPageOpen(!isJumpToPageOpen)}
+                      className="hidden sm:flex items-center gap-1 px-3 py-2 border rounded-md text-gray-600 hover:bg-gray-100"
+                    >
+                      <span>
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+
+                    {isJumpToPageOpen && (
+                      <div
+                        ref={jumpToPageRef}
+                        className="absolute top-full mt-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-10 w-64"
+                      >
+                        <form onSubmit={handleJumpToPage}>
+                          <label className="block text-sm text-gray-600 mb-2">Jump to page:</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              max={totalPages}
+                              value={jumpToPage}
+                              onChange={(e) => setJumpToPage(e.target.value)}
+                              className="w-full px-3 py-2 border rounded-md text-sm"
+                              placeholder={`1-${totalPages}`}
+                              autoFocus
+                            />
+                            <button
+                              type="submit"
+                              className="px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                            >
+                              Go
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
                   </div>
 
                   {/* Next Button */}
@@ -530,9 +684,23 @@ export default function ContactUs() {
                   >
                     <ArrowRight className="h-5 w-5" />
                   </button>
+
+                  {/* Last Page Button */}
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    aria-label="Last page"
+                    className={`p-2 rounded-md ${
+                      currentPage === totalPages
+                        ? "text-gray-300 cursor-not-allowed"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <ChevronLast className="h-5 w-5" />
+                  </button>
                 </div>
 
-                {/* Items Per Page Selector - Hidden on small screens */}
+                {/* Items Per Page Selector */}
                 <div className="hidden sm:flex items-center gap-2 order-3">
                   <label htmlFor="items-per-page" className="text-sm text-gray-500">
                     Items per page:
@@ -550,6 +718,7 @@ export default function ContactUs() {
                     <option value={10}>10</option>
                     <option value={25}>25</option>
                     <option value={50}>50</option>
+                    <option value={100}>100</option>
                   </select>
                 </div>
               </div>
