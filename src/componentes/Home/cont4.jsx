@@ -45,7 +45,7 @@ export default function Cont4() {
 
   return (
     <>
-      <div className="bg-purple-50 py-12 text-center">
+      <div className="bg-purple-50 py-10 text-center">
         <span className="bg-purple-200 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full">
           INDUSTRIES
         </span>
