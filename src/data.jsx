@@ -741,7 +741,7 @@ export const list = [
     </div>
 
     <!-- Call to Action -->
-    <div class="mt-12 text-center">
+    <div class="mt-12 text-start">
         <h3 class="text-xl font-bold text-gray-800">Get Started with AssuredJob’s Permanent Staffing Solutions Today!</h3>
         <p class="text-gray-600 mt-2">Need skilled professionals to join your team? Looking for an expert recruitment partner?</p>
        
@@ -832,7 +832,7 @@ export const list = [
         </ul>
     </section>
     
-    <footer class="text-gray-600 py-6 text-center mt-8">
+    <footer class="text-gray-600 py-6 text-start mt-8">
         <p class="text-lg font-semibold">Get Started with AssuredJob’s Temporary Staffing Services Today!</p>
         <p class="mt-2">Need skilled professionals for short-term projects?</p>
         <p>Looking for cost-effective workforce solutions?</p>
@@ -898,7 +898,7 @@ export const list = [
             </div>
         </section>
         
-        <section class="bg-white p-6 rounded-lg shadow-md text-center">
+        <section class="bg-white p-6 rounded-lg shadow-md text-start">
             <h2 class="text-2xl font-semibold text-gray-400 mb-4">Get Started with AssuredJob Today!</h2>
             <p class="text-gray-700 mb-4">Need skilled professionals for short-term projects? Looking for cost-effective workforce solutions?</p>
            
@@ -988,8 +988,8 @@ export const list = [
             </div>
         </div>
         
-        <h2 class="mt-6 text-2xl font-semibold text-center">Get Started Today!</h2>
-        <p class="mt-2 text-center">Optimize your hiring process with AssuredJob's RPO solutions.</p>
+        <h2 class="mt-6 text-2xl font-semibold text-start">Get Started Today!</h2>
+        <p class="mt-2 text-start">Optimize your hiring process with AssuredJob's RPO solutions.</p>
        
     </div>`,
     button: " Contact Us",
@@ -1125,7 +1125,7 @@ export const list = [
             </div>
         </section>
         
-        <section class="text-gray-600 p-6 rounded-lg text-center">
+        <section class="text-gray-600 p-6 rounded-lg text-start">
             <h2 class="text-2xl font-semibold mb-4">Get Started with AssuredJob’s Internship & Articleship Programs Today!</h2>
             <p class="mb-4">Bridge the skill gap, nurture young talent, and create future leaders with AssuredJob.</p>
            
@@ -1207,7 +1207,7 @@ export const list = [
             </div>
         </section>
         
-        <section class="text-gray-600 p-6 rounded-lg text-center">
+        <section class="text-gray-600 p-6 rounded-lg text-start">
             <h2 class="text-2xl font-semibold mb-4">Get Started with AssuredJob’s Internship & Articleship Programs Today!</h2>
             <p class="mb-4">Bridge the skill gap, nurture young talent, and create future leaders with AssuredJob.</p>
            
@@ -1373,7 +1373,7 @@ export const list = [
     </section>
 
     <!-- CTA Footer -->
-    <footer class="text-gray-600 py-8 text-center mt-8">
+    <footer class="text-gray-600 py-8 text-start mt-8">
         <h3 class="text-xl font-bold">Get Started with AssuredJob’s Pre-Placement Recruitment Today!</h3>
         <p class="mt-2">Secure top talent before they enter the job market.</p>
        
@@ -1474,7 +1474,7 @@ export const list = [
     </section>
 
     <!-- CTA Footer -->
-    <footer class="text-gray-600 py-8 text-center mt-8">
+    <footer class="text-gray-600 py-8 text-start mt-8">
         <h3 class="text-xl font-bold">Get Started with AssuredJob’s Remote Talent Pooling Services Today!</h3>
         <p class="mt-2">Hire top remote talent and scale your workforce effortlessly.</p>
        
@@ -1577,7 +1577,7 @@ export const list = [
     </section>
 
     <!-- CTA Footer -->
-    <footer class="text-gray-600 py-8 text-center mt-8">
+    <footer class="text-gray-600 py-8 text-start mt-8">
         <h3 class="text-xl font-bold">Get Started with AssuredJob’s Payroll Management Services!</h3>
         <p class="mt-2">Automate payroll, ensure compliance, and focus on business growth.</p>
         
@@ -1726,7 +1726,7 @@ export const list = [
     </section>
 
     <!-- CTA Footer -->
-    <footer class="bg-gray-100 text-gray-600 py-8 text-center mt-8">
+    <footer class="bg-gray-100 text-gray-600 py-8 text-start mt-8">
         <h3 class="text-xl font-bold">Get Started with AssuredJob’s Freelance Recruiter Program Today!</h3>
         <p class="mt-2">Join India’s top freelance recruitment network and start earning today!</p>
        
@@ -1812,7 +1812,7 @@ export const list = [
         </div>
     </section>
 
-    <section class="max-w-6xl mx-auto p-6 bg-white shadow-md rounded-lg mt-6 text-center">
+    <section class="max-w-6xl mx-auto p-6 bg-white shadow-md rounded-lg mt-6 text-start">
         <h2 class="text-2xl font-semibold text-gray-400">Get Started with AssuredJob’s Outplacement Services Today!</h2>
         <p class="mt-4 text-gray-700">Help your employees transition smoothly, find new opportunities, and build successful careers with AssuredJob!</p>
         
@@ -1828,7 +1828,7 @@ export const list = [
     image: img18,
     content:`<body class="bg-gray-100 text-gray-800">
     <div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-        <h1 class="text-2xl font-bold text-center text-blue-600">Welcome to AssuredJob.com</h1>
+        <h1 class="text-2xl font-bold text-start text-blue-600">Welcome to AssuredJob.com</h1>
         <p class="mt-4 text-lg text-gray-700 text-start">
             We offer end-to-end HR consulting solutions tailored to help companies streamline their people strategy and align it with business objectives.
         </p>

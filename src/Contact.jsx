@@ -342,7 +342,7 @@ function Contact() {
                         <br />
                         2nd floor, Sirmour Plaza, Kaulagarh Rd,
                         <br />
-                        Anand Vihar Colony, Sector 62, Noida
+                        Anand Vihar Colony
                         <br />
                         Dehradun, Uttarakhand 248001
                       </p>

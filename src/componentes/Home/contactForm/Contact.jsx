@@ -341,7 +341,7 @@ export default function Contact() {
                            <br />
                            2nd floor, Sirmour Plaza, Kaulagarh Rd,
                            <br />
-                           Anand Vihar Colony, Sector 62, Noida
+                           Anand Vihar Colony,
                            <br />
                            Dehradun, Uttarakhand 248001
                          </p>
@@ -387,7 +387,7 @@ export default function Contact() {
                            href="mailto:career@assuredjob.com"
                            className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
                          >
-                           <span className="font-bold">c</span>areer@assuredjob.com
+                           <span className="font-semibold">c</span>areer@assuredjob.com
                          </a>
                        </motion.div>
    
@@ -409,7 +409,7 @@ export default function Contact() {
                            href="mailto:hr@assurejob.com"
                            className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
                          >
-                           <span className="font-bold">h</span>r@assurejob.com
+                           <span className="font-semibold">h</span>r@assurejob.com
                          </a>
                        </motion.div>
                      </div>
