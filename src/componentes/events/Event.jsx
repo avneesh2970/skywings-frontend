@@ -2,28 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import axios from "axios"
-import {
-  Calendar,
-  MapPin,
-  Tag,
-  Star,
-  Search,
-  Filter,
-  X,
-  ArrowLeft,
-  ArrowRight,
-  Clock,
-  ExternalLink,
-  CalendarCheck,
-  CalendarX,
-  CalendarOff,
-  ChevronDown,
-  ChevronUp,
-  Users,
-  Bookmark,
-  Share2,
-  Info,
-} from "lucide-react"
+import { Calendar, MapPin, Tag, Star, Search, Filter, X, ArrowLeft, ArrowRight, Clock, ExternalLink, CalendarCheck, CalendarX, CalendarOff, ChevronDown, ChevronUp, Users, Bookmark, Share2, Info } from 'lucide-react'
 import EventDetailsModal from "./EventDetailsModal"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -59,6 +38,11 @@ export default function Event() {
 
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // New state variables for past events pagination
+  const [currentPastPage, setCurrentPastPage] = useState(1)
+  const [pastEventsPerPage, setPastEventsPerPage] = useState(4)
+  const [totalPastPages, setTotalPastPages] = useState(1)
 
   const filterRef = useRef(null)
   const categoryFilterRef = useRef(null)
@@ -100,6 +84,13 @@ export default function Event() {
 
     // Fallback to the stored status if something goes wrong
     return event.status
+  }
+
+  // Function to get paginated past events
+  const getPaginatedPastEvents = () => {
+    const startIndex = (currentPastPage - 1) * pastEventsPerPage
+    const endIndex = startIndex + pastEventsPerPage
+    return pastEvents.slice(startIndex, endIndex)
   }
 
   useEffect(() => {
@@ -174,6 +165,13 @@ export default function Event() {
 
     fetchEvents()
   }, [currentPage, searchTerm, filterStatus, filterCategory, filterFeatured, sortConfig])
+
+  // Calculate total past pages whenever pastEvents changes
+  useEffect(() => {
+    setTotalPastPages(Math.ceil(pastEvents.length / pastEventsPerPage))
+    // Reset to page 1 when filters change or past events list changes
+    setCurrentPastPage(1)
+  }, [pastEvents, pastEventsPerPage])
 
   const formatDate = (dateString) => {
     const options = {
@@ -656,7 +654,7 @@ export default function Event() {
                 }`}
               >
                 <Star className="h-4 w-4" />
-                <span>{filterFeatured === "true" ? "Featured" : 'Not Featured" : "Featured'}</span>
+                <span>{filterFeatured === "true" ? "Featured" : filterFeatured === "false" ? "Not Featured" : "Featured"}</span>
                 {filterFeatured !== "" && (
                   <button
                     onClick={(e) => {
@@ -820,10 +818,83 @@ export default function Event() {
                       className="overflow-hidden"
                     >
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-                        {pastEvents.map((event) => (
+                        {getPaginatedPastEvents().map((event) => (
                           <EventCard key={event._id} event={event} />
                         ))}
                       </div>
+
+                      {/* Past Events Pagination */}
+                      {pastEvents.length > pastEventsPerPage && (
+                        <div className="flex justify-center mt-6 mb-4">
+                          <div className="flex space-x-2">
+                            <motion.button
+                              onClick={() => setCurrentPastPage((prev) => Math.max(prev - 1, 1))}
+                              disabled={currentPastPage === 1}
+                              className="flex items-center px-3 py-1.5 border rounded-md disabled:opacity-50 transition-colors duration-300 hover:bg-gray-50 text-sm"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <ArrowLeft className="h-3 w-3 mr-1" />
+                              Prev
+                            </motion.button>
+
+                            <div className="hidden md:flex">
+                              {Array.from({ length: totalPastPages }, (_, i) => i + 1)
+                                .filter((page) => {
+                                  return (
+                                    page === 1 ||
+                                    page === totalPastPages ||
+                                    Math.abs(page - currentPastPage) <= 1 ||
+                                    (page === 2 && currentPastPage === 1) ||
+                                    (page === totalPastPages - 1 && currentPastPage === totalPastPages)
+                                  )
+                                })
+                                .map((page, index, array) => {
+                                  if (index > 0 && array[index - 1] !== page - 1) {
+                                    return (
+                                      <span
+                                        key={`past-ellipsis-${page}`}
+                                        className="px-3 py-1.5 border rounded-md text-gray-400 text-sm"
+                                      >
+                                        ...
+                                      </span>
+                                    )
+                                  }
+                                  return (
+                                    <motion.button
+                                      key={`past-page-${page}`}
+                                      onClick={() => setCurrentPastPage(page)}
+                                      className={`px-3 mx-[4px] py-1.5 border rounded-md transition-colors duration-300 text-sm ${
+                                        currentPastPage === page
+                                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-blue-600"
+                                          : "hover:bg-gray-50"
+                                      }`}
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                    >
+                                      {page}
+                                    </motion.button>
+                                  )
+                                })}
+                            </div>
+
+                            <span className="flex md:hidden items-center px-3 py-1.5 border rounded-md text-sm">
+                              {currentPastPage} / {totalPastPages}
+                            </span>
+
+                            <motion.button
+                              onClick={() => setCurrentPastPage((prev) => Math.min(prev + 1, totalPastPages))}
+                              disabled={currentPastPage === totalPastPages}
+                              className="flex items-center px-3 py-1.5 border rounded-md disabled:opacity-50 transition-colors duration-300 hover:bg-gray-50 text-sm"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              Next
+                              <ArrowRight className="h-3 w-3 ml-1" />
+                            </motion.button>
+                          </div>
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

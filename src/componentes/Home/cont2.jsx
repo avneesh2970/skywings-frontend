@@ -378,6 +378,7 @@ function Cont2() {
     }, 500); // 500ms delay
 
     setSearchTimeout(timeout);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobSearch, locationSearch, initialJobs]);
 
   // Auto-search when inputs change
@@ -408,7 +409,7 @@ function Cont2() {
 
   return (
     <>
-      <div className="">
+      <dsiv className="">
         <div className="bg-gray-100 text-center px-6 sm:px-8 py-10 cursor-default">
           <div className="text-[#42307D] w-full  text-center  px-4 lg:px-8">
             <p className="text-2xl sm:text-3xl lg:text-5xl font-semibold leading-tight">
@@ -420,8 +421,8 @@ function Cont2() {
             </p>
           </div>
         </div>
-      </div>
-      <div className="bg-gray-100 px-10 z-10 sticky top-14 pt-1.5 md:top-21 w-full">
+      </dsiv>
+      <div className="bg-gray-100 px-10 z-20 sticky pt-1.5 top-[70px] w-full">
         <form
           onSubmit={handleSearchClick}
           className="flex flex-col gap-3 p-3 md:p-4 rounded-lg shadow bg-white mx-auto w-full md:w-11/12 max-w-4xl"
