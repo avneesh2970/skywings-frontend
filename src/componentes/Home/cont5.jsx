@@ -832,15 +832,15 @@ const Cont5 = () => {
 
       <div className="flex items-center w-full mt-auto pt-2 border-t border-gray-100">
         <div className="flex-1 text-center">
-          <p className="text-base font-semibold text-gray-800 flex items-center space-x-2">
+          <p className="borde text-base font-semibold text-gray-800 flex items-center space-x-2">
             <span className="w-8 h-8 flex items-center justify-center rounded-full bg-purple-500 text-white font-bold shrink-0">
               {data.name[0]}
             </span>
-            <span className="">{data.name}</span>
+            <span className="text-start">{data.name}</span>
           </p>
 
           {data.ac && (
-            <span className="text-xs text-purple-500 font-medium mt-1 block">
+            <span className="text-xs text-purple-500 font-medium block text-start ml-[2.5rem]">
               {data.ac}
             </span>
           )}
