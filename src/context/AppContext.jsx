@@ -24,7 +24,6 @@ export const AppProvider = ({ children }) => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/blog/posts`
       );
-      console.log("Posts fetched:", response.data);
       setPosts(response.data);
       setLoading(false);
     } catch (error) {

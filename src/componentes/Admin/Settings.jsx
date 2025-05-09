@@ -1,98 +1,133 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { toast } from "react-hot-toast"
-import { Save, Loader2, Upload } from "lucide-react"
+import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
+import { Save, Loader2, Upload } from "lucide-react";
+import axios from "axios";
 
 export default function Settings() {
-  const [saving, setSaving] = useState(false)
-  const [profileImage, setProfileImage] = useState("/skywings.png")
-  const [imageFile, setImageFile] = useState(null)
+  const [saving, setSaving] = useState(false);
+  const [profileImage, setProfileImage] = useState("/skywings.png");
+  const [imageFile, setImageFile] = useState(null);
 
   // Default settings
-  const defaultSettings = {
+  let defaultSettings = {
     name: "skywings",
     email: "career@assuredjob.com",
     role: "Administrator",
     bio: "Managing the admin dashboard and system settings.",
     phone: "+91-8860159136",
-  }
+  };
 
   // Profile settings state
-  const [profileSettings, setProfileSettings] = useState(defaultSettings)
+  const [profileSettings, setProfileSettings] = useState(defaultSettings);
 
   // Load saved settings from localStorage on component mount
   useEffect(() => {
-    // Load profile settings
-    const savedSettings = localStorage.getItem("profileSettings")
-    if (savedSettings) {
-      setProfileSettings(JSON.parse(savedSettings))
-    }
+    const getProfileData = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/admin/get-user`
+        );
+        const userData = response.data.message;
+        setProfileSettings((prevSettings) => ({
+          ...prevSettings,
+          name: userData.username || prevSettings.name,
+          email: userData.email || prevSettings.email,
+          phone: userData.phone || prevSettings.phone,
+          bio: userData.bio || prevSettings.bio,
+        }));
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    };
+    getProfileData();
 
     // Load profile image
-    const savedImage = localStorage.getItem("profileImage")
+    const savedImage = localStorage.getItem("profileImage");
     if (savedImage && savedImage !== "null" && savedImage !== "undefined") {
-      setProfileImage(savedImage)
+      setProfileImage(savedImage);
     }
-  }, [])
+  }, []);
 
   // Handle profile form changes
   const handleProfileChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     const updatedSettings = {
       ...profileSettings,
       [name]: value,
-    }
-    setProfileSettings(updatedSettings)
-  }
+    };
+    setProfileSettings(updatedSettings);
+  };
 
   // Handle profile image change
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        const result = e.target.result
-        setProfileImage(result)
+        const result = e.target.result;
+        setProfileImage(result);
         // Save image to localStorage
-        localStorage.setItem("profileImage", result)
-      }
-      reader.readAsDataURL(file)
-      setImageFile(file)
+        localStorage.setItem("profileImage", result);
+      };
+      reader.readAsDataURL(file);
+      setImageFile(file);
     }
-  }
+  };
 
   // Remove profile image
   const removeImage = () => {
-    const defaultImage = "/skywings.png"
-    setProfileImage(defaultImage)
-    setImageFile(null)
-    localStorage.setItem("profileImage", defaultImage)
-  }
+    const defaultImage = "/skywings.png";
+    setProfileImage(defaultImage);
+    setImageFile(null);
+    localStorage.setItem("profileImage", defaultImage);
+  };
 
   // Save settings
-  const saveSettings = (e) => {
-    e.preventDefault()
-    setSaving(true)
+  const saveSettings = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      // API call to update username and email
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/admin/update-user`,
+        {
+          username: profileSettings.name,
+          email: profileSettings.email,
+          phone: profileSettings.phone,
+          bio: profileSettings.bio,       
+        }
+      );
 
-    // Save to localStorage
-    localStorage.setItem("profileSettings", JSON.stringify(profileSettings))
+      if (response.data.success) {
+        toast.success("Profile updated successfully!");
+      } else {
+        toast.error("Failed to update profile.");
+      }
 
-    // Simulate API call
-    setTimeout(() => {
-      setSaving(false)
-      toast.success("Settings saved successfully!")
-    }, 1000)
-  }
+      // Save to localStorage
+      localStorage.setItem("profileSettings", JSON.stringify(profileSettings));
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Something went wrong.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="p-4 md:p-6">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Profile Settings</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">
+        Profile Settings
+      </h1>
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <form onSubmit={saveSettings}>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Profile Picture
+            </label>
             <div className="flex items-center">
               <div className="relative">
                 <img
@@ -117,7 +152,11 @@ export default function Settings() {
                 </div>
               </div>
               {profileImage !== "/skywings.png" && (
-                <button type="button" onClick={removeImage} className="ml-4 text-sm text-red-600 hover:text-red-800">
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="ml-4 text-sm text-red-600 hover:text-red-800"
+                >
                   Remove
                 </button>
               )}
@@ -126,7 +165,10 @@ export default function Settings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Full Name
               </label>
               <input
@@ -139,7 +181,10 @@ export default function Settings() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email Address
               </label>
               <input
@@ -155,7 +200,10 @@ export default function Settings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Role
               </label>
               <input
@@ -169,7 +217,10 @@ export default function Settings() {
               />
             </div>
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Phone Number
               </label>
               <input
@@ -184,7 +235,10 @@ export default function Settings() {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="bio"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Bio
             </label>
             <textarea
@@ -219,5 +273,5 @@ export default function Settings() {
         </form>
       </div>
     </div>
-  )
+  );
 }
