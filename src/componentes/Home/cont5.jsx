@@ -158,7 +158,7 @@ const Cont5 = () => {
       text: '"A seamless banking job placement experience—AssuredJob.com got me hired at HDFC Sales quickly!"',
       image: testm_3,
       name: "Rahul Verma, Placed at HDFC Sales ",
-      ac: "",
+      ac: "Bangalore",
     },
     {
       id: 4,
@@ -319,7 +319,7 @@ const Cont5 = () => {
       text: "Highly recommend AssuredJob.com for anyone looking for wealth management careers!",
       image: img,
       name: "Sandeep Yadav, Placed at Motilal Oswal Financial Services ",
-      ac: "NaSandeep Yadav, Placed at Motilal Oswal Financial Servicesgpur",
+      ac: "Patna",
     },
     {
       id: 27,
@@ -354,253 +354,303 @@ const Cont5 = () => {
   const freelancerTestimonials = [
     {
       id: 1,
-      name: "Amit Sharma, Delhi",
+      name: "Amit Sharma",
       text: "FreelanceRecruiter.in provides access to a premium candidate database and job portals, making hiring effortless!",
+      ac: "Delhi",
     },
     {
       id: 2,
-      name: "Neha Patel, Mumbai",
+      name: "Neha Patel",
       text: "Unlike other platforms, they provide a ready-made recruiter database, saving me hours of sourcing candidates.",
+      ac: "Mumbai",
     },
     {
       id: 3,
-      name: "Rahul Verma, Bangalore",
+      name: "Rahul Verma",
       text: "With their internal talent database and CRM, I focus on recruiting rather than manual sourcing!",
+      ac: "Bangalore",
     },
     {
       id: 4,
-      name: "Priya Iyer, Chennai",
+      name: "Priya Iyer",
       text: "The AI-powered database helps me match candidates faster. The best freelance recruiting platform!",
+      ac: "Chennai",
     },
     {
       id: 5,
-      name: "Vikram Singh, Pune",
+      name: "Vikram Singh",
       text: "AssuredJob.com offers job portal access and verified leads, making hiring faster and stress-free!",
+      ac: "Pune",
     },
     {
       id: 6,
-      name: "Anjali Gupta, Jaipur",
+      name: "Anjali Gupta",
       text: "Their recruitment training program helped me refine my sourcing skills and close better deals!",
+      ac: "Jaipur",
     },
     {
       id: 7,
-      name: "Rajesh Nair, Kochi",
+      name: "Rajesh Nair",
       text: "I started with zero experience, but their one-on-one recruiter training made me confident in hiring.",
+      ac: "Kochi",
     },
     {
       id: 8,
-      name: "Sneha Joshi, Hyderabad",
+      name: "Sneha Joshi",
       text: "FreelanceRecruiter.in provides live training sessions that helped me master industry trends and negotiations.",
+      ac: "Hyderabad",
     },
     {
       id: 9,
-      name: "Manish Bhatia, Chandigarh",
+      name: "Manish Bhatia",
       text: "The continuous learning support helped me boost my placements and increase my earnings.",
+      ac: "Chandigarh",
     },
     {
       id: 10,
-      name: "Pooja Mehta, Indore",
+      name: "Pooja Mehta",
       text: "Their freelancer recruiter training helped me get better conversion rates and handle clients like a pro!",
+      ac: "Indore",
     },
     {
       id: 11,
-      name: "Arjun Reddy, Visakhapatnam",
+      name: "Arjun Reddy",
       text: "I shifted from other freelancing platforms to AssuredJob.com because of their higher recruiter payouts!",
+      ac: "Visakhapatnam",
     },
     {
       id: 12,
-      name: "Swati Choudhary, Noida",
+      name: "Swati Choudhary",
       text: "Unlike other platforms, they offer transparent commissions and on-time payments without delays.",
+      ac: "Noida",
     },
     {
       id: 13,
-      name: "Rohit Malhotra, Lucknow",
+      name: "Rohit Malhotra",
       text: "I doubled my monthly earnings thanks to their better recruiter payouts and premium job roles!",
+      ac: "Lucknow",
     },
     {
       id: 14,
-      name: "Kavita Pillai, Thiruvananthapuram",
+      name: "Kavita Pillai",
       text: "Their commission model is recruiter-friendly—no hidden charges, just real profits!",
+      ac: "Thiruvananthapuram",
     },
     {
       id: 15,
-      name: "Sandeep Yadav, Bhopal",
+      name: "Sandeep Yadav",
       text: "FreelanceRecruiter.in ensures top recruiter commissions, and I get paid without chasing anyone!",
+      ac: "Bhopal",
     },
     {
       id: 16,
-      name: "Deepa Mukherjee, Kolkata",
+      name: "Deepa Mukherjee",
       text: "Their job portal access and direct connections with hiring managers make my job super easy!",
+      ac: "Kolkata",
     },
     {
       id: 17,
-      name: "Abhishek Chauhan, Kanpur",
+      name: "Abhishek Chauhan",
       text: "Having priority access to verified job postings means I never run out of work opportunities!",
+      ac: "Kanpur",
     },
     {
       id: 18,
-      name: "Shalini Das, Bhubaneswar",
+      name: "Shalini Das",
       text: "Their integrated job portal is easy to navigate, helping me recruit efficiently!",
+      ac: "Bhubaneswar",
     },
     {
       id: 19,
-      name: "Harish Kumar, Nashik",
+      name: "Harish Kumar",
       text: "Unlike other freelance platforms, they offer exclusive recruiter access to top companies!",
+      ac: "Nashik",
     },
     {
       id: 20,
-      name: "Meera Sen, Patna",
+      name: "Meera Sen",
       text: "Their job board integration helped me place 50+ candidates in my first three months!",
+      ac: "Patna",
     },
     {
       id: 21,
-      name: "Pranav Joshi, Surat",
+      name: "Pranav Joshi",
       text: "FreelanceRecruiter.in handles client interactions, allowing me to focus on candidate sourcing!",
+      ac: "Surat",
     },
     {
       id: 22,
-      name: "Aparna Krishnan, Coimbatore",
+      name: "Aparna Krishnan",
       text: "They provide direct access to hiring managers, making recruiter-client communication smooth.",
+      ac: "Coimbatore",
     },
     {
       id: 23,
-      name: "Varun Aggarwal, Ludhiana",
+      name: "Varun Aggarwal",
       text: "Handling clients used to be a challenge, but now I get pre-negotiated job mandates directly!",
+      ac: "Ludhiana",
     },
     {
       id: 24,
-      name: "Simran Kaur, Amritsar",
+      name: "Simran Kaur",
       text: "Unlike other platforms, they provide end-to-end recruiter support—database, clients, and payouts!",
+      ac: "Amritsar",
     },
     {
       id: 25,
-      name: "Anand Bansal, Udaipur",
+      name: "Anand Bansal",
       text: "Their recruiter business model ensures that I get high-quality clients without extra effort.",
+      ac: "Udaipur",
     },
     {
       id: 26,
-      name: "Nisha Kapoor, Ghaziabad",
+      name: "Nisha Kapoor",
       text: "FreelanceRecruiter.in is the only platform that provides zero-cost recruiter onboarding with full transparency!",
+      ac: "Ghaziabad",
     },
     {
       id: 27,
-      name: "Kunal Saxena, Meerut",
+      name: "Kunal Saxena",
       text: "Their automated hiring tools reduce my workload and make recruitment a breeze.",
+      ac: " Meerut",
     },
     {
       id: 28,
-      name: "Lavanya Raj, Vijayawada",
+      name: "Lavanya Raj",
       text: "I love their recruiter dashboard, where I can track earnings, candidates, and job status in real-time.",
+      ac: "Vijayawada",
     },
     {
       id: 29,
-      name: "Sohail Ahmed, Guwahati",
+      name: "Sohail Ahmed",
       text: "Unlike other freelance platforms, they offer guaranteed recruiter support and dispute resolution.",
+      ac: "Guwahati",
     },
     {
       id: 30,
-      name: "Tarun Kapoor, Varanasi",
+      name: "Tarun Kapoor",
       text: "Their platform is built for recruiters—it's fast, efficient, and payment-friendly!",
+      ac: "Varanasi",
     },
     {
       id: 31,
-      name: "Deeksha Nair, Kozhikode",
+      name: "Deeksha Nair",
       text: "Freelance recruiting is now my full-time profession, thanks to their consistent job opportunities!",
+      ac: "Kozhikode",
     },
     {
       id: 32,
-      name: "Jitendra Chouhan, Jodhpur",
+      name: "Jitendra Chouhan",
       text: "This is not just a side gig—it's a serious recruiting career with real growth potential.",
+      ac: "Jodhpur",
     },
     {
       id: 33,
-      name: "Shruti Tiwari, Gwalior",
+      name: "Shruti Tiwari",
       text: "FreelanceRecruiter.in is the best platform for scaling a recruitment business!",
+      ac: "Gwalior",
     },
     {
       id: 34,
-      name: "Mohit Arora, Agra",
+      name: "Mohit Arora",
       text: "I moved from a job to freelance recruiting full-time, thanks to their steady work pipeline.",
+      ac: "Agra",
     },
     {
       id: 35,
-      name: "Reena Mishra, Ranchi",
+      name: "Reena Mishra",
       text: "Their freelancer-friendly policies help me focus on hiring and growing professionally.",
+      ac: "Ranchi",
     },
     {
       id: 36,
-      name: "Aditya Saxena, Jamshedpur",
+      name: "Aditya Saxena",
       text: "Their pre-screened candidate list saves me time and improves my hiring success rate!",
+      ac: "Jamshedpur",
     },
     {
       id: 37,
-      name: "Pallavi Reddy, Mysore",
+      name: "Pallavi Reddy",
       text: "Their AI-driven job matching system helps me quickly connect the right candidate to the right job.",
+      ac: "Mysore",
     },
     {
       id: 38,
-      name: "Naveen Joshi, Dehradun",
+      name: "Naveen Joshi",
       text: "The candidate tracking tools help me manage multiple hiring projects effortlessly!",
+      ac: "Dehradun",
     },
     {
       id: 39,
-      name: "Juhi Chopra, Siliguri",
+      name: "Juhi Chopra",
       text: "I never imagined freelance recruiting could be this easy with the right tools and support!",
+      ac: "Siliguri",
     },
     {
       id: 40,
-      name: "Sachin Thakur, Bareilly",
+      name: "Sachin Thakur",
       text: "With their automated resume screening, I save time and increase my efficiency!",
+      ac: "Bareilly",
     },
     {
       id: 41,
-      name: "Poonam Aggarwal, Moradabad",
+      name: "Poonam Aggarwal",
       text: "This is the most stable freelance recruitment platform I've worked with!",
+      ac: "Moradabad",
     },
     {
       id: 42,
-      name: "Santosh Menon, Mangalore",
+      name: "Santosh Menon",
       text: "They provide ongoing recruiter work, ensuring a steady income stream!",
+      ac: "Mangalore",
     },
     {
       id: 43,
-      name: "Manasi Kulkarni, Kolhapur",
+      name: "Manasi Kulkarni",
       text: "AssuredJob.com guarantees job flow and candidate supply, making recruitment stress-free!",
+      ac: "Kolhapur",
     },
     {
       id: 44,
-      name: "Aakash Pandey, Aligarh",
+      name: "Aakash Pandey",
       text: "I've built my entire career around freelance recruiting with their job security and consistent payouts.",
+      ac: "Aligarh",
     },
     {
       id: 45,
-      name: "Ritika Sood, Gorakhpur",
+      name: "Ritika Sood",
       text: "Their long-term contracts mean I always have hiring opportunities.",
+      ac: "Gorakhpur",
     },
     {
       id: 46,
-      name: "Suhas Rane, Nagpur",
+      name: "Suhas Rane",
       text: "Unlike other freelance job portals, their client base is strong and reliable!",
+      ac: "Nagpur",
     },
     {
       id: 47,
-      name: "Arti Sinha, Dhanbad",
+      name: "Arti Sinha",
       text: "They offer continuous recruiter engagement, so I never feel out of work!",
+      ac: "Dhanbad",
     },
     {
       id: 48,
-      name: "Rohan Kapoor, Bhilai",
+      name: "Rohan Kapoor",
       text: "They ensure freelancers get real work, not just empty job postings!",
+      ac: "Bhilai",
     },
     {
       id: 49,
-      name: "Tanvi Dubey, Anand",
+      name: "Tanvi Dubey",
       text: "Finally, a trustworthy freelance recruiter network that delivers real results!",
+      ac: "Anand",
     },
     {
       id: 50,
-      name: "Sandeep Rawat, Ajmer",
+      name: "Sandeep Rawat",
       text: "FreelanceRecruiter.in is a game-changer for recruiter careers!",
+      ac: "Ajmer",
     },
   ];
 
@@ -832,18 +882,21 @@ const Cont5 = () => {
 
       <div className="flex items-center w-full mt-auto pt-2 border-t border-gray-100">
         <div className="flex-1 text-center">
-          <p className="borde text-base font-semibold text-gray-800 flex items-center space-x-2">
+          <div className="flex items-center space-x-2">
             <span className="w-8 h-8 flex items-center justify-center rounded-full bg-purple-500 text-white font-bold shrink-0">
               {data.name[0]}
             </span>
-            <span className="text-start">{data.name}</span>
-          </p>
-
-          {data.ac && (
-            <span className="text-xs text-purple-500 font-medium block text-start ml-[2.5rem]">
-              {data.ac}
-            </span>
-          )}
+            <div className="flex flex-col items-start">
+              <p className="text-base font-semibold text-gray-800 text-start">
+                {data.name}
+              </p>
+              {data.ac && (
+                <span className="text-xs text-purple-500 font-medium">
+                  {data.ac}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
