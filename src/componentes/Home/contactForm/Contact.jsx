@@ -337,7 +337,7 @@ export default function Contact() {
                          transition={{ delay: 0.7, duration: 0.5 }}
                        >
                          <p className="leading-relaxed">
-                           AssuredJob Pvt. Ltd.
+                           Skywings Advisors Pvt. Ltd.
                            <br />
                            2nd floor, Sirmour Plaza, Kaulagarh Rd,
                            <br />
