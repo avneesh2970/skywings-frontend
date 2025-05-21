@@ -20,6 +20,7 @@ const NewsForm = ({ newsItem }) => {
     date: new Date().toISOString().split("T")[0],
     tags: [],
     status: "published",
+    category: "general", // Default category
     image: null,
   })
   const [errors, setErrors] = useState({})
@@ -41,6 +42,7 @@ const NewsForm = ({ newsItem }) => {
           : new Date().toISOString().split("T")[0],
         tags: newsItem.tags || [],
         status: newsItem.status || "published",
+        category: newsItem.category || "general", // Set category from existing news or default
         image: null, // We don't set the file object, just the preview
       })
       if (newsItem.image) {
@@ -215,6 +217,14 @@ const NewsForm = ({ newsItem }) => {
     ],
   }
 
+  // Category options
+  const categoryOptions = [
+    { value: "general", label: "General", color: "gray" },
+    { value: "company", label: "Company", color: "blue" },
+    { value: "client", label: "Client", color: "green" },
+    { value: "industry", label: "Industry", color: "purple" },
+  ]
+
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
       <div className="flex justify-between items-center mb-6">
@@ -279,8 +289,8 @@ const NewsForm = ({ newsItem }) => {
           {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content}</p>}
         </div>
 
-        {/* Author and Date - Side by Side */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Author, Date, and Category - Side by Side */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label htmlFor="author" className="block text-sm font-medium text-gray-700">
               Author <span className="text-red-500">*</span>
@@ -313,6 +323,26 @@ const NewsForm = ({ newsItem }) => {
               } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
             />
             {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date}</p>}
+          </div>
+
+          {/* Category Dropdown */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+              Category
+            </label>
+            <select
+              id="category"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { MdArrowOutward, MdChevronLeft, MdChevronRight } from "react-icons/md"
+import { MdArrowOutward, MdChevronLeft, MdChevronRight, MdAccessTime } from "react-icons/md"
 import axios from "axios"
 import { motion, AnimatePresence } from "framer-motion"
 import mountain from "../../assets/products/image(10).png"
@@ -12,16 +12,46 @@ import sigleman from "../../assets/products/image(4).png"
 import concentration from "../../assets/products/image(5).png"
 import podcast from "../../assets/products/image(6).png"
 
+// Import the extended article data that contains full content
+import { articlesExtended } from "./NewsDetails"
+
 export default function Nws() {
   const [dynamicNews, setDynamicNews] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [hoveredCard, setHoveredCard] = useState(null)
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(6)
   const [totalPages, setTotalPages] = useState(1)
+
+  // Calculate reading time based on content length
+  const calculateReadingTime = (content) => {
+    // Average reading speed is about 200-250 words per minute
+    const wordsPerMinute = 150
+
+    // Count words in the content
+    const wordCount = content.trim().split(/\s+/).length
+
+    // Calculate reading time in minutes
+    let readingTime = Math.ceil(wordCount / wordsPerMinute)
+
+    // Ensure minimum reading time is 1 minute
+    readingTime = readingTime < 1 ? 1 : readingTime
+
+    return readingTime
+  }
+
+  // Extract text content from HTML string
+  const extractTextFromHTML = (html) => {
+    if (!html) return ""
+    // Create a temporary div to hold the HTML content
+    const tempDiv = document.createElement("div")
+    tempDiv.innerHTML = html
+    // Get the text content (strips HTML tags)
+    return tempDiv.textContent || tempDiv.innerText || ""
+  }
 
   // Fetch news from API
   useEffect(() => {
@@ -34,6 +64,7 @@ export default function Nws() {
             sort: "date", // Sort by date
             order: "desc", // Newest first
             status: "published", // Only published articles
+            includeContent: true, // Request full content for reading time calculation
           },
         })
 
@@ -51,8 +82,9 @@ export default function Nws() {
           description: item.description,
           tags: item.tags || [],
           isFromApi: true, // Flag to identify API news
+          // Calculate reading time based on full content if available, otherwise use description
+          readingTime: calculateReadingTime(item.content || item.description),
         }))
-
         setDynamicNews(apiNews)
       } catch (err) {
         console.error("Error fetching news:", err)
@@ -65,7 +97,7 @@ export default function Nws() {
     fetchNews()
   }, [])
 
-  // Existing hardcoded articles
+  // Existing hardcoded articles with reading time based on full content
   const staticArticles = [
     {
       id: 1,
@@ -76,6 +108,10 @@ export default function Nws() {
       description: "Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?",
       tags: ["Leadership", "Management"],
       isFromApi: false, // Explicitly mark as static
+      // Get reading time from the full content in articlesExtended
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 1)?.content || ""),
+      ),
     },
     {
       id: 2,
@@ -86,6 +122,9 @@ export default function Nws() {
       description: "Mental models are simple expressions of complex processes or relationships.",
       tags: ["Product", "Research", "Frameworks"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 2)?.content || ""),
+      ),
     },
     {
       id: 3,
@@ -96,6 +135,9 @@ export default function Nws() {
       description: "Introduction to Wireframing and its Principles. Learn from the best in the industry.",
       tags: ["Design", "Research"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 3)?.content || ""),
+      ),
     },
     {
       id: 4,
@@ -106,6 +148,9 @@ export default function Nws() {
       description: "Collaboration can make our teams stronger, and our individual designs better.",
       tags: ["Design", "Research"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 4)?.content || ""),
+      ),
     },
     {
       id: 5,
@@ -116,6 +161,9 @@ export default function Nws() {
       description: "JavaScript frameworks make development easy with extensive features and functionalities.",
       tags: ["Software Development", "Tools", "SaaS"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 5)?.content || ""),
+      ),
     },
     {
       id: 6,
@@ -126,6 +174,9 @@ export default function Nws() {
       description: "Starting a community doesn't need to be complicated, but how do you get started?",
       tags: ["Podcasts", "Customer Success"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 6)?.content || ""),
+      ),
     },
     {
       id: 7,
@@ -136,6 +187,9 @@ export default function Nws() {
       description: "Collaboration can make our teams stronger, and our individual designs better.",
       tags: ["Design", "Research"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 7)?.content || ""),
+      ),
     },
     {
       id: 8,
@@ -146,6 +200,9 @@ export default function Nws() {
       description: "JavaScript frameworks make development easy with extensive features and functionalities.",
       tags: ["Software Development", "Tools", "SaaS"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 8)?.content || ""),
+      ),
     },
     {
       id: 9,
@@ -156,43 +213,58 @@ export default function Nws() {
       description: "Starting a community doesn't need to be complicated, but how do you get started?",
       tags: ["Podcasts", "Customer Success"],
       isFromApi: false,
+      readingTime: calculateReadingTime(
+        extractTextFromHTML(articlesExtended.find((article) => article.id === 9)?.content || ""),
+      ),
     },
   ]
 
   // Combine dynamic and static news
   // Put dynamic news first, then static news
   const allArticles = [...dynamicNews, ...staticArticles]
-  
+
   // Calculate total pages
+  const totalPagesValue = Math.ceil(allArticles.length / itemsPerPage)
+
+  // Update total pages when articles or items per page changes
   useEffect(() => {
-    setTotalPages(Math.ceil(allArticles.length / itemsPerPage))
-  }, [allArticles, itemsPerPage])
-  
+    setTotalPages(totalPagesValue)
+  }, [totalPagesValue])
+
   // Get current articles for pagination
   const indexOfLastArticle = currentPage * itemsPerPage
   const indexOfFirstArticle = indexOfLastArticle - itemsPerPage
   const currentArticles = allArticles.slice(indexOfFirstArticle, indexOfLastArticle)
-  
+
   // Change page
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber)
     // Scroll to top of the news section
-    window.scrollTo({ top: document.querySelector('.news-section').offsetTop - 100, behavior: 'smooth' })
+    window.scrollTo({
+      top: document.querySelector(".news-section").offsetTop - 100,
+      behavior: "smooth",
+    })
   }
-  
+
   // Go to next page
   const nextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1)
-      window.scrollTo({ top: document.querySelector('.news-section').offsetTop - 100, behavior: 'smooth' })
+      window.scrollTo({
+        top: document.querySelector(".news-section").offsetTop - 100,
+        behavior: "smooth",
+      })
     }
   }
-  
+
   // Go to previous page
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1)
-      window.scrollTo({ top: document.querySelector('.news-section').offsetTop - 100, behavior: 'smooth' })
+      window.scrollTo({
+        top: document.querySelector(".news-section").offsetTop - 100,
+        behavior: "smooth",
+      })
     }
   }
 
@@ -273,18 +345,6 @@ export default function Nws() {
     },
   }
 
-  // Loading animation variants
-  const loadingVariants = {
-    animate: {
-      rotate: 360,
-      transition: {
-        repeat: Number.POSITIVE_INFINITY,
-        duration: 1,
-        ease: "linear",
-      },
-    },
-  }
-
   // Shimmer effect for loading cards
   const shimmerVariants = {
     animate: {
@@ -296,13 +356,13 @@ export default function Nws() {
       },
     },
   }
-  
+
   // Pagination button variants
   const paginationButtonVariants = {
     initial: { scale: 1 },
     hover: { scale: 1.1 },
     tap: { scale: 0.95 },
-    disabled: { opacity: 0.5, scale: 1 }
+    disabled: { opacity: 0.5, scale: 1 },
   }
 
   return (
@@ -504,6 +564,20 @@ export default function Nws() {
                       </motion.p>
 
                       <div className="flex flex-wrap gap-2 mt-auto">
+                        {/* Reading time indicator */}
+                        <motion.div
+                          className="flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full mr-auto"
+                          initial={{ opacity: 0.8 }}
+                          animate={{
+                            opacity: hoveredCard === index ? 1 : 0.8,
+                            scale: hoveredCard === index ? 1.05 : 1,
+                          }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <MdAccessTime className="mr-1" />
+                          <span>{article.readingTime} min read</span>
+                        </motion.div>
+
                         {article.tags &&
                           article.tags.map((tag, tagIndex) => (
                             <motion.span
@@ -524,10 +598,10 @@ export default function Nws() {
               ))}
             </motion.div>
           </AnimatePresence>
-          
+
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <motion.div 
+            <motion.div
               className="flex justify-center items-center pb-16 gap-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -537,7 +611,9 @@ export default function Nws() {
                 onClick={prevPage}
                 disabled={currentPage === 1}
                 className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                  currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  currentPage === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-purple-100 text-purple-700 hover:bg-purple-200"
                 }`}
                 variants={paginationButtonVariants}
                 initial="initial"
@@ -547,13 +623,13 @@ export default function Nws() {
               >
                 <MdChevronLeft className="text-xl" />
               </motion.button>
-              
+
               <div className="flex gap-2 mx-2">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => {
                   // Show limited page numbers for better mobile experience
                   if (
-                    number === 1 || 
-                    number === totalPages || 
+                    number === 1 ||
+                    number === totalPages ||
                     (number >= currentPage - 1 && number <= currentPage + 1)
                   ) {
                     return (
@@ -562,8 +638,8 @@ export default function Nws() {
                         onClick={() => paginate(number)}
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
                           currentPage === number
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                            ? "bg-purple-600 text-white"
+                            : "bg-purple-50 text-purple-700 hover:bg-purple-100"
                         }`}
                         variants={paginationButtonVariants}
                         initial="initial"
@@ -574,7 +650,7 @@ export default function Nws() {
                       </motion.button>
                     )
                   } else if (
-                    (number === currentPage - 2 && currentPage > 3) || 
+                    (number === currentPage - 2 && currentPage > 3) ||
                     (number === currentPage + 2 && currentPage < totalPages - 2)
                   ) {
                     // Show ellipsis for skipped pages
@@ -584,17 +660,19 @@ export default function Nws() {
                       </span>
                     )
                   }
-                  
+
                   // Hide other page numbers
                   return null
                 })}
               </div>
-              
+
               <motion.button
                 onClick={nextPage}
                 disabled={currentPage === totalPages}
                 className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                  currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                  currentPage === totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-purple-100 text-purple-700 hover:bg-purple-200"
                 }`}
                 variants={paginationButtonVariants}
                 initial="initial"

@@ -3,9 +3,9 @@
 import { useState, useEffect, useContext, useRef } from "react"
 import { Link } from "react-router-dom"
 import { formatDate, truncateText, extractTextFromHtml } from "../../../utils/helpers"
+import axios from "axios"
 import {
   Calendar,
-  Clock,
   Search,
   Filter,
   ArrowUpRight,
@@ -17,6 +17,14 @@ import {
   ArrowLeft,
   ArrowRight,
   RefreshCw,
+  Eye,
+  Edit,
+  Trash2,
+  AlertCircle,
+  User,
+  CheckSquare,
+  Square,
+  Loader2,
 } from "lucide-react"
 import { AppContext } from "../../../context/AppContext"
 
@@ -25,16 +33,27 @@ const BlogsPage = () => {
   const [filteredPosts, setFilteredPosts] = useState([])
   const [sortOption, setSortOption] = useState("newest")
   const [showFilters, setShowFilters] = useState(false)
-  const { posts, loading, error } = useContext(AppContext)
+  const { posts, loading, error, fetchPosts } = useContext(AppContext)
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(9)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const [jumpToPage, setJumpToPage] = useState("")
   const [isJumpToPageOpen, setIsJumpToPageOpen] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
+  // Bulk actions state
+  const [selectedPosts, setSelectedPosts] = useState([])
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false)
+  const [deleteProgress, setDeleteProgress] = useState(0)
+  const [deleteErrors, setDeleteErrors] = useState([])
+
   const jumpToPageRef = useRef(null)
+  const bulkActionsRef = useRef(null)
+
+  let totalPages = 0 // Declare totalPages here
 
   useEffect(() => {
     if (posts.length > 0) {
@@ -64,11 +83,19 @@ const BlogsPage = () => {
     }
   }, [posts, searchTerm, sortOption])
 
+  // Reset selected posts when page changes or posts are filtered
+  useEffect(() => {
+    setSelectedPosts([])
+  }, [currentPage, filteredPosts])
+
   // Handle click outside jump to page dropdown
   useEffect(() => {
     function handleClickOutside(event) {
       if (jumpToPageRef.current && !jumpToPageRef.current.contains(event.target)) {
         setIsJumpToPageOpen(false)
+      }
+      if (bulkActionsRef.current && !bulkActionsRef.current.contains(event.target)) {
+        setIsBulkActionsOpen(false)
       }
     }
 
@@ -76,7 +103,7 @@ const BlogsPage = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [isJumpToPageOpen])
+  }, [isJumpToPageOpen, isBulkActionsOpen])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -85,6 +112,8 @@ const BlogsPage = () => {
       if (e.key === "Escape") {
         if (isJumpToPageOpen) setIsJumpToPageOpen(false)
         if (showFilters) setShowFilters(false)
+        if (isBulkActionsOpen) setIsBulkActionsOpen(false)
+        if (isConfirmDeleteOpen) setIsConfirmDeleteOpen(false)
       }
 
       // Pagination with Alt+arrow keys
@@ -105,7 +134,7 @@ const BlogsPage = () => {
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [currentPage])
+  }, [currentPage, totalPages, isJumpToPageOpen, showFilters, isBulkActionsOpen, isConfirmDeleteOpen])
 
   // Handle jump to page
   const handleJumpToPage = (e) => {
@@ -123,10 +152,96 @@ const BlogsPage = () => {
   // Refresh posts
   const handleRefresh = () => {
     setRefreshing(true)
-    // Simulate refresh - in a real app, you would fetch posts again
+    fetchPosts()
     setTimeout(() => {
       setRefreshing(false)
+      setSelectedPosts([])
     }, 800)
+  }
+
+  // Handle post selection
+  const togglePostSelection = (postId) => {
+    setSelectedPosts((prev) => {
+      if (prev.includes(postId)) {
+        return prev.filter((id) => id !== postId)
+      } else {
+        return [...prev, postId]
+      }
+    })
+  }
+
+  // Handle select all posts
+  const toggleSelectAll = () => {
+    if (selectedPosts.length === currentItems.length) {
+      setSelectedPosts([])
+    } else {
+      setSelectedPosts(currentItems.map((post) => post._id))
+    }
+  }
+
+  // Handle single post delete
+  const handleDeletePost = async (postId) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/blog/posts/${postId}`)
+      fetchPosts() // Refresh the posts list
+      return true
+    } catch (error) {
+      console.error(`Error deleting post ${postId}:`, error)
+      return false
+    }
+  }
+
+  // Handle bulk delete
+  const handleBulkDelete = async () => {
+    setIsDeleting(true)
+    setIsBulkActionsOpen(false)
+    setDeleteProgress(0)
+    setDeleteErrors([])
+
+    try {
+      let successCount = 0
+      const errors = []
+
+      // Process posts one by one to track progress
+      for (let i = 0; i < selectedPosts.length; i++) {
+        const postId = selectedPosts[i]
+        try {
+          const success = await handleDeletePost(postId)
+          if (success) {
+            successCount++
+          } else {
+            errors.push(postId)
+          }
+        } catch (error) {
+          console.error(`Error deleting post ${postId}:`, error)
+          errors.push(postId)
+        }
+
+        // Update progress
+        setDeleteProgress(Math.round(((i + 1) / selectedPosts.length) * 100))
+      }
+
+      setDeleteErrors(errors)
+
+      // Refresh the posts list
+      fetchPosts()
+
+      // Show result message
+      if (errors.length === 0) {
+        alert(`Successfully deleted ${successCount} posts`)
+      } else {
+        alert(`Deleted ${successCount} posts. Failed to delete ${errors.length} posts.`)
+      }
+
+      // Clear selection
+      setSelectedPosts([])
+    } catch (error) {
+      console.error("Error in bulk delete operation:", error)
+      alert("An error occurred during the bulk delete operation")
+    } finally {
+      setIsDeleting(false)
+      setIsConfirmDeleteOpen(false)
+    }
   }
 
   // Pagination calculations
@@ -134,7 +249,7 @@ const BlogsPage = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filteredPosts.slice(indexOfFirstItem, indexOfLastItem)
   const totalItems = filteredPosts.length
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  totalPages = Math.ceil(totalItems / itemsPerPage) // Assign totalPages here
 
   if (loading) {
     return (
@@ -165,32 +280,14 @@ const BlogsPage = () => {
   return (
     <div className="pb-12">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
+      <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-8 sm:py-10 md:py-12 px-4 rounded-xl mb-6 sm:mb-8 md:mb-10">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
             Welcome to <span className="text-blue-600">Skywings</span> Blog
           </h1>
-          <p className="text-lg text-gray-600 mb-8">Discover stories, insights, and knowledge from our community</p>
-          <div className="relative max-w-xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search posts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            )}
-          </div>
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-xl mx-auto">
+            Discover stories, insights, and knowledge from our community
+          </p>
         </div>
       </div>
 
@@ -213,9 +310,9 @@ const BlogsPage = () => {
         ) : (
           <>
             {/* Filters and Sort */}
-            <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-gray-800">{searchTerm ? "Search Results" : "Latest Posts"}</h2>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Blog Management</h1>
                 {searchTerm && (
                   <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                     {filteredPosts.length} results
@@ -231,30 +328,55 @@ const BlogsPage = () => {
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-1 text-gray-600 hover:text-blue-600"
-                >
-                  <Filter size={18} />
-                  <span>Filter</span>
-                </button>
-                <select
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                  className="ml-2 bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                </select>
+              <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                <form onSubmit={(e) => e.preventDefault()} className="flex w-full sm:w-auto">
+                  <div className="relative flex-grow w-full">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                      type="text"
+                      placeholder="Search posts..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchTerm("")}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </form>
 
-                <Link
-                  to="/admin/dashboard/blog-post/editor"
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
-                >
-                  <PenSquare size={18} />
-                  <span>New Post</span>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50"
+                  >
+                    <Filter size={16} />
+                    <span>Filter</span>
+                  </button>
+
+                  <select
+                    value={sortOption}
+                    onChange={(e) => setSortOption(e.target.value)}
+                    className="bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+
+                  <Link
+                    to="/admin/dashboard/blog-post/editor"
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap"
+                  >
+                    <PenSquare size={16} />
+                    <span>New Post</span>
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -280,64 +402,330 @@ const BlogsPage = () => {
               </div>
             )}
 
-            {/* Posts Grid */}
+            {/* Bulk Actions */}
+            {selectedPosts.length > 0 && (
+              <div className="mb-4 flex items-center bg-blue-50 p-2 rounded-md">
+                <span className="ml-2 text-sm font-medium text-blue-700">
+                  {selectedPosts.length} {selectedPosts.length === 1 ? "post" : "posts"} selected
+                </span>
+                <div className="ml-auto relative" ref={bulkActionsRef}>
+                  <button
+                    onClick={() => setIsBulkActionsOpen(!isBulkActionsOpen)}
+                    className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700"
+                  >
+                    <span>Bulk Actions</span>
+                    <ChevronDown size={16} />
+                  </button>
+                  {isBulkActionsOpen && (
+                    <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 py-1 border border-gray-200">
+                      <button
+                        onClick={() => {
+                          setIsConfirmDeleteOpen(true)
+                          setIsBulkActionsOpen(false)
+                        }}
+                        className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 size={16} className="mr-2" />
+                        Delete Selected
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation Modal for Bulk Delete */}
+            {isConfirmDeleteOpen && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+                  <div className="flex items-center text-red-600 mb-4">
+                    <AlertCircle size={24} className="mr-2" />
+                    <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+                  </div>
+
+                  {isDeleting ? (
+                    <div className="mb-6">
+                      <p className="text-gray-600 mb-3">Deleting {selectedPosts.length} posts...</p>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${deleteProgress}%` }}></div>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2 text-right">{deleteProgress}% complete</p>
+                    </div>
+                  ) : (
+                    <p className="mb-6 text-gray-600">
+                      Are you sure you want to delete {selectedPosts.length} selected{" "}
+                      {selectedPosts.length === 1 ? "post" : "posts"}? This action cannot be undone.
+                    </p>
+                  )}
+
+                  <div className="flex justify-end gap-3">
+                    {!isDeleting && (
+                      <button
+                        onClick={() => setIsConfirmDeleteOpen(false)}
+                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                    )}
+
+                    <button
+                      onClick={handleBulkDelete}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <>
+                          <Loader2 size={16} className="mr-2 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 size={16} className="mr-2" />
+                          Delete
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {filteredPosts.length === 0 && searchTerm ? (
               <div className="text-center py-10 bg-white rounded-lg shadow-sm">
-                <p className="text-gray-600 mb-4">No posts found matching {searchTerm}</p>
+                <p className="text-gray-600 mb-4">No posts found matching "{searchTerm}"</p>
                 <button onClick={() => setSearchTerm("")} className="text-blue-600 hover:text-blue-700 font-medium">
                   Clear search
                 </button>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Desktop Table View - Hidden on mobile */}
+                <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th scope="col" className="px-3 py-3 text-left">
+                            <div className="flex items-center">
+                              <button
+                                onClick={toggleSelectAll}
+                                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                                aria-label={
+                                  selectedPosts.length === currentItems.length ? "Deselect all" : "Select all"
+                                }
+                              >
+                                {selectedPosts.length === currentItems.length && currentItems.length > 0 ? (
+                                  <CheckSquare size={18} className="text-blue-600" />
+                                ) : (
+                                  <Square size={18} />
+                                )}
+                              </button>
+                            </div>
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Post
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Author
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Date
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {currentItems.map((post) => (
+                          <tr
+                            key={post._id}
+                            className={`hover:bg-gray-50 ${selectedPosts.includes(post._id) ? "bg-blue-50" : ""}`}
+                          >
+                            <td className="px-3 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <button
+                                  onClick={() => togglePostSelection(post._id)}
+                                  className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                                  aria-label={selectedPosts.includes(post._id) ? "Deselect" : "Select"}
+                                >
+                                  {selectedPosts.includes(post._id) ? (
+                                    <CheckSquare size={18} className="text-blue-600" />
+                                  ) : (
+                                    <Square size={18} />
+                                  )}
+                                </button>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center">
+                                {post.featuredImage && (
+                                  <div className="flex-shrink-0 h-10 w-10 mr-3">
+                                    <img
+                                      className="h-10 w-10 rounded-md object-cover"
+                                      src={post.featuredImage || "/placeholder.svg"}
+                                      alt={post.title}
+                                    />
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                                    {post.title}
+                                  </div>
+                                  <div className="text-sm text-gray-500 truncate max-w-xs">
+                                    {truncateText(extractTextFromHtml(post.content), 60)}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-500">{post.author || "Anonymous"}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-500">{formatDate(post.createdAt)}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <div className="flex items-center justify-end space-x-2">
+                                <Link
+                                  to={`/admin/dashboard/blog-post/${post._id}`}
+                                  className="text-gray-600 hover:text-gray-900"
+                                >
+                                  <Eye size={18} />
+                                  <span className="sr-only">View</span>
+                                </Link>
+                                <Link
+                                  to={`/admin/dashboard/blog-post/editor/${post._id}`}
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  <Edit size={18} />
+                                  <span className="sr-only">Edit</span>
+                                </Link>
+                                <button
+                                  onClick={async () => {
+                                    if (confirm("Are you sure you want to delete this post?")) {
+                                      const success = await handleDeletePost(post._id)
+                                      if (success) {
+                                        alert("Post deleted successfully")
+                                      } else {
+                                        alert("Failed to delete post")
+                                      }
+                                    }
+                                  }}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  <Trash2 size={18} />
+                                  <span className="sr-only">Delete</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Mobile Card View - Only visible on mobile */}
+                <div className="md:hidden space-y-4">
                   {currentItems.map((post) => (
-                    <Link
+                    <div
                       key={post._id}
-                      to={`/admin/dashboard/blog-post/${post._id}`}
-                      className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1"
+                      className={`bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow ${
+                        selectedPosts.includes(post._id) ? "border-blue-500 bg-blue-50" : ""
+                      }`}
                     >
-                      <div className="relative overflow-hidden">
-                        {post.featuredImage ? (
-                          <div className="aspect-[16/9] bg-gray-100">
+                      <div className="flex items-start gap-3 mb-3">
+                        <button
+                          onClick={() => togglePostSelection(post._id)}
+                          className="mt-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+                          aria-label={selectedPosts.includes(post._id) ? "Deselect" : "Select"}
+                        >
+                          {selectedPosts.includes(post._id) ? (
+                            <CheckSquare size={20} className="text-blue-600" />
+                          ) : (
+                            <Square size={20} />
+                          )}
+                        </button>
+                        {post.featuredImage && (
+                          <div className="flex-shrink-0">
                             <img
+                              className="h-14 w-14 rounded-md object-cover"
                               src={post.featuredImage || "/placeholder.svg"}
                               alt={post.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           </div>
-                        ) : (
-                          <div className="aspect-[16/9] bg-gradient-to-r from-gray-200 to-gray-300 flex items-center justify-center">
-                            <span className="text-gray-500">No image</span>
-                          </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </div>
-                      <div className="p-5 flex-grow flex flex-col">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                          {post.title}
-                        </h2>
-                        <p className="text-gray-600 mb-4 line-clamp-3">
-                          {truncateText(extractTextFromHtml(post.content), 120)}
-                        </p>
-                        <div className="mt-auto flex items-center text-sm text-gray-500 space-x-4">
-                          <div className="flex items-center">
-                            <Calendar size={14} className="mr-1" />
-                            <span>{formatDate(post.createdAt)}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Clock size={14} className="mr-1" />
-                            <span>5 min read</span>
-                          </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 break-words">{post.title}</h3>
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                            {truncateText(extractTextFromHtml(post.content), 80)}
+                          </p>
                         </div>
                       </div>
-                    </Link>
+
+                      <div className="space-y-2 text-sm text-gray-600 mt-3">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <span className="break-words">{post.author || "Anonymous"}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <span>{formatDate(post.createdAt)}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-3 mt-4 pt-3 border-t border-gray-100">
+                        <Link
+                          to={`/admin/dashboard/blog-post/${post._id}`}
+                          className="flex items-center text-gray-600 hover:text-gray-800"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          <span>View</span>
+                        </Link>
+                        <Link
+                          to={`/admin/dashboard/blog-post/editor/${post._id}`}
+                          className="flex items-center text-blue-600 hover:text-blue-800"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          <span>Edit</span>
+                        </Link>
+                        <button
+                          onClick={async () => {
+                            if (confirm("Are you sure you want to delete this post?")) {
+                              const success = await handleDeletePost(post._id)
+                              if (success) {
+                                alert("Post deleted successfully")
+                              } else {
+                                alert("Failed to delete post")
+                              }
+                            }
+                          }}
+                          className="flex items-center text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
 
                 {/* Enhanced Pagination */}
                 {totalItems > 0 && (
-                  <div className="mt-10 border-t border-gray-100 pt-6">
+                  <div className="mt-6 border-t border-gray-100 pt-4">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                       {/* Pagination Info */}
                       <div className="text-sm text-gray-500 order-2 sm:order-1">
@@ -503,10 +891,10 @@ const BlogsPage = () => {
                           }}
                           className="border rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                          <option value={6}>6</option>
-                          <option value={9}>9</option>
-                          <option value={12}>12</option>
-                          <option value={24}>24</option>
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
                         </select>
                       </div>
                     </div>

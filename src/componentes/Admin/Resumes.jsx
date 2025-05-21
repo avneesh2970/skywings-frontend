@@ -28,6 +28,8 @@ import {
   RefreshCw,
   ChevronFirst,
   ChevronLast,
+  CheckSquare,
+  Square,
 } from "lucide-react"
 
 export default function Resumes() {
@@ -65,11 +67,21 @@ export default function Resumes() {
   const [notesChanged, setNotesChanged] = useState(false)
   const [notesCharCount, setNotesCharCount] = useState(0)
 
+  // New state for bulk actions
+  const [selectedResumes, setSelectedResumes] = useState([])
+  const [selectAll, setSelectAll] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState(null)
+  const [bulkActionLoading, setBulkActionLoading] = useState(false)
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
+  const [isBulkStatusModalOpen, setIsBulkStatusModalOpen] = useState(false)
+  const [bulkStatus, setBulkStatus] = useState("")
+
   const modalRef = useRef(null)
   const filterRef = useRef(null)
   const dateFilterRef = useRef(null)
   const jumpToPageRef = useRef(null)
   const searchInputRef = useRef(null)
+  const dropdownRefs = useRef({})
 
   // Fetch resumes from the backend
   const fetchResumes = useCallback(
@@ -133,6 +145,10 @@ export default function Resumes() {
         setResumes(response.data.data)
         setTotalResumes(response.data.total)
         setTotalPages(response.data.totalPages)
+
+        // Clear selected resumes when fetching new data
+        setSelectedResumes([])
+        setSelectAll(false)
       } catch (err) {
         console.error("Error fetching resumes:", err)
         setError("Failed to load resumes. Please try again later.")
@@ -167,13 +183,17 @@ export default function Resumes() {
       if (jumpToPageRef.current && !jumpToPageRef.current.contains(event.target) && isJumpToPageOpen) {
         setIsJumpToPageOpen(false)
       }
+      // Close dropdown when clicking outside
+      if (activeDropdown && !dropdownRefs.current[activeDropdown]?.contains(event.target)) {
+        setActiveDropdown(null)
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [isFilterOpen, isDateFilterOpen, isJumpToPageOpen])
+  }, [isFilterOpen, isDateFilterOpen, isJumpToPageOpen, activeDropdown])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -191,10 +211,13 @@ export default function Resumes() {
         if (isDateFilterOpen) setIsDateFilterOpen(false)
         if (isJumpToPageOpen) setIsJumpToPageOpen(false)
         if (isDeleteModalOpen) setIsDeleteModalOpen(false)
+        if (activeDropdown) setActiveDropdown(null)
+        if (isBulkDeleteModalOpen) setIsBulkDeleteModalOpen(false)
+        if (isBulkStatusModalOpen) setIsBulkStatusModalOpen(false)
       }
 
       // Pagination shortcuts
-      if (!isModalOpen && !isDeleteModalOpen) {
+      if (!isModalOpen && !isDeleteModalOpen && !isBulkDeleteModalOpen && !isBulkStatusModalOpen) {
         // Next page: Alt+Right
         if (e.altKey && e.key === "ArrowRight" && currentPage < totalPages) {
           e.preventDefault()
@@ -225,7 +248,18 @@ export default function Resumes() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown)
     }
-  }, [currentPage, totalPages, isModalOpen, isFilterOpen, isDateFilterOpen, isJumpToPageOpen, isDeleteModalOpen])
+  }, [
+    currentPage,
+    totalPages,
+    isModalOpen,
+    isFilterOpen,
+    isDateFilterOpen,
+    isJumpToPageOpen,
+    isDeleteModalOpen,
+    activeDropdown,
+    isBulkDeleteModalOpen,
+    isBulkStatusModalOpen,
+  ])
 
   // Handle sorting
   const requestSort = (key) => {
@@ -268,16 +302,16 @@ export default function Resumes() {
     setIsModalOpen(true)
   }
 
-  // Update resume status
+  // Update the updateResumeStatus function to handle direct status updates without notes
   const updateResumeStatus = async (id, status) => {
     try {
       setStatusUpdateLoading(true)
       setNotesSaved(false)
 
-      // Prepare the data to update - include both status and notes
+      // Prepare the data to update
       const updateData = {
-        status: status || selectedResume.status, // Use the provided status or keep the current one
-        notes: notes, // Always send the current notes from the textarea
+        status: status || selectedResume?.status, // Use the provided status or keep the current one
+        notes: selectedResume ? notes : undefined, // Only include notes if we're in the modal
       }
 
       // Make the API call
@@ -292,16 +326,14 @@ export default function Resumes() {
         // Update the selected resume if it's the one being edited
         if (selectedResume && selectedResume._id === id) {
           setSelectedResume({ ...selectedResume, ...updateData })
+          setNotesSaved(true)
+          setNotesChanged(false)
         }
 
         // Show success feedback
-        setNotesSaved(true)
-        setNotesChanged(false)
-
-        // Show toast only when status changes
-        if (status && status !== selectedResume.status) {
+        if (status) {
           toast.success(`Status updated to ${status}`)
-        } else {
+        } else if (selectedResume) {
           toast.success("Notes saved successfully")
         }
       } else {
@@ -331,6 +363,11 @@ export default function Resumes() {
       // Remove from local state
       setResumes((prevResumes) => prevResumes.filter((resume) => resume._id !== resumeToDelete._id))
 
+      // Remove from selected resumes if it was selected
+      if (selectedResumes.includes(resumeToDelete._id)) {
+        setSelectedResumes((prev) => prev.filter((id) => id !== resumeToDelete._id))
+      }
+
       // Close modals
       setIsDeleteModalOpen(false)
       if (selectedResume && selectedResume._id === resumeToDelete._id) {
@@ -359,19 +396,40 @@ export default function Resumes() {
   const getStatusBadge = (status) => {
     switch (status) {
       case "new":
-        return { color: "bg-blue-100 text-blue-700", icon: <Clock className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-blue-100 text-blue-700",
+          icon: <Clock className="h-3 w-3 mr-1" />,
+        }
       case "reviewed":
-        return { color: "bg-purple-100 text-purple-700", icon: <Eye className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-purple-100 text-purple-700",
+          icon: <Eye className="h-3 w-3 mr-1" />,
+        }
       case "contacted":
-        return { color: "bg-yellow-100 text-yellow-700", icon: <Mail className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-yellow-100 text-yellow-700",
+          icon: <Mail className="h-3 w-3 mr-1" />,
+        }
       case "interviewed":
-        return { color: "bg-orange-100 text-orange-700", icon: <User className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-orange-100 text-orange-700",
+          icon: <User className="h-3 w-3 mr-1" />,
+        }
       case "rejected":
-        return { color: "bg-red-100 text-red-700", icon: <XCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-red-100 text-red-700",
+          icon: <XCircle className="h-3 w-3 mr-1" />,
+        }
       case "hired":
-        return { color: "bg-green-100 text-green-700", icon: <CheckCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-green-100 text-green-700",
+          icon: <CheckCircle className="h-3 w-3 mr-1" />,
+        }
       default:
-        return { color: "bg-gray-100 text-gray-700", icon: <AlertCircle className="h-3 w-3 mr-1" /> }
+        return {
+          color: "bg-gray-100 text-gray-700",
+          icon: <AlertCircle className="h-3 w-3 mr-1" />,
+        }
     }
   }
 
@@ -419,6 +477,57 @@ export default function Resumes() {
     document.body.removeChild(link)
   }
 
+  // Export selected to CSV
+  const exportSelectedToCSV = () => {
+    if (selectedResumes.length === 0) {
+      toast.error("No resumes selected")
+      return
+    }
+
+    const headers = [
+      "Name",
+      "Email",
+      "Contact",
+      "Job Applied For",
+      "State",
+      "City",
+      "Status",
+      "Date Submitted",
+      "Notes",
+    ]
+
+    const selectedData = resumes.filter((item) => selectedResumes.includes(item._id))
+
+    const csvRows = [
+      headers.join(","),
+      ...selectedData.map((item) =>
+        [
+          `"${item.fullName || ""}"`,
+          `"${item.email || ""}"`,
+          `"${item.contactNumber || ""}"`,
+          `"${item.jobAppliedFor || ""}"`,
+          `"${item.state || ""}"`,
+          `"${item.city || ""}"`,
+          `"${item.status || ""}"`,
+          `"${formatDate(item.createdAt)}"`,
+          `"${item.notes?.replace(/"/g, '""') || ""}"`,
+        ].join(","),
+      ),
+    ]
+
+    const csvString = csvRows.join("\n")
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+
+    link.setAttribute("href", url)
+    link.setAttribute("download", `selected_resume_submissions_${new Date().toISOString().slice(0, 10)}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   // Handle jump to page
   const handleJumpToPage = (e) => {
     e.preventDefault()
@@ -438,16 +547,105 @@ export default function Resumes() {
     setIsDateFilterOpen(false)
   }
 
+  // Handle checkbox selection
+  const handleSelectResume = (id) => {
+    setSelectedResumes((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((resumeId) => resumeId !== id)
+      } else {
+        return [...prev, id]
+      }
+    })
+  }
+
+  // Handle select all
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedResumes([])
+    } else {
+      setSelectedResumes(resumes.map((resume) => resume._id))
+    }
+    setSelectAll(!selectAll)
+  }
+
+  // Check if all visible resumes are selected
+  useEffect(() => {
+    if (resumes.length > 0 && selectedResumes.length === resumes.length) {
+      setSelectAll(true)
+    } else {
+      setSelectAll(false)
+    }
+  }, [selectedResumes, resumes])
+
+  // Toggle dropdown menu
+  const toggleDropdown = (id) => {
+    setActiveDropdown(activeDropdown === id ? null : id)
+  }
+
+  // Perform bulk action
+  const performBulkAction = async (action, data = {}) => {
+    if (selectedResumes.length === 0) {
+      toast.error("No resumes selected")
+      return
+    }
+
+    try {
+      setBulkActionLoading(true)
+
+      const payload = {
+        action,
+        ids: selectedResumes,
+        ...data,
+      }
+
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/resumes/bulk`, payload)
+
+      if (action === "delete") {
+        // Update local state to remove deleted resumes
+        setResumes((prev) => prev.filter((resume) => !selectedResumes.includes(resume._id)))
+
+        // Update total count
+        setTotalResumes((prev) => prev - response.data.count)
+
+        // If we deleted all items on the page and it's not the first page, go to previous page
+        if (selectedResumes.length === resumes.length && currentPage > 1) {
+          setCurrentPage((prev) => prev - 1)
+        }
+
+        toast.success(`Deleted ${response.data.count} resumes successfully`)
+      } else if (action === "update") {
+        // Update local state with new status
+        setResumes((prev) =>
+          prev.map((resume) => (selectedResumes.includes(resume._id) ? { ...resume, ...data } : resume)),
+        )
+
+        toast.success(`Updated ${response.data.count} resumes successfully`)
+      }
+
+      // Clear selection
+      setSelectedResumes([])
+      setSelectAll(false)
+
+      // Close modals
+      setIsBulkDeleteModalOpen(false)
+      setIsBulkStatusModalOpen(false)
+      setActiveDropdown(null)
+    } catch (error) {
+      console.error("Error performing bulk action:", error)
+      toast.error("Failed to perform bulk action: " + (error.response?.data?.message || error.message))
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
+
   return (
     <div className="w-full bg-white p-4 md:p-6 rounded-lg shadow-md overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
+      <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Welcome to <span className="text-blue-600">Skywings</span> Resumes
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Discover stories, insights, and knowledge from our community
-          </p>
+          <p className="text-lg text-gray-600 mb-8">Discover stories, insights, and knowledge from our community</p>
         </div>
       </div>
       {/* Header with search and filters */}
@@ -638,7 +836,12 @@ export default function Resumes() {
                           <input
                             type="date"
                             value={customDateRange.startDate}
-                            onChange={(e) => setCustomDateRange((prev) => ({ ...prev, startDate: e.target.value }))}
+                            onChange={(e) =>
+                              setCustomDateRange((prev) => ({
+                                ...prev,
+                                startDate: e.target.value,
+                              }))
+                            }
                             className="w-full px-3 py-2 border rounded-md text-sm"
                           />
                         </div>
@@ -647,7 +850,12 @@ export default function Resumes() {
                           <input
                             type="date"
                             value={customDateRange.endDate}
-                            onChange={(e) => setCustomDateRange((prev) => ({ ...prev, endDate: e.target.value }))}
+                            onChange={(e) =>
+                              setCustomDateRange((prev) => ({
+                                ...prev,
+                                endDate: e.target.value,
+                              }))
+                            }
                             className="w-full px-3 py-2 border rounded-md text-sm"
                           />
                         </div>
@@ -669,7 +877,7 @@ export default function Resumes() {
           {/* Export Button */}
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             disabled={resumes.length === 0}
           >
             <Download className="h-4 w-4" />
@@ -677,6 +885,136 @@ export default function Resumes() {
           </button>
         </div>
       </div>
+
+      {/* Bulk Actions - Dropdown menu like in newsletter section */}
+      {selectedResumes.length > 0 && (
+        <div className="mb-4 p-2 bg-gray-50 border border-gray-200 rounded-lg flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-gray-700 mr-2">{selectedResumes.length} selected</span>
+
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown("bulk-actions")}
+              className="px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-1"
+            >
+              Bulk Actions
+              <ChevronDown className="h-4 w-4" />
+            </button>
+
+            {activeDropdown === "bulk-actions" && (
+              <div
+                ref={(el) => (dropdownRefs.current["bulk-actions"] = el)}
+                className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+              >
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      exportSelectedToCSV()
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export Selected to CSV
+                  </button>
+                  <hr className="my-1" />
+                  <button
+                    onClick={() => {
+                      setBulkStatus("new")
+                      performBulkAction("update", { status: "new" })
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <Clock className="h-4 w-4 text-blue-500" />
+                    Mark as New
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBulkStatus("reviewed")
+                      performBulkAction("update", { status: "reviewed" })
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <Eye className="h-4 w-4 text-purple-500" />
+                    Mark as Reviewed
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBulkStatus("contacted")
+                      performBulkAction("update", { status: "contacted" })
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <Mail className="h-4 w-4 text-yellow-500" />
+                    Mark as Contacted
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBulkStatus("interviewed")
+                      performBulkAction("update", { status: "interviewed" })
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <User className="h-4 w-4 text-orange-500" />
+                    Mark as Interviewed
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBulkStatus("hired")
+                      performBulkAction("update", { status: "hired" })
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Mark as Hired
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBulkStatus("rejected")
+                      performBulkAction("update", { status: "rejected" })
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <XCircle className="h-4 w-4 text-red-500" />
+                    Mark as Rejected
+                  </button>
+                  <hr className="my-1" />
+                  <button
+                    onClick={() => {
+                      setIsBulkDeleteModalOpen(true)
+                      setActiveDropdown(null)
+                    }}
+                    disabled={bulkActionLoading}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Selected
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setSelectedResumes([])}
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
+          >
+            Clear Selection
+          </button>
+
+          {bulkActionLoading && (
+            <div className="flex items-center ml-2">
+              <Loader2 className="animate-spin h-4 w-4 text-purple-600 mr-1" />
+              <span className="text-sm text-gray-600">Processing...</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Loading State */}
       {loading ? (
@@ -696,6 +1034,22 @@ export default function Resumes() {
               <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg table-fixed w-full">
                 <thead className="bg-gray-50">
                   <tr>
+                    {/* Checkbox column */}
+                    <th className="w-[5%] px-3 py-3 text-left">
+                      <div className="flex items-center">
+                        <button
+                          onClick={handleSelectAll}
+                          className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                          aria-label={selectAll ? "Deselect all" : "Select all"}
+                        >
+                          {selectAll ? (
+                            <CheckSquare className="h-5 w-5 text-blue-600" />
+                          ) : (
+                            <Square className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
+                    </th>
                     <th
                       className="w-[15%] px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                       onClick={() => requestSort("fullName")}
@@ -740,6 +1094,20 @@ export default function Resumes() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {resumes.map((resume) => (
                     <tr key={resume._id} className="hover:bg-gray-50 transition-colors">
+                      {/* Checkbox cell */}
+                      <td className="px-3 py-4">
+                        <button
+                          onClick={() => handleSelectResume(resume._id)}
+                          className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                          aria-label={selectedResumes.includes(resume._id) ? "Deselect" : "Select"}
+                        >
+                          {selectedResumes.includes(resume._id) ? (
+                            <CheckSquare className="h-5 w-5 text-blue-600" />
+                          ) : (
+                            <Square className="h-5 w-5" />
+                          )}
+                        </button>
+                      </td>
                       <td className="px-3 py-4 text-sm font-medium text-gray-900">
                         <div className="truncate max-w-[200px]">{resume.fullName}</div>
                       </td>
@@ -755,12 +1123,43 @@ export default function Resumes() {
                         </div>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getStatusBadge(resume.status).color}`}
-                        >
-                          {getStatusBadge(resume.status).icon}
-                          <span className="capitalize">{resume.status}</span>
-                        </span>
+                        <div className="relative group">
+                          <div
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                              getStatusBadge(resume.status || "new").color
+                            } cursor-pointer`}
+                            onClick={() => toggleDropdown(`status-${resume._id}`)}
+                          >
+                            {getStatusBadge(resume.status || "new").icon}
+                            <span className="capitalize">{resume.status}</span>
+                            <ChevronDown className="ml-1 h-3 w-3" />
+                          </div>
+
+                          {/* Status Dropdown */}
+                          {activeDropdown === `status-${resume._id}` && (
+                            <div
+                              ref={(el) => (dropdownRefs.current[`status-${resume._id}`] = el)}
+                              className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                            >
+                              {["new", "reviewed", "contacted", "interviewed", "rejected", "hired"].map((status) => (
+                                <button
+                                  key={status}
+                                  onClick={() => {
+                                    updateResumeStatus(resume._id, status)
+                                    setActiveDropdown(null)
+                                  }}
+                                  disabled={resume.status === status}
+                                  className={`w-full text-left px-3 py-2 text-sm ${
+                                    resume.status === status ? "bg-gray-100 cursor-default" : "hover:bg-gray-50"
+                                  } flex items-center gap-2`}
+                                >
+                                  {getStatusBadge(status).icon}
+                                  <span className="capitalize">{status}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 truncate">{formatDate(resume.createdAt)}</td>
                       <td className="px-3 py-4 text-sm text-gray-500 text-center">
@@ -798,13 +1197,57 @@ export default function Resumes() {
                 className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-medium text-gray-900 truncate max-w-[200px]">{resume.fullName}</h3>
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getStatusBadge(resume.status).color}`}
-                  >
-                    {getStatusBadge(resume.status).icon}
-                    <span className="capitalize">{resume.status}</span>
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSelectResume(resume._id)}
+                      className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                      aria-label={selectedResumes.includes(resume._id) ? "Deselect" : "Select"}
+                    >
+                      {selectedResumes.includes(resume._id) ? (
+                        <CheckSquare className="h-5 w-5 text-blue-600" />
+                      ) : (
+                        <Square className="h-5 w-5" />
+                      )}
+                    </button>
+                    <h3 className="font-medium text-gray-900 truncate max-w-[200px]">{resume.fullName}</h3>
+                  </div>
+                  <div className="relative">
+                    <div
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                        getStatusBadge(resume.status || "new").color
+                      } cursor-pointer`}
+                      onClick={() => toggleDropdown(`status-mobile-${resume._id}`)}
+                    >
+                      {getStatusBadge(resume.status || "new").icon}
+                      <span className="capitalize">{resume.status}</span>
+                      <ChevronDown className="ml-1 h-3 w-3" />
+                    </div>
+
+                    {/* Mobile Status Dropdown */}
+                    {activeDropdown === `status-mobile-${resume._id}` && (
+                      <div
+                        ref={(el) => (dropdownRefs.current[`status-mobile-${resume._id}`] = el)}
+                        className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                      >
+                        {["new", "reviewed", "contacted", "interviewed", "rejected", "hired"].map((status) => (
+                          <button
+                            key={status}
+                            onClick={() => {
+                              updateResumeStatus(resume._id, status)
+                              setActiveDropdown(null)
+                            }}
+                            disabled={resume.status === status}
+                            className={`w-full text-left px-3 py-2 text-sm ${
+                              resume.status === status ? "bg-gray-100 cursor-default" : "hover:bg-gray-50"
+                            } flex items-center gap-2`}
+                          >
+                            {getStatusBadge(status).icon}
+                            <span className="capitalize">{status}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 text-sm text-gray-600">
@@ -1225,6 +1668,106 @@ export default function Resumes() {
                     </>
                   ) : (
                     <span>Delete Resume</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                <Trash2 className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-medium text-center text-gray-900 mb-2">Bulk Delete Resumes</h3>
+              <p className="text-center text-gray-500 mb-6">
+                Are you sure you want to delete <span className="font-medium">{selectedResumes.length}</span> selected
+                resumes? This action cannot be undone.
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => setIsBulkDeleteModalOpen(false)}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => performBulkAction("delete")}
+                  disabled={bulkActionLoading}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center"
+                >
+                  {bulkActionLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <span>Delete Selected</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Status Update Modal */}
+      {isBulkStatusModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-blue-100 rounded-full mb-4">
+                <CheckCircle className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-medium text-center text-gray-900 mb-2">Update Status</h3>
+              <p className="text-center text-gray-500 mb-6">
+                Select a new status for <span className="font-medium">{selectedResumes.length}</span> selected resumes.
+              </p>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                {["new", "reviewed", "contacted", "interviewed", "rejected", "hired"].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setBulkStatus(status)}
+                    className={`px-3 py-2 rounded-md text-sm font-medium capitalize flex flex-col items-center justify-center ${
+                      bulkStatus === status
+                        ? `${getStatusBadge(status).color} ring-2 ring-offset-2 ring-blue-500`
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    {getStatusBadge(status).icon}
+                    {status}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => {
+                    setIsBulkStatusModalOpen(false)
+                    setBulkStatus("")
+                  }}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => performBulkAction("update", { status: bulkStatus })}
+                  disabled={bulkActionLoading || !bulkStatus}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center disabled:bg-blue-300 disabled:cursor-not-allowed"
+                >
+                  {bulkActionLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    <span>Update Status</span>
                   )}
                 </button>
               </div>

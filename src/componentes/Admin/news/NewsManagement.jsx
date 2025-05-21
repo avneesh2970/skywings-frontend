@@ -19,6 +19,10 @@ import {
   ChevronLast,
   ArrowLeft,
   ArrowRight,
+  MoreHorizontal,
+  Check,
+  ChevronRight,
+  Tag,
 } from "lucide-react"
 import { AppContext } from "../../../context/AppContext"
 import { Link } from "react-router-dom"
@@ -38,8 +42,29 @@ const NewsManagement = () => {
   const [isJumpToPageOpen, setIsJumpToPageOpen] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
+  // Bulk actions state
+  const [selectedItems, setSelectedItems] = useState([])
+  const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false)
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false)
+  const [bulkActionLoading, setBulkActionLoading] = useState(false)
+  const [isStatusSubmenuOpen, setIsStatusSubmenuOpen] = useState(false)
+  const [isCategorySubmenuOpen, setIsCategorySubmenuOpen] = useState(false)
+
+  // Status dropdown states
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(null)
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false)
+
+  // Category dropdown states
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(null)
+  const [categoryUpdateLoading, setCategoryUpdateLoading] = useState(false)
+
   const jumpToPageRef = useRef(null)
   const searchInputRef = useRef(null)
+  const bulkActionsRef = useRef(null)
+  const statusDropdownRefs = useRef({})
+  const categoryDropdownRefs = useRef({})
+  const statusSubmenuRef = useRef(null)
+  const categorySubmenuRef = useRef(null)
 
   // Fetch news articles on component mount and when page changes
   useEffect(() => {
@@ -52,13 +77,63 @@ const NewsManagement = () => {
       if (jumpToPageRef.current && !jumpToPageRef.current.contains(event.target)) {
         setIsJumpToPageOpen(false)
       }
+
+      if (bulkActionsRef.current && !bulkActionsRef.current.contains(event.target)) {
+        setIsBulkActionsOpen(false)
+        setIsStatusSubmenuOpen(false)
+        setIsCategorySubmenuOpen(false)
+      }
+
+      // Don't close status submenu if clicking inside bulk actions menu
+      if (isStatusSubmenuOpen && statusSubmenuRef.current && !statusSubmenuRef.current.contains(event.target)) {
+        // Check if the click was inside the parent menu
+        if (bulkActionsRef.current && !bulkActionsRef.current.contains(event.target)) {
+          setIsStatusSubmenuOpen(false)
+        }
+      }
+
+      // Don't close category submenu if clicking inside bulk actions menu
+      if (isCategorySubmenuOpen && categorySubmenuRef.current && !categorySubmenuRef.current.contains(event.target)) {
+        // Check if the click was inside the parent menu
+        if (bulkActionsRef.current && !bulkActionsRef.current.contains(event.target)) {
+          setIsCategorySubmenuOpen(false)
+        }
+      }
+
+      // Close status dropdown if clicking outside
+      if (statusDropdownOpen) {
+        const currentRef = statusDropdownRefs.current[statusDropdownOpen]
+        if (currentRef && !currentRef.contains(event.target)) {
+          setStatusDropdownOpen(null)
+        }
+      }
+
+      // Close category dropdown if clicking outside
+      if (categoryDropdownOpen) {
+        const currentRef = categoryDropdownRefs.current[categoryDropdownOpen]
+        if (currentRef && !currentRef.contains(event.target)) {
+          setCategoryDropdownOpen(null)
+        }
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [isJumpToPageOpen])
+  }, [
+    isJumpToPageOpen,
+    isBulkActionsOpen,
+    statusDropdownOpen,
+    isStatusSubmenuOpen,
+    categoryDropdownOpen,
+    isCategorySubmenuOpen,
+  ])
+
+  // Reset selected items when page changes or news is refreshed
+  useEffect(() => {
+    setSelectedItems([])
+  }, [news])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -66,6 +141,12 @@ const NewsManagement = () => {
       // Escape to close modals
       if (e.key === "Escape") {
         if (isJumpToPageOpen) setIsJumpToPageOpen(false)
+        if (isBulkActionsOpen) setIsBulkActionsOpen(false)
+        if (isStatusSubmenuOpen) setIsStatusSubmenuOpen(false)
+        if (isCategorySubmenuOpen) setIsCategorySubmenuOpen(false)
+        if (showBulkDeleteConfirm) setShowBulkDeleteConfirm(false)
+        if (statusDropdownOpen) setStatusDropdownOpen(null)
+        if (categoryDropdownOpen) setCategoryDropdownOpen(null)
       }
 
       // Pagination with Alt+arrow keys
@@ -86,7 +167,17 @@ const NewsManagement = () => {
 
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [currentPage, totalPages, isJumpToPageOpen])
+  }, [
+    currentPage,
+    totalPages,
+    isJumpToPageOpen,
+    isBulkActionsOpen,
+    showBulkDeleteConfirm,
+    statusDropdownOpen,
+    isStatusSubmenuOpen,
+    categoryDropdownOpen,
+    isCategorySubmenuOpen,
+  ])
 
   const fetchNews = async (showRefreshAnimation = false) => {
     try {
@@ -145,6 +236,157 @@ const NewsManagement = () => {
     }
   }
 
+  // Handle status update for a single news item
+  const handleStatusUpdate = async (id, newStatus) => {
+    try {
+      setStatusUpdateLoading(true)
+
+      // Use the specific status update endpoint
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/news/${id}/status`, {
+        status: newStatus,
+      })
+
+      // Update local state to avoid refetching
+      setNews(news.map((item) => (item._id === id ? { ...item, status: newStatus } : item)))
+
+      toast.success(`Status updated to ${newStatus}`)
+      setStatusDropdownOpen(null)
+    } catch (err) {
+      console.error("Error updating status:", err)
+      toast.error("Failed to update status: " + (err.response?.data?.message || err.message))
+    } finally {
+      setStatusUpdateLoading(false)
+    }
+  }
+
+  // Handle category update for a single news item
+  const handleCategoryUpdate = async (id, newCategory) => {
+    try {
+      setCategoryUpdateLoading(true)
+
+      // Use the specific category update endpoint
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/news/${id}/category`, {
+        category: newCategory,
+      })
+
+      // Update local state to avoid refetching
+      setNews(news.map((item) => (item._id === id ? { ...item, category: newCategory } : item)))
+
+      toast.success(`Category updated to ${newCategory}`)
+      setCategoryDropdownOpen(null)
+    } catch (err) {
+      console.error("Error updating category:", err)
+      toast.error("Failed to update category: " + (err.response?.data?.message || err.message))
+    } finally {
+      setCategoryUpdateLoading(false)
+    }
+  }
+
+  // Handle bulk status update
+  const handleBulkStatusUpdate = async (newStatus) => {
+    if (selectedItems.length === 0) return
+
+    try {
+      setBulkActionLoading(true)
+
+      // Update each selected item using the specific status endpoint
+      const updatePromises = selectedItems.map((id) =>
+        axios.patch(`${import.meta.env.VITE_API_URL}/api/news/${id}/status`, {
+          status: newStatus,
+        }),
+      )
+
+      await Promise.all(updatePromises)
+
+      // Update local state
+      setNews(news.map((item) => (selectedItems.includes(item._id) ? { ...item, status: newStatus } : item)))
+
+      toast.success(
+        `Successfully updated ${selectedItems.length} news article${selectedItems.length > 1 ? "s" : ""} to ${newStatus}`,
+      )
+      setSelectedItems([])
+      setIsBulkActionsOpen(false)
+      setIsStatusSubmenuOpen(false)
+    } catch (err) {
+      console.error("Error performing bulk status update:", err)
+      toast.error("Failed to update status: " + (err.response?.data?.message || err.message))
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
+
+  // Handle bulk category update
+  const handleBulkCategoryUpdate = async (newCategory) => {
+    if (selectedItems.length === 0) return
+
+    try {
+      setBulkActionLoading(true)
+
+      // Update each selected item using the specific category endpoint
+      const updatePromises = selectedItems.map((id) =>
+        axios.patch(`${import.meta.env.VITE_API_URL}/api/news/${id}/category`, {
+          category: newCategory,
+        }),
+      )
+
+      await Promise.all(updatePromises)
+
+      // Update local state
+      setNews(news.map((item) => (selectedItems.includes(item._id) ? { ...item, category: newCategory } : item)))
+
+      toast.success(
+        `Successfully updated ${selectedItems.length} news article${selectedItems.length > 1 ? "s" : ""} to ${newCategory}`,
+      )
+      setSelectedItems([])
+      setIsBulkActionsOpen(false)
+      setIsCategorySubmenuOpen(false)
+    } catch (err) {
+      console.error("Error performing bulk category update:", err)
+      toast.error("Failed to update category: " + (err.response?.data?.message || err.message))
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
+
+  // Export selected items to CSV
+  const exportSelectedToCSV = () => {
+    if (selectedItems.length === 0) return
+
+    // Filter news items that are selected
+    const selectedNews = news.filter((item) => selectedItems.includes(item._id))
+
+    // Create CSV content
+    let csvContent = "Title,Description,Author,Date,Status,Category,Tags\n"
+
+    selectedNews.forEach((item) => {
+      // Clean up description to avoid CSV issues
+      const cleanDescription = item.description ? item.description.replace(/,/g, " ").replace(/\n/g, " ") : ""
+
+      // Format date
+      const formattedDate = new Date(item.date).toLocaleDateString()
+
+      // Format tags
+      const tags = item.tags ? item.tags.join("; ") : ""
+
+      // Add row to CSV
+      csvContent += `"${item.title}","${cleanDescription}","${item.author}","${formattedDate}","${item.status}","${item.category || "general"}","${tags}"\n`
+    })
+
+    // Create download link
+    const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", "news-export.csv")
+    document.body.appendChild(link)
+
+    // Trigger download
+    link.click()
+
+    // Clean up
+    document.body.removeChild(link)
+    toast.success(`Exported ${selectedItems.length} news articles to CSV`)
+  }
+
   // Handle jump to page
   const handleJumpToPage = (e) => {
     e.preventDefault()
@@ -155,6 +397,48 @@ const NewsManagement = () => {
       setJumpToPage("")
     } else {
       toast.error(`Please enter a page number between 1 and ${totalPages}`)
+    }
+  }
+
+  // Bulk selection handlers
+  const toggleSelectAll = () => {
+    if (selectedItems.length === news.length) {
+      setSelectedItems([])
+    } else {
+      setSelectedItems(news.map((item) => item._id))
+    }
+  }
+
+  const toggleSelectItem = (id) => {
+    if (selectedItems.includes(id)) {
+      setSelectedItems(selectedItems.filter((itemId) => itemId !== id))
+    } else {
+      setSelectedItems([...selectedItems, id])
+    }
+  }
+
+  // Bulk delete handler
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) return
+
+    try {
+      setBulkActionLoading(true)
+
+      // Delete each selected item
+      const deletePromises = selectedItems.map((id) => axios.delete(`${import.meta.env.VITE_API_URL}/api/news/${id}`))
+
+      await Promise.all(deletePromises)
+
+      toast.success(`Successfully deleted ${selectedItems.length} news article${selectedItems.length > 1 ? "s" : ""}`)
+      setSelectedItems([])
+      setShowBulkDeleteConfirm(false)
+      setIsBulkActionsOpen(false)
+      fetchNews()
+    } catch (err) {
+      console.error("Error performing bulk delete:", err)
+      toast.error("Failed to delete some or all news articles")
+    } finally {
+      setBulkActionLoading(false)
     }
   }
 
@@ -218,6 +502,152 @@ const NewsManagement = () => {
             </div>
           </form>
 
+          {/* Bulk Actions Dropdown */}
+          {selectedItems.length > 0 && (
+            <div className="relative" ref={bulkActionsRef}>
+              <button
+                onClick={() => setIsBulkActionsOpen(!isBulkActionsOpen)}
+                className="flex items-center justify-center px-4 py-2 bg-gray-100 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 whitespace-nowrap"
+                disabled={bulkActionLoading}
+              >
+                {bulkActionLoading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <MoreHorizontal className="h-4 w-4 mr-2" />
+                )}
+                <span>Bulk Actions ({selectedItems.length})</span>
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </button>
+
+              {isBulkActionsOpen && (
+                <div className="absolute z-10 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200">
+                  <div className="py-1">
+                    {/* Status Update Option with Submenu */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setIsStatusSubmenuOpen(!isStatusSubmenuOpen)}
+                        className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        disabled={bulkActionLoading}
+                      >
+                        <div className="flex items-center">
+                          <Check className="h-4 w-4 mr-2" />
+                          <span>Update Status</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+
+                      {/* Status Submenu */}
+                      {isStatusSubmenuOpen && (
+                        <div
+                          ref={statusSubmenuRef}
+                          className="absolute left-full top-0 mt-0 ml-0 w-36 bg-white rounded-md shadow-lg border border-gray-200"
+                        >
+                          <div className="py-1">
+                            <button
+                              onClick={() => handleBulkStatusUpdate("published")}
+                              className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-green-50"
+                              disabled={bulkActionLoading}
+                            >
+                              <span className="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                              Published
+                            </button>
+                            <button
+                              onClick={() => handleBulkStatusUpdate("draft")}
+                              className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-yellow-50"
+                              disabled={bulkActionLoading}
+                            >
+                              <span className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                              Draft
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Category Update Option with Submenu */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setIsCategorySubmenuOpen(!isCategorySubmenuOpen)}
+                        className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        disabled={bulkActionLoading}
+                      >
+                        <div className="flex items-center">
+                          <Tag className="h-4 w-4 mr-2" />
+                          <span>Update Category</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+
+                      {/* Category Submenu */}
+                      {isCategorySubmenuOpen && (
+                        <div
+                          ref={categorySubmenuRef}
+                          className="absolute left-full top-0 mt-0 ml-0 w-36 bg-white rounded-md shadow-lg border border-gray-200"
+                        >
+                          <div className="py-1">
+                            <button
+                              onClick={() => handleBulkCategoryUpdate("general")}
+                              className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
+                              disabled={bulkActionLoading}
+                            >
+                              <span className="w-3 h-3 rounded-full bg-gray-500 mr-2"></span>
+                              General
+                            </button>
+                            <button
+                              onClick={() => handleBulkCategoryUpdate("company")}
+                              className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-purple-50"
+                              disabled={bulkActionLoading}
+                            >
+                              <span className="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
+                              Company
+                            </button>
+                            <button
+                              onClick={() => handleBulkCategoryUpdate("client")}
+                              className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-blue-50"
+                              disabled={bulkActionLoading}
+                            >
+                              <span className="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                              Client
+                            </button>
+                            <button
+                              onClick={() => handleBulkCategoryUpdate("industry")}
+                              className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-orange-50"
+                              disabled={bulkActionLoading}
+                            >
+                              <span className="w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                              Industry
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setShowBulkDeleteConfirm(true)
+                        setIsBulkActionsOpen(false)
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      disabled={bulkActionLoading}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Selected
+                    </button>
+
+                    <button
+                      onClick={exportSelectedToCSV}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      disabled={bulkActionLoading}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Export Selected to CSV
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <Link
             to="/admin/dashboard/news/create"
             className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap"
@@ -227,6 +657,35 @@ const NewsManagement = () => {
           </Link>
         </div>
       </div>
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-fade-in">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Confirm Bulk Delete</h3>
+            <p className="text-gray-500 mb-4">
+              Are you sure you want to delete {selectedItems.length} selected news article
+              {selectedItems.length > 1 ? "s" : ""}? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
+                disabled={bulkActionLoading}
+              >
+                {bulkActionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
@@ -273,6 +732,16 @@ const NewsManagement = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th scope="col" className="px-3 py-3 text-left">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          checked={selectedItems.length === news.length && news.length > 0}
+                          onChange={toggleSelectAll}
+                        />
+                      </div>
+                    </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -299,6 +768,12 @@ const NewsManagement = () => {
                     </th>
                     <th
                       scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Category
+                    </th>
+                    <th
+                      scope="col"
                       className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       Actions
@@ -307,7 +782,20 @@ const NewsManagement = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {news.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
+                    <tr
+                      key={item._id}
+                      className={`hover:bg-gray-50 ${selectedItems.includes(item._id) ? "bg-blue-50" : ""}`}
+                    >
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            checked={selectedItems.includes(item._id)}
+                            onChange={() => toggleSelectItem(item._id)}
+                          />
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {item.image && (
@@ -329,15 +817,134 @@ const NewsManagement = () => {
                         <div className="text-sm text-gray-500">{new Date(item.date).toLocaleDateString()}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            item.status === "published"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {item.status === "published" ? "Published" : "Draft"}
-                        </span>
+                        <div className="relative" ref={(el) => (statusDropdownRefs.current[item._id] = el)}>
+                          <button
+                            onClick={() => setStatusDropdownOpen(statusDropdownOpen === item._id ? null : item._id)}
+                            className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
+                              item.status === "published"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                            disabled={statusUpdateLoading}
+                          >
+                            {statusUpdateLoading && statusDropdownOpen === item._id ? (
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            ) : null}
+                            {item.status === "published" ? "Published" : "Draft"}
+                            <ChevronDown className="h-3 w-3 ml-1" />
+                          </button>
+
+                          {statusDropdownOpen === item._id && (
+                            <div className="absolute z-10 mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200">
+                              <div className="py-1">
+                                <button
+                                  onClick={() => handleStatusUpdate(item._id, "published")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    item.status === "published"
+                                      ? "bg-green-50 text-green-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={statusUpdateLoading}
+                                >
+                                  {item.status === "published" && <Check className="h-4 w-4 mr-2" />}
+                                  Published
+                                </button>
+                                <button
+                                  onClick={() => handleStatusUpdate(item._id, "draft")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    item.status === "draft"
+                                      ? "bg-yellow-50 text-yellow-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={statusUpdateLoading}
+                                >
+                                  {item.status === "draft" && <Check className="h-4 w-4 mr-2" />}
+                                  Draft
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="relative" ref={(el) => (categoryDropdownRefs.current[item._id] = el)}>
+                          <button
+                            onClick={() => setCategoryDropdownOpen(categoryDropdownOpen === item._id ? null : item._id)}
+                            className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
+                              item.category === "company"
+                                ? "bg-purple-100 text-purple-800"
+                                : item.category === "client"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : item.category === "industry"
+                                    ? "bg-orange-100 text-orange-800"
+                                    : "bg-gray-100 text-gray-800"
+                            }`}
+                            disabled={categoryUpdateLoading}
+                          >
+                            {categoryUpdateLoading && categoryDropdownOpen === item._id ? (
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            ) : null}
+                            {item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "General"}
+                            <ChevronDown className="h-3 w-3 ml-1" />
+                          </button>
+
+                          {categoryDropdownOpen === item._id && (
+                            <div className="absolute z-10 mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200">
+                              <div className="py-1">
+                                <button
+                                  onClick={() => handleCategoryUpdate(item._id, "general")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    !item.category || item.category === "general"
+                                      ? "bg-gray-50 text-gray-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={categoryUpdateLoading}
+                                >
+                                  {(!item.category || item.category === "general") && (
+                                    <Check className="h-4 w-4 mr-2" />
+                                  )}
+                                  General
+                                </button>
+                                <button
+                                  onClick={() => handleCategoryUpdate(item._id, "company")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    item.category === "company"
+                                      ? "bg-purple-50 text-purple-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={categoryUpdateLoading}
+                                >
+                                  {item.category === "company" && <Check className="h-4 w-4 mr-2" />}
+                                  Company
+                                </button>
+                                <button
+                                  onClick={() => handleCategoryUpdate(item._id, "client")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    item.category === "client"
+                                      ? "bg-blue-50 text-blue-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={categoryUpdateLoading}
+                                >
+                                  {item.category === "client" && <Check className="h-4 w-4 mr-2" />}
+                                  Client
+                                </button>
+                                <button
+                                  onClick={() => handleCategoryUpdate(item._id, "industry")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    item.category === "industry"
+                                      ? "bg-orange-50 text-orange-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={categoryUpdateLoading}
+                                >
+                                  {item.category === "industry" && <Check className="h-4 w-4 mr-2" />}
+                                  Industry
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
@@ -351,7 +958,7 @@ const NewsManagement = () => {
                           <button
                             onClick={() => handleDeleteNews(item._id)}
                             className={`${
-                              confirmDelete === item.id
+                              confirmDelete === item._id
                                 ? "text-red-600 hover:text-red-900"
                                 : "text-gray-600 hover:text-gray-900"
                             }`}
@@ -360,7 +967,7 @@ const NewsManagement = () => {
                             <span className="sr-only">Delete</span>
                           </button>
                         </div>
-                        {confirmDelete === item.id && (
+                        {confirmDelete === item._id && (
                           <div className="text-xs text-red-600 mt-1">Click again to confirm</div>
                         )}
                       </td>
@@ -375,10 +982,20 @@ const NewsManagement = () => {
           <div className="md:hidden space-y-4">
             {news.map((item) => (
               <div
-                key={item.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
+                key={item._id}
+                className={`bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow ${
+                  selectedItems.includes(item._id) ? "border-blue-500 bg-blue-50" : ""
+                }`}
               >
                 <div className="flex items-start gap-3 mb-3">
+                  <div className="flex items-center h-5">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      checked={selectedItems.includes(item._id)}
+                      onChange={() => toggleSelectItem(item._id)}
+                    />
+                  </div>
                   {item.image && (
                     <div className="flex-shrink-0">
                       <img
@@ -391,13 +1008,145 @@ const NewsManagement = () => {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-gray-900 break-words">{item.title}</h3>
                     <div className="flex items-center gap-1 mt-1">
-                      <span
-                        className={`px-2 py-0.5 text-xs leading-none font-medium rounded-full ${
-                          item.status === "published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                        }`}
+                      <div className="relative" ref={(el) => (statusDropdownRefs.current[`mobile-${item._id}`] = el)}>
+                        <button
+                          onClick={() =>
+                            setStatusDropdownOpen(
+                              statusDropdownOpen === `mobile-${item._id}` ? null : `mobile-${item._id}`,
+                            )
+                          }
+                          className={`px-2 py-0.5 text-xs leading-none font-medium rounded-full inline-flex items-center ${
+                            item.status === "published"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                          disabled={statusUpdateLoading}
+                        >
+                          {statusUpdateLoading && statusDropdownOpen === `mobile-${item._id}` ? (
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          ) : null}
+                          {item.status === "published" ? "Published" : "Draft"}
+                          <ChevronDown className="h-3 w-3 ml-1" />
+                        </button>
+
+                        {statusDropdownOpen === `mobile-${item._id}` && (
+                          <div className="absolute z-10 mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200">
+                            <div className="py-1">
+                              <button
+                                onClick={() => handleStatusUpdate(item._id, "published")}
+                                className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                  item.status === "published"
+                                    ? "bg-green-50 text-green-700 font-medium"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                                disabled={statusUpdateLoading}
+                              >
+                                {item.status === "published" && <Check className="h-4 w-4 mr-2" />}
+                                Published
+                              </button>
+                              <button
+                                onClick={() => handleStatusUpdate(item._id, "draft")}
+                                className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                  item.status === "draft"
+                                    ? "bg-yellow-50 text-yellow-700 font-medium"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                                disabled={statusUpdateLoading}
+                              >
+                                {item.status === "draft" && <Check className="h-4 w-4 mr-2" />}
+                                Draft
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Add category dropdown for mobile */}
+                      <div
+                        className="relative ml-2"
+                        ref={(el) => (categoryDropdownRefs.current[`mobile-category-${item._id}`] = el)}
                       >
-                        {item.status === "published" ? "Published" : "Draft"}
-                      </span>
+                        <button
+                          onClick={() =>
+                            setCategoryDropdownOpen(
+                              categoryDropdownOpen === `mobile-category-${item._id}`
+                                ? null
+                                : `mobile-category-${item._id}`,
+                            )
+                          }
+                          className={`px-2 py-0.5 text-xs leading-none font-medium rounded-full inline-flex items-center ${
+                            item.category === "company"
+                              ? "bg-purple-100 text-purple-800"
+                              : item.category === "client"
+                                ? "bg-blue-100 text-blue-800"
+                                : item.category === "industry"
+                                  ? "bg-orange-100 text-orange-800"
+                                  : "bg-gray-100 text-gray-800"
+                          }`}
+                          disabled={categoryUpdateLoading}
+                        >
+                          {categoryUpdateLoading && categoryDropdownOpen === `mobile-category-${item._id}` ? (
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          ) : null}
+                          {item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "General"}
+                          <ChevronDown className="h-3 w-3 ml-1" />
+                        </button>
+
+                        {categoryDropdownOpen === `mobile-category-${item._id}` && (
+                          <div className="absolute z-10 mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200">
+                            <div className="py-1">
+                              <button
+                                onClick={() => handleCategoryUpdate(item._id, "general")}
+                                className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                  !item.category || item.category === "general"
+                                    ? "bg-gray-50 text-gray-700 font-medium"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                                disabled={categoryUpdateLoading}
+                              >
+                                {(!item.category || item.category === "general") && <Check className="h-4 w-4 mr-2" />}
+                                General
+                              </button>
+                              <button
+                                onClick={() => handleCategoryUpdate(item._id, "company")}
+                                className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                  item.category === "company"
+                                    ? "bg-purple-50 text-purple-700 font-medium"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                                disabled={categoryUpdateLoading}
+                              >
+                                {item.category === "company" && <Check className="h-4 w-4 mr-2" />}
+                                Company
+                              </button>
+                              <button
+                                onClick={() => handleCategoryUpdate(item._id, "client")}
+                                className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                  item.category === "client"
+                                    ? "bg-blue-50 text-blue-700 font-medium"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                                disabled={categoryUpdateLoading}
+                              >
+                                {item.category === "client" && <Check className="h-4 w-4 mr-2" />}
+                                Client
+                              </button>
+                              <button
+                                onClick={() => handleCategoryUpdate(item._id, "industry")}
+                                className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                  item.category === "industry"
+                                    ? "bg-orange-50 text-orange-700 font-medium"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                                disabled={categoryUpdateLoading}
+                              >
+                                {item.category === "industry" && <Check className="h-4 w-4 mr-2" />}
+                                Industry
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -432,11 +1181,11 @@ const NewsManagement = () => {
                   <button
                     onClick={() => handleDeleteNews(item._id)}
                     className={`flex items-center ${
-                      confirmDelete === item.id ? "text-red-600" : "text-gray-600 hover:text-gray-800"
+                      confirmDelete === item._id ? "text-red-600" : "text-gray-600 hover:text-gray-800"
                     }`}
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
-                    <span>{confirmDelete === item.id ? "Confirm" : "Delete"}</span>
+                    <span>{confirmDelete === item._id ? "Confirm" : "Delete"}</span>
                   </button>
                 </div>
               </div>
@@ -613,7 +1362,7 @@ const NewsManagement = () => {
                   >
                     <option value={5}>5</option>
                     <option value={10}>10</option>
-                    <option value={25}>25</option>
+                    <option value={20}>20</option>
                     <option value={50}>50</option>
                     <option value={100}>100</option>
                   </select>
