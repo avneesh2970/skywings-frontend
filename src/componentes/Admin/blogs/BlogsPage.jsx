@@ -25,6 +25,9 @@ import {
   CheckSquare,
   Square,
   Loader2,
+  FileText,
+  Send,
+  Heart,
 } from "lucide-react"
 import { AppContext } from "../../../context/AppContext"
 
@@ -33,7 +36,12 @@ const BlogsPage = () => {
   const [filteredPosts, setFilteredPosts] = useState([])
   const [sortOption, setSortOption] = useState("newest")
   const [showFilters, setShowFilters] = useState(false)
+  const [statusFilter, setStatusFilter] = useState("all") // New status filter
   const { posts, loading, error, fetchPosts } = useContext(AppContext)
+
+  // Add state variables for date range filter after the existing state declarations
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -55,6 +63,7 @@ const BlogsPage = () => {
 
   let totalPages = 0 // Declare totalPages here
 
+  // Update the useEffect that handles filtering to include date range filtering
   useEffect(() => {
     if (posts.length > 0) {
       let filtered = [...posts]
@@ -66,6 +75,32 @@ const BlogsPage = () => {
             post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             extractTextFromHtml(post.content).toLowerCase().includes(searchTerm.toLowerCase()),
         )
+      }
+
+      // Apply status filter
+      if (statusFilter !== "all") {
+        filtered = filtered.filter((post) => post.status === statusFilter)
+      }
+
+      // Add date range filtering
+      if (startDate || endDate) {
+        filtered = filtered.filter((post) => {
+          const postDate = new Date(post.createdAt).setHours(0, 0, 0, 0)
+
+          if (startDate && endDate) {
+            const start = new Date(startDate).setHours(0, 0, 0, 0)
+            const end = new Date(endDate).setHours(23, 59, 59, 999)
+            return postDate >= start && postDate <= end
+          } else if (startDate) {
+            const start = new Date(startDate).setHours(0, 0, 0, 0)
+            return postDate >= start
+          } else if (endDate) {
+            const end = new Date(endDate).setHours(23, 59, 59, 999)
+            return postDate <= end
+          }
+
+          return true
+        })
       }
 
       // Apply sorting
@@ -81,7 +116,7 @@ const BlogsPage = () => {
     } else {
       setFilteredPosts([])
     }
-  }, [posts, searchTerm, sortOption])
+  }, [posts, searchTerm, sortOption, statusFilter, startDate, endDate])
 
   // Reset selected posts when page changes or posts are filtered
   useEffect(() => {
@@ -179,6 +214,48 @@ const BlogsPage = () => {
     }
   }
 
+  // Handle bulk status change
+  const handleBulkStatusChange = async (newStatus) => {
+    setIsBulkActionsOpen(false)
+
+    try {
+      let successCount = 0
+      const errors = []
+
+      for (const postId of selectedPosts) {
+        try {
+          const post = currentItems.find((p) => p._id === postId)
+          if (post) {
+            await axios.put(`${import.meta.env.VITE_API_URL}/api/blog/posts/${postId}`, {
+              ...post,
+              status: newStatus,
+            })
+            successCount++
+          }
+        } catch (error) {
+          console.error(`Error updating post ${postId}:`, error)
+          errors.push(postId)
+        }
+      }
+
+      // Refresh the posts list
+      fetchPosts()
+
+      // Show result message
+      if (errors.length === 0) {
+        alert(`Successfully updated ${successCount} posts to ${newStatus}`)
+      } else {
+        alert(`Updated ${successCount} posts. Failed to update ${errors.length} posts.`)
+      }
+
+      // Clear selection
+      setSelectedPosts([])
+    } catch (error) {
+      console.error("Error in bulk status change operation:", error)
+      alert("An error occurred during the bulk status change operation")
+    }
+  }
+
   // Handle single post delete
   const handleDeletePost = async (postId) => {
     try {
@@ -244,12 +321,32 @@ const BlogsPage = () => {
     }
   }
 
+  // Get status badge color
+  const getStatusBadgeColor = (status) => {
+    switch (status) {
+      case "published":
+        return "bg-green-100 text-green-800"
+      case "draft":
+        return "bg-amber-100 text-amber-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
   // Pagination calculations
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filteredPosts.slice(indexOfFirstItem, indexOfLastItem)
   const totalItems = filteredPosts.length
   totalPages = Math.ceil(totalItems / itemsPerPage) // Assign totalPages here
+
+  // Add a function to clear all filters
+  const clearFilters = () => {
+    setSearchTerm("")
+    setStatusFilter("all")
+    setStartDate("")
+    setEndDate("")
+  }
 
   if (loading) {
     return (
@@ -384,21 +481,65 @@ const BlogsPage = () => {
             {showFilters && (
               <div className="bg-white p-4 rounded-lg shadow-sm mb-6 animate-fadeIn">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Additional filters could go here */}
+                  {/* Status Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
+                  </div>
+
+                  {/* Date Range */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
                     <div className="flex gap-2">
                       <input
                         type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
                         className="bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                        placeholder="Start date"
                       />
                       <input
                         type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        min={startDate}
                         className="bg-white border border-gray-300 rounded-md text-gray-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                        placeholder="End date"
                       />
                     </div>
+                    {(startDate || endDate) && (
+                      <button
+                        onClick={() => {
+                          setStartDate("")
+                          setEndDate("")
+                        }}
+                        className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Clear dates
+                      </button>
+                    )}
                   </div>
                 </div>
+                {(searchTerm || statusFilter !== "all" || startDate || endDate) && (
+                  <div className="flex justify-end mt-4">
+                    <button
+                      onClick={clearFilters}
+                      className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Clear all filters
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -418,6 +559,21 @@ const BlogsPage = () => {
                   </button>
                   {isBulkActionsOpen && (
                     <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 py-1 border border-gray-200">
+                      <button
+                        onClick={() => handleBulkStatusChange("published")}
+                        className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                      >
+                        <Send size={16} className="mr-2" />
+                        Publish Selected
+                      </button>
+                      <button
+                        onClick={() => handleBulkStatusChange("draft")}
+                        className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                      >
+                        <FileText size={16} className="mr-2" />
+                        Move to Draft
+                      </button>
+                      <div className="border-t border-gray-100 my-1"></div>
                       <button
                         onClick={() => {
                           setIsConfirmDeleteOpen(true)
@@ -500,12 +656,12 @@ const BlogsPage = () => {
             ) : (
               <>
                 {/* Desktop Table View - Hidden on mobile */}
-                <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden">
+                <div className="hidden lg:block bg-white shadow-md rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
+                    <table className="w-full table-fixed divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th scope="col" className="px-3 py-3 text-left">
+                          <th scope="col" className="px-2 py-3 text-left w-10">
                             <div className="flex items-center">
                               <button
                                 onClick={toggleSelectAll}
@@ -524,25 +680,43 @@ const BlogsPage = () => {
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
                             Post
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
                           >
                             Author
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
+                          >
+                            Status
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16"
+                          >
+                            Views
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16"
+                          >
+                            Likes
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
                           >
                             Date
                           </th>
                           <th
                             scope="col"
-                            className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
                           >
                             Actions
                           </th>
@@ -554,7 +728,7 @@ const BlogsPage = () => {
                             key={post._id}
                             className={`hover:bg-gray-50 ${selectedPosts.includes(post._id) ? "bg-blue-50" : ""}`}
                           >
-                            <td className="px-3 py-4 whitespace-nowrap">
+                            <td className="px-2 py-4 whitespace-nowrap w-10">
                               <div className="flex items-center">
                                 <button
                                   onClick={() => togglePostSelection(post._id)}
@@ -569,7 +743,7 @@ const BlogsPage = () => {
                                 </button>
                               </div>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-4 py-4">
                               <div className="flex items-center">
                                 {post.featuredImage && (
                                   <div className="flex-shrink-0 h-10 w-10 mr-3">
@@ -580,36 +754,57 @@ const BlogsPage = () => {
                                     />
                                   </div>
                                 )}
-                                <div>
-                                  <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
-                                    {post.title}
-                                  </div>
-                                  <div className="text-sm text-gray-500 truncate max-w-xs">
-                                    {truncateText(extractTextFromHtml(post.content), 60)}
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{post.title}</div>
+                                  <div className="text-sm text-gray-500 truncate">
+                                    {truncateText(extractTextFromHtml(post.content), 50)}
                                   </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">{post.author || "Anonymous"}</div>
+                            <td className="px-3 py-4 whitespace-nowrap w-20">
+                              <div className="text-sm text-gray-500 truncate">{post.author || "Anonymous"}</div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-3 py-4 whitespace-nowrap w-20">
+                              <span
+                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeColor(
+                                  post.status,
+                                )}`}
+                              >
+                                {post.status === "published" ? "Published" : "Draft"}
+                              </span>
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap w-16">
+                              <div className="flex items-center text-sm text-gray-500">
+                                <Eye className="h-4 w-4 mr-1 text-gray-400" />
+                                {post.views || 0}
+                              </div>
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap w-16">
+                              <div className="flex items-center text-sm text-gray-500">
+                                <Heart className="h-4 w-4 mr-1 text-gray-400" />
+                                {post.likes || 0}
+                              </div>
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap w-24">
                               <div className="text-sm text-gray-500">{formatDate(post.createdAt)}</div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <div className="flex items-center justify-end space-x-2">
+                            <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium w-24">
+                              <div className="flex items-center justify-end space-x-1">
                                 <Link
                                   to={`/admin/dashboard/blog-post/${post._id}`}
-                                  className="text-gray-600 hover:text-gray-900"
+                                  className="text-gray-600 hover:text-gray-900 p-1"
+                                  title="View"
                                 >
-                                  <Eye size={18} />
+                                  <Eye size={16} />
                                   <span className="sr-only">View</span>
                                 </Link>
                                 <Link
                                   to={`/admin/dashboard/blog-post/editor/${post._id}`}
-                                  className="text-blue-600 hover:text-blue-900"
+                                  className="text-blue-600 hover:text-blue-900 p-1"
+                                  title="Edit"
                                 >
-                                  <Edit size={18} />
+                                  <Edit size={16} />
                                   <span className="sr-only">Edit</span>
                                 </Link>
                                 <button
@@ -623,9 +818,10 @@ const BlogsPage = () => {
                                       }
                                     }
                                   }}
-                                  className="text-red-600 hover:text-red-900"
+                                  className="text-red-600 hover:text-red-900 p-1"
+                                  title="Delete"
                                 >
-                                  <Trash2 size={18} />
+                                  <Trash2 size={16} />
                                   <span className="sr-only">Delete</span>
                                 </button>
                               </div>
@@ -637,8 +833,8 @@ const BlogsPage = () => {
                   </div>
                 </div>
 
-                {/* Mobile Card View - Only visible on mobile */}
-                <div className="md:hidden space-y-4">
+                {/* Mobile Card View - Only visible on mobile and tablet */}
+                <div className="lg:hidden space-y-4">
                   {currentItems.map((post) => (
                     <div
                       key={post._id}
@@ -668,22 +864,41 @@ const BlogsPage = () => {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 break-words">{post.title}</h3>
+                          <div className="flex items-center justify-between mb-1">
+                            <h3 className="font-medium text-gray-900 break-words">{post.title}</h3>
+                            <span
+                              className={`ml-2 px-2 py-0.5 text-xs font-medium rounded-full ${getStatusBadgeColor(
+                                post.status,
+                              )}`}
+                            >
+                              {post.status === "published" ? "Published" : "Draft"}
+                            </span>
+                          </div>
                           <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                             {truncateText(extractTextFromHtml(post.content), 80)}
                           </p>
                         </div>
                       </div>
 
-                      <div className="space-y-2 text-sm text-gray-600 mt-3">
+                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mt-3">
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                          <span className="break-words">{post.author || "Anonymous"}</span>
+                          <span className="break-words truncate">{post.author || "Anonymous"}</span>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                          <span>{formatDate(post.createdAt)}</span>
+                          <span className="truncate">{formatDate(post.createdAt)}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Eye className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <span>{post.views || 0} views</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Heart className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <span>{post.likes || 0} likes</span>
                         </div>
                       </div>
 

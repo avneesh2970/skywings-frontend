@@ -134,7 +134,7 @@ function EventsDisplay() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <h2 className="text-2xl font-bold text-center text-purple-900 mb-3 animate-fade-in">Upcoming Events</h2>
+      <h2 className="text-2xl font-bold text-center text-purple-900 mb-3 animate-fade-in">Events</h2>
       <p className="text-center text-purple-700 mb-8 max-w-2xl mx-auto text-sm animate-fade-in-delay">
         Discover and join our exciting events. From workshops to conferences, there's something for everyone.
       </p>

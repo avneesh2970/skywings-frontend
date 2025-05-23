@@ -175,9 +175,9 @@ const BlogPost = () => {
       <article className="max-w-3xl mx-auto pt-6 pb-16 px-4">
         {/* Back button and actions */}
         <div className="mb-8 flex justify-between items-center">
-          <Link to="/admin/dashboard" className="flex items-center text-emerald-600 hover:text-emerald-700 transition">
+          <Link to="/admin/dashboard/blogs" className="flex items-center text-emerald-600 hover:text-emerald-700 transition">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            <span>Back to Home</span>
+            <span>Back</span>
           </Link>
           <div className="flex items-center gap-2">
             <Link
@@ -230,7 +230,7 @@ const BlogPost = () => {
           </div>
 
           <div className="border-t border-b border-gray-200 py-3 flex justify-between">
-            <div className="flex items-center gap-4">
+            {/* <div className="flex items-center gap-4">
               <button
                 onClick={toggleLike}
                 className={`flex items-center gap-1.5 ${isLiked ? "text-red-500" : "text-gray-500 hover:text-red-500"}`}
@@ -242,9 +242,9 @@ const BlogPost = () => {
                 <MessageCircle className="h-5 w-5" />
                 <span>0</span>
               </button>
-            </div>
+            </div> */}
             <div className="flex items-center gap-3">
-              <div className="relative" ref={shareMenuRef}>
+              {/* <div className="relative" ref={shareMenuRef}>
                 <button
                   onClick={handleShare}
                   className="flex items-center gap-1.5 text-gray-500 hover:text-emerald-600"
@@ -278,8 +278,8 @@ const BlogPost = () => {
                     </a>
                   </div>
                 )}
-              </div>
-              <button
+              </div> */}
+              {/* <button
                 onClick={toggleBookmark}
                 className="flex items-center gap-1.5 text-gray-500 hover:text-emerald-600"
                 aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this post"}
@@ -290,7 +290,7 @@ const BlogPost = () => {
                   <Bookmark className="h-5 w-5" />
                 )}
                 <span className="hidden sm:inline">{isBookmarked ? "Saved" : "Save"}</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

@@ -20,10 +20,19 @@ import {
 } from "lucide-react"
 import { motion } from "framer-motion"
 
-export default function EventDetailsModal({ event, isOpen, onClose, formatDate, getStatusBadge, apiUrl }) {
+export default function EventDetailsModal({ event, isOpen, onClose, formatDate, getStatusBadge, apiUrl, onRegister }) {
   const [isBookmarked, setIsBookmarked] = useState(false)
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false)
 
   if (!event) return null
+
+  const handleRegisterClick = (e) => {
+    e.preventDefault()
+    if (typeof onRegister === "function") {
+      onRegister(event)
+    }
+    onClose() // Close the details modal
+  }
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -196,6 +205,19 @@ export default function EventDetailsModal({ event, isOpen, onClose, formatDate, 
                         </div>
                       )}
 
+                      {/* Registration count if available */}
+                      {event.registeredUsers && event.registeredUsers.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+                            Registrations
+                          </h4>
+                          <div className="flex items-center">
+                            <Users className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                            <span className="text-gray-800">{event.registeredUsers.length} registered</span>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Status indicator with explanation */}
                       <div className="pt-4 border-t border-gray-200">
                         <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Status</h4>
@@ -239,20 +261,17 @@ export default function EventDetailsModal({ event, isOpen, onClose, formatDate, 
                       Close
                     </motion.button>
 
-                    {event.registrationUrl &&
-                      (event.calculatedStatus === "upcoming" || event.calculatedStatus === "ongoing") &&
+                    {(event.calculatedStatus === "upcoming" || event.calculatedStatus === "ongoing") &&
                       event.calculatedStatus !== "cancelled" && (
-                        <motion.a
-                          href={event.registrationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <motion.button
+                          onClick={handleRegisterClick}
                           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-colors font-medium shadow-md"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           Register Now
                           <ExternalLink className="h-4 w-4" />
-                        </motion.a>
+                        </motion.button>
                       )}
                   </div>
                 </div>

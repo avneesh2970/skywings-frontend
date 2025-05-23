@@ -17,15 +17,12 @@ import {
   MapPin,
   Tag,
   Star,
-  Clock,
   CalendarCheck,
   CalendarX,
   CalendarOff,
-  MoreHorizontal,
   ImageIcon,
   ChevronFirst,
   ChevronLast,
-  User,
   CheckSquare,
   Square,
   Ban,
@@ -33,6 +30,8 @@ import {
   Edit,
   Trash2,
   Plus,
+  Users,
+  UserPlus,
 } from "lucide-react";
 
 export default function Events() {
@@ -70,7 +69,6 @@ export default function Events() {
     location: "",
     category: "",
     featured: false,
-    registrationUrl: "",
     capacity: "",
     organizer: "",
   });
@@ -90,6 +88,13 @@ export default function Events() {
   const [isBulkRestoreModalOpen, setIsBulkRestoreModalOpen] = useState(false);
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
 
+  // New state for registered users modal
+  const [isRegistrationsModalOpen, setIsRegistrationsModalOpen] =
+    useState(false);
+  const [selectedEventForRegistrations, setSelectedEventForRegistrations] =
+    useState(null);
+  const [registrationsLoading, setRegistrationsLoading] = useState(false);
+
   // New state for bulk actions
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -104,6 +109,7 @@ export default function Events() {
   const jumpToPageRef = useRef(null);
   const searchInputRef = useRef(null);
   const modalRef = useRef(null);
+  const registrationsModalRef = useRef(null);
   const dropdownRefs = useRef({});
   const bulkActionRef = useRef(null);
   const statusDropdownRefs = useRef({});
@@ -321,6 +327,15 @@ export default function Events() {
   // Handle click outside dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
+      // Close registrations modal when clicking outside
+      if (
+        isRegistrationsModalOpen &&
+        registrationsModalRef.current &&
+        !registrationsModalRef.current.contains(event.target)
+      ) {
+        setIsRegistrationsModalOpen(false);
+      }
+
       // Close action menu dropdown when clicking outside
       if (
         activeDropdown &&
@@ -392,6 +407,7 @@ export default function Events() {
     activeDropdown,
     isModalOpen,
     isBulkActionOpen,
+    isRegistrationsModalOpen,
   ]);
 
   // Keyboard shortcuts
@@ -400,7 +416,10 @@ export default function Events() {
       // Search focus with Ctrl+K or /
       if (
         (e.key === "k" && (e.ctrlKey || e.metaKey)) ||
-        (e.key === "/" && !isModalOpen && !isDeleteModalOpen)
+        (e.key === "/" &&
+          !isModalOpen &&
+          !isDeleteModalOpen &&
+          !isRegistrationsModalOpen)
       ) {
         e.preventDefault();
         searchInputRef.current?.focus();
@@ -414,6 +433,7 @@ export default function Events() {
         if (isJumpToPageOpen) setIsJumpToPageOpen(false);
         if (activeDropdown) setActiveDropdown(null);
         if (isBulkActionOpen) setIsBulkActionOpen(false);
+        if (isRegistrationsModalOpen) setIsRegistrationsModalOpen(false);
       }
 
       // Pagination with Alt+arrow keys
@@ -421,7 +441,8 @@ export default function Events() {
         !isModalOpen &&
         !isDeleteModalOpen &&
         !isBulkDeleteModalOpen &&
-        !isBulkCancelModalOpen
+        !isBulkCancelModalOpen &&
+        !isRegistrationsModalOpen
       ) {
         if (e.altKey && e.key === "ArrowRight" && currentPage < totalPages) {
           e.preventDefault();
@@ -456,6 +477,7 @@ export default function Events() {
     isBulkActionOpen,
     isBulkDeleteModalOpen,
     isBulkCancelModalOpen,
+    isRegistrationsModalOpen,
   ]);
 
   // Handle sorting
@@ -512,7 +534,6 @@ export default function Events() {
       location: "",
       category: "",
       featured: false,
-      registrationUrl: "",
       capacity: "",
       organizer: "",
     });
@@ -534,7 +555,6 @@ export default function Events() {
       location: event.location,
       category: event.category,
       featured: event.featured,
-      registrationUrl: event.registrationUrl || "",
       capacity: event.capacity || "",
       organizer: event.organizer || "",
     });
@@ -545,6 +565,14 @@ export default function Events() {
     setFormErrors({});
     setIsModalOpen(true);
     setActiveDropdown(null); // Close any open dropdown
+  };
+
+  // Open registrations modal
+  const openRegistrationsModal = (event) => {
+    setSelectedEventForRegistrations(event);
+    setIsRegistrationsModalOpen(true);
+    setActiveDropdown(null); // Close any open dropdown
+    setRegistrationsLoading(false);
   };
 
   // Handle form input change
@@ -918,7 +946,6 @@ export default function Events() {
       "Category",
       "Status",
       "Featured",
-      "Registration URL",
       "Capacity",
       "Organizer",
     ];
@@ -935,7 +962,6 @@ export default function Events() {
           `"${item.category || ""}"`,
           `"${item.calculatedStatus || item.status || ""}"`,
           `"${item.featured ? "Yes" : "No"}"`,
-          `"${item.registrationUrl || ""}"`,
           `"${item.capacity || ""}"`,
           `"${item.organizer || ""}"`,
         ].join(",")
@@ -976,7 +1002,6 @@ export default function Events() {
       "Category",
       "Status",
       "Featured",
-      "Registration URL",
       "Capacity",
       "Organizer",
     ];
@@ -993,7 +1018,6 @@ export default function Events() {
           `"${item.category || ""}"`,
           `"${item.calculatedStatus || item.status || ""}"`,
           `"${item.featured ? "Yes" : "No"}"`,
-          `"${item.registrationUrl || ""}"`,
           `"${item.capacity || ""}"`,
           `"${item.organizer || ""}"`,
         ].join(",")
@@ -1161,6 +1185,14 @@ export default function Events() {
     }
   };
 
+  // Get registration count for an event
+  const getRegistrationCount = (event) => {
+    if (!event.registeredUsers) return 0;
+    return Array.isArray(event.registeredUsers)
+      ? event.registeredUsers.length
+      : 0;
+  };
+
   return (
     <div className="w-full bg-white p-4 md:p-6 rounded-lg shadow-md">
       <div className="bg-gradient-to-r from-blue-50 to-blue-50 py-12 px-4 rounded-xl mb-10">
@@ -1256,7 +1288,7 @@ export default function Events() {
             {isFilterOpen && (
               <div
                 ref={filterRef}
-                className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
               >
                 <div className="p-3 border-b border-gray-200">
                   <h3 className="font-medium text-gray-700">
@@ -1323,7 +1355,7 @@ export default function Events() {
             {isCategoryFilterOpen && (
               <div
                 ref={categoryFilterRef}
-                className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
+                className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
               >
                 <div className="p-3 border-b border-gray-200">
                   <h3 className="font-medium text-gray-700">
@@ -1384,9 +1416,7 @@ export default function Events() {
                   ? "Yesterday"
                   : dateFilter === "thisWeek"
                   ? "This Week"
-                  : dateFilter === "thisMonth"
-                  ? "This Month"
-                  : "Last Month"}
+                  : "This Month"}
               </span>
               {dateFilter !== "all" && (
                 <button
@@ -1406,7 +1436,7 @@ export default function Events() {
             {isDateFilterOpen && (
               <div
                 ref={dateFilterRef}
-                className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
               >
                 <div className="p-3 border-b border-gray-200">
                   <h3 className="font-medium text-gray-700">Filter by Date</h3>
@@ -1564,7 +1594,7 @@ export default function Events() {
             {isBulkActionOpen && (
               <div
                 ref={bulkActionRef}
-                className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
               >
                 <div className="py-1">
                   <button
@@ -1684,7 +1714,7 @@ export default function Events() {
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto max-w-full">
+          <div className="hidden md:block overflow-x-auto">
             <div className="inline-block min-w-full align-middle">
               <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
                 <thead className="bg-gray-50">
@@ -1730,7 +1760,7 @@ export default function Events() {
                       </div>
                     </th>
                     <th
-                      className="w-[15%] px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="w-[10%] px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                       onClick={() => requestSort("category")}
                     >
                       <div className="flex items-center gap-1">
@@ -1738,12 +1768,15 @@ export default function Events() {
                       </div>
                     </th>
                     <th
-                      className="w-[15%] px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                      className="w-[10%] px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                       onClick={() => requestSort("status")}
                     >
                       <div className="flex items-center gap-1">
                         Status {renderSortIndicator("status")}
                       </div>
+                    </th>
+                    <th className="w-[10%] px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Registrations
                     </th>
                     <th className="w-[15%] px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -1752,146 +1785,177 @@ export default function Events() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {events.map((event) => (
-                    <tr
-                      key={event._id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      {/* Checkbox cell */}
-                      <td className="px-3 py-4">
-                        <button
-                          onClick={() => handleSelectEvent(event._id)}
-                          className="text-gray-500 hover:text-gray-700 focus:outline-none"
-                          aria-label={
-                            selectedEvents.includes(event._id)
-                              ? "Deselect"
-                              : "Select"
-                          }
-                        >
-                          {selectedEvents.includes(event._id) ? (
-                            <CheckSquare className="h-5 w-5 text-blue-600" />
-                          ) : (
-                            <Square className="h-5 w-5" />
-                          )}
-                        </button>
-                      </td>
+                    <tr key={event._id} className="hover:bg-gray-50">
+                      {/* Checkbox */}
                       <td className="px-3 py-4">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0 mr-3">
-                            {event.imageUrl ? (
-                              <img
-                                src={`${import.meta.env.VITE_API_URL}${
-                                  event.imageUrl
-                                }`}
-                                alt={event.title}
-                                className="h-10 w-10 rounded-md object-cover"
-                              />
+                          <button
+                            onClick={() => handleSelectEvent(event._id)}
+                            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                            aria-label={
+                              selectedEvents.includes(event._id)
+                                ? "Deselect"
+                                : "Select"
+                            }
+                          >
+                            {selectedEvents.includes(event._id) ? (
+                              <CheckSquare className="h-5 w-5 text-blue-600" />
                             ) : (
-                              <div className="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
-                                <Calendar className="h-5 w-5 text-gray-500" />
-                              </div>
+                              <Square className="h-5 w-5" />
                             )}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-900">
-                              {event.title}
-                            </span>
-                            {event.featured && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                <Star className="h-3 w-3 mr-1" />
-                                Featured
-                              </span>
-                            )}
-                          </div>
+                          </button>
                         </div>
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-500">
-                        <div className="flex flex-col">
-                          <span>{formatDate(event.startDate)}</span>
-                          <span className="text-xs text-gray-400">to</span>
-                          <span>{formatDate(event.endDate)}</span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500">
+                      <td className="px-3 py-4 text-sm text-gray-900">
                         <div className="flex items-center">
-                          <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                          <span>{event.location}</span>
+                          {event.featured && (
+                            <Star
+                              className="h-4 w-4 text-yellow-500 mr-1.5 flex-shrink-0"
+                              aria-label="Featured event"
+                            />
+                          )}
+                          <span>{event.title}</span>
                         </div>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
-                        <div className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-700">
-                          <Tag className="h-3 w-3 mr-1" />
-                          {event.category}
-                        </div>
+                        {formatDate(event.startDate)}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
-                        <div
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                        {event.location}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500">
+                        {event.category}
+                      </td>
+                      <td className="px-3 py-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             getStatusBadge(event).color
                           }`}
                         >
                           {getStatusBadge(event).icon}
-                          <span className="capitalize">
-                            {event.calculatedStatus || event.status}
-                          </span>
-                        </div>
+                          {event.calculatedStatus || event.status}
+                        </span>
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        <div className="flex justify-center">
-                          <div className="relative">
+                      <td className="px-3 py-4 text-center text-sm text-gray-500">
+                        {getRegistrationCount(event)}
+                      </td>
+                      <td className="px-3 py-4 text-center text-sm font-medium">
+                        <div className="relative inline-block text-left">
+                          <div>
                             <button
-                              className="p-1 rounded-full hover:bg-gray-100"
+                              type="button"
                               onClick={() =>
-                                toggleDropdown(`action-${event._id}`)
+                                toggleDropdown(`event-${event._id}`)
                               }
-                              aria-label="Actions"
+                              className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                              id="menu-button"
+                              aria-expanded="true"
+                              aria-haspopup="true"
                             >
-                              <MoreHorizontal className="h-5 w-5 text-gray-500" />
+                              Actions
+                              <ChevronDown
+                                className="ml-1.5 h-5 w-5"
+                                aria-hidden="true"
+                              />
                             </button>
+                          </div>
 
-                            {/* Actions Dropdown */}
-                            {activeDropdown === `action-${event._id}` && (
-                              <div
-                                ref={(el) =>
-                                  (dropdownRefs.current[`action-${event._id}`] =
-                                    el)
-                                }
-                                className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+                          {/* Dropdown menu, show/hide based on menu state. */}
+                          <div
+                            ref={(el) =>
+                              (dropdownRefs.current[`event-${event._id}`] = el)
+                            }
+                            className={`${
+                              activeDropdown === `event-${event._id}`
+                                ? ""
+                                : "hidden"
+                            } origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50`}
+                            role="menu"
+                            aria-orientation="vertical"
+                            aria-labelledby="menu-button"
+                            tabIndex="-1"
+                          >
+                            <div className="py-1" role="none">
+                              <button
+                                onClick={() => openEditEventModal(event)}
+                                className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                                role="menuitem"
+                                tabIndex="-1"
+                                id="menu-item-0"
                               >
-                                <button
-                                  onClick={() => openEditEventModal(event)}
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                  Edit
-                                </button>
-
-                                {event.status !== "cancelled" ? (
-                                  <button
-                                    onClick={() => cancelEvent(event._id)}
-                                    className="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2"
-                                  >
-                                    <Ban className="h-4 w-4" />
-                                    Cancel Event
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() => restoreEvent(event._id)}
-                                    className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
-                                  >
-                                    <Calendar className="h-4 w-4" />
-                                    Restore Event
-                                  </button>
-                                )}
-
+                                <Edit className="h-4 w-4 mr-2 inline-block" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => openRegistrationsModal(event)}
+                                className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                                role="menuitem"
+                                tabIndex="-1"
+                                id="menu-item-1"
+                              >
+                                <Users className="h-4 w-4 mr-2 inline-block" />
+                                View Registrations
+                              </button>
+                              {event.status !== "cancelled" &&
+                              event.calculatedStatus !== "cancelled" ? (
                                 <button
                                   onClick={() => confirmDeleteEvent(event)}
-                                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                  className="text-red-600 block w-full text-left px-4 py-2 text-sm hover:bg-red-50"
+                                  role="menuitem"
+                                  tabIndex="-1"
+                                  id="menu-item-2"
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-4 w-4 mr-2 inline-block" />
                                   Delete
                                 </button>
-                              </div>
-                            )}
+                              ) : null}
+                              {event.status !== "cancelled" &&
+                              event.calculatedStatus !== "cancelled" ? (
+                                <button
+                                  onClick={() => cancelEvent(event._id)}
+                                  disabled={statusUpdateLoading}
+                                  className="text-orange-600 block w-full text-left px-4 py-2 text-sm hover:bg-orange-50 flex items-center"
+                                  role="menuitem"
+                                  tabIndex="-1"
+                                  id="menu-item-3"
+                                >
+                                  {statusUpdateLoading ? (
+                                    <>
+                                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                      <span>Cancelling...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Ban className="h-4 w-4 mr-2" />
+                                      Cancel
+                                    </>
+                                  )}
+                                </button>
+                              ) : null}
+                              {event.status === "cancelled" ||
+                              event.calculatedStatus === "cancelled" ? (
+                                <button
+                                  onClick={() => restoreEvent(event._id)}
+                                  disabled={statusUpdateLoading}
+                                  className="text-green-600 block w-full text-left px-4 py-2 text-sm hover:bg-green-50 flex items-center"
+                                  role="menuitem"
+                                  tabIndex="-1"
+                                  id="menu-item-4"
+                                >
+                                  {statusUpdateLoading ? (
+                                    <>
+                                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                      <span>Restoring...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <RefreshCw className="h-4 w-4 mr-2" />
+                                      Restore
+                                    </>
+                                  )}
+                                </button>
+                              ) : null}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -1909,176 +1973,164 @@ export default function Events() {
                 key={event._id}
                 className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => handleSelectEvent(event._id)}
-                      className="text-gray-500 hover:text-gray-700 focus:outline-none mr-2"
-                      aria-label={
-                        selectedEvents.includes(event._id)
-                          ? "Deselect"
-                          : "Select"
-                      }
-                    >
-                      {selectedEvents.includes(event._id) ? (
-                        <CheckSquare className="h-5 w-5 text-blue-600" />
-                      ) : (
-                        <Square className="h-5 w-5" />
-                      )}
-                    </button>
-                    <div className="h-12 w-12 flex-shrink-0 mr-3">
-                      {event.imageUrl ? (
-                        <img
-                          src={`${import.meta.env.VITE_API_URL}${
-                            event.imageUrl
-                          }`}
-                          alt={event.title}
-                          className="h-12 w-12 rounded-md object-cover"
-                        />
-                      ) : (
-                        <div className="h-12 w-12 rounded-md bg-gray-200 flex items-center justify-center">
-                          <Calendar className="h-6 w-6 text-gray-500" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {event.title}
-                      </h3>
-                      <div className="flex items-center gap-1 mt-1">
-                        <div
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs ${
-                            getStatusBadge(event).color
-                          }`}
-                        >
-                          {getStatusBadge(event).icon}
-                          <span className="capitalize">
-                            {event.calculatedStatus || event.status}
-                          </span>
-                        </div>
-                        {event.featured && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                            <Star className="h-3 w-3 mr-1" />
-                            Featured
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <button
-                      className="p-1 rounded-full hover:bg-gray-100"
-                      onClick={() => toggleDropdown(`mobile-${event._id}`)}
-                      aria-label="Actions"
-                    >
-                      <MoreHorizontal className="h-5 w-5 text-gray-500" />
-                    </button>
-
-                    {/* Mobile Actions Dropdown */}
-                    {activeDropdown === `mobile-${event._id}` && (
-                      <div
-                        ref={(el) =>
-                          (dropdownRefs.current[`mobile-${event._id}`] = el)
-                        }
-                        className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                      >
-                        <button
-                          onClick={() => openEditEventModal(event)}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                        >
-                          <Edit className="h-4 w-4" />
-                          Edit
-                        </button>
-
-                        {event.status !== "cancelled" ? (
-                          <button
-                            onClick={() => cancelEvent(event._id)}
-                            className="w-full text-left px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2"
-                          >
-                            <Ban className="h-4 w-4" />
-                            Cancel Event
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => restoreEvent(event._id)}
-                            className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2"
-                          >
-                            <Calendar className="h-4 w-4" />
-                            Restore Event
-                          </button>
-                        )}
-
-                        <button
-                          onClick={() => confirmDeleteEvent(event)}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Delete
-                        </button>
-                      </div>
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-medium text-gray-900 flex items-center">
+                    {event.featured && (
+                      <Star
+                        className="h-4 w-4 text-yellow-500 mr-1.5 flex-shrink-0"
+                        aria-label="Featured event"
+                      />
                     )}
-                  </div>
+                    <span>{event.title}</span>
+                  </h4>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      getStatusBadge(event).color
+                    }`}
+                  >
+                    {getStatusBadge(event).icon}
+                    {event.calculatedStatus || event.status}
+                  </span>
                 </div>
 
                 <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gray-400" />
-                    <span>
-                      {formatDate(event.startDate)} -{" "}
-                      {formatDate(event.endDate)}
-                    </span>
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                    <span>{formatDate(event.startDate)}</span>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 text-gray-400 mr-2" />
                     <span>{event.location}</span>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center">
+                    <Tag className="h-4 w-4 text-gray-400 mr-2" />
                     <span>{event.category}</span>
                   </div>
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 text-gray-400 mr-2" />
+                    <span>{getRegistrationCount(event)} Registrations</span>
+                  </div>
+                  <div className="flex justify-end mt-2">
+                    <div className="relative inline-block text-left">
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            toggleDropdown(`mobile-event-${event._id}`)
+                          }
+                          className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          id="menu-button"
+                          aria-expanded="true"
+                          aria-haspopup="true"
+                        >
+                          Actions
+                          <ChevronDown
+                            className="ml-1.5 h-5 w-5"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </div>
 
-                  {event.organizer && (
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-gray-400" />
-                      <span>{event.organizer}</span>
+                      {/* Dropdown menu, show/hide based on menu state. */}
+                      <div
+                        ref={(el) =>
+                          (dropdownRefs.current[`mobile-event-${event._id}`] =
+                            el)
+                        }
+                        className={`${
+                          activeDropdown === `mobile-event-${event._id}`
+                            ? ""
+                            : "hidden"
+                        } origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50`}
+                        role="menu"
+                        aria-orientation="vertical"
+                        aria-labelledby="menu-button"
+                        tabIndex="-1"
+                      >
+                        <div className="py-1" role="none">
+                          <button
+                            onClick={() => openEditEventModal(event)}
+                            className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                            role="menuitem"
+                            tabIndex="-1"
+                            id="menu-item-0"
+                          >
+                            <Edit className="h-4 w-4 mr-2 inline-block" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => openRegistrationsModal(event)}
+                            className="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                            role="menuitem"
+                            tabIndex="-1"
+                            id="menu-item-1"
+                          >
+                            <Users className="h-4 w-4 mr-2 inline-block" />
+                            View Registrations
+                          </button>
+                          {event.status !== "cancelled" &&
+                          event.calculatedStatus !== "cancelled" ? (
+                            <button
+                              onClick={() => confirmDeleteEvent(event)}
+                              className="text-red-600 block w-full text-left px-4 py-2 text-sm hover:bg-red-50"
+                              role="menuitem"
+                              tabIndex="-1"
+                              id="menu-item-2"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2 inline-block" />
+                              Delete
+                            </button>
+                          ) : null}
+                          {event.status !== "cancelled" &&
+                          event.calculatedStatus !== "cancelled" ? (
+                            <button
+                              onClick={() => cancelEvent(event._id)}
+                              disabled={statusUpdateLoading}
+                              className="text-orange-600 block w-full text-left px-4 py-2 text-sm hover:bg-orange-50 flex items-center"
+                              role="menuitem"
+                              tabIndex="-1"
+                              id="menu-item-3"
+                            >
+                              {statusUpdateLoading ? (
+                                <>
+                                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                  <span>Cancelling...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Ban className="h-4 w-4 mr-2" />
+                                  Cancel
+                                </>
+                              )}
+                            </button>
+                          ) : null}
+                          {event.status === "cancelled" ||
+                          event.calculatedStatus === "cancelled" ? (
+                            <button
+                              onClick={() => restoreEvent(event._id)}
+                              disabled={statusUpdateLoading}
+                              className="text-green-600 block w-full text-left px-4 py-2 text-sm hover:bg-green-50 flex items-center"
+                              role="menuitem"
+                              tabIndex="-1"
+                              id="menu-item-4"
+                            >
+                              {statusUpdateLoading ? (
+                                <>
+                                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                  <span>Restoring...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="h-4 w-4 mr-2" />
+                                  Restore
+                                </>
+                              )}
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end gap-2">
-                  <button
-                    onClick={() => openEditEventModal(event)}
-                    className="px-3 py-1 text-sm bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 flex items-center gap-1"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Edit
-                  </button>
-                  {event.status !== "cancelled" ? (
-                    <button
-                      onClick={() => cancelEvent(event._id)}
-                      className="px-3 py-1 text-sm bg-orange-50 text-orange-700 rounded-md hover:bg-orange-100 flex items-center gap-1"
-                    >
-                      <Ban className="h-4 w-4" />
-                      Cancel
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => restoreEvent(event._id)}
-                      className="px-3 py-1 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100 flex items-center gap-1"
-                    >
-                      <Calendar className="h-4 w-4" />
-                      Restore
-                    </button>
-                  )}
-                  <button
-                    onClick={() => confirmDeleteEvent(event)}
-                    className="px-3 py-1 text-sm bg-red-50 text-red-700 rounded-md hover:bg-red-100 flex items-center gap-1"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -2208,7 +2260,7 @@ export default function Events() {
                     {isJumpToPageOpen && (
                       <div
                         ref={jumpToPageRef}
-                        className="absolute top-full mt-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-10 w-64"
+                        className="absolute top-full mt-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 w-64"
                       >
                         <form onSubmit={handleJumpToPage}>
                           <label className="block text-sm text-gray-600 mb-2">
@@ -2546,25 +2598,6 @@ export default function Events() {
 
                 {/* Additional Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Registration URL */}
-                  <div>
-                    <label
-                      htmlFor="registrationUrl"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Registration URL
-                    </label>
-                    <input
-                      type="url"
-                      id="registrationUrl"
-                      name="registrationUrl"
-                      value={eventFormData.registrationUrl}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      placeholder="https://example.com/register"
-                    />
-                  </div>
-
                   {/* Capacity */}
                   <div>
                     <label
@@ -2584,25 +2617,25 @@ export default function Events() {
                       placeholder="Maximum number of attendees"
                     />
                   </div>
-                </div>
 
-                {/* Organizer */}
-                <div>
-                  <label
-                    htmlFor="organizer"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Organizer
-                  </label>
-                  <input
-                    type="text"
-                    id="organizer"
-                    name="organizer"
-                    value={eventFormData.organizer}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter organizer name"
-                  />
+                  {/* Organizer */}
+                  <div>
+                    <label
+                      htmlFor="organizer"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Organizer
+                    </label>
+                    <input
+                      type="text"
+                      id="organizer"
+                      name="organizer"
+                      value={eventFormData.organizer}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Enter organizer name"
+                    />
+                  </div>
                 </div>
 
                 {/* Featured Checkbox */}
@@ -2651,22 +2684,136 @@ export default function Events() {
         </div>
       )}
 
+      {/* Registrations Modal */}
+      {isRegistrationsModalOpen && selectedEventForRegistrations && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div
+            ref={registrationsModalRef}
+            className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
+          >
+            <div className="flex justify-between items-center border-b p-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Registrations for {selectedEventForRegistrations.title}
+              </h3>
+              <button
+                onClick={() => setIsRegistrationsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-130px)]">
+              {registrationsLoading ? (
+                <div className="flex justify-center items-center h-40">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <span className="ml-2 text-gray-600">
+                    Loading registrations...
+                  </span>
+                </div>
+              ) : !selectedEventForRegistrations.registeredUsers ||
+                !Array.isArray(selectedEventForRegistrations.registeredUsers) ||
+                selectedEventForRegistrations.registeredUsers.length === 0 ? (
+                <div className="text-center py-10 text-gray-500 border border-dashed rounded-lg">
+                  <UserPlus className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                  <h3 className="text-lg font-medium mb-1">
+                    No registrations yet
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    No users have registered for this event.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Phone
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Attending
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Guests
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Registration Date
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {selectedEventForRegistrations.registeredUsers.map(
+                        (user) => (
+                          <tr key={user.registrationId}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {user.fullName}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <a
+                                href={`mailto:${user.email}`}
+                                className="text-blue-600 hover:underline"
+                              >
+                                {user.email}
+                              </a>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <a
+                                href={`tel:${user.phoneNumber}`}
+                                className="text-green-600 hover:underline"
+                              >
+                                {user.phoneNumber}
+                              </a>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {user.willAttend === "yes" ? "Yes" : "No"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {user.numberOfGuests}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {formatDate(user.registrationTimestamp)}
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t p-4 flex justify-end">
+              <button
+                onClick={() => setIsRegistrationsModalOpen(false)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && eventToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-                <Trash2 className="h-6 w-6 text-red-600" />
-              </div>
-              <h3 className="text-lg font-medium text-center text-gray-900 mb-2">
-                Delete Event
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Confirm Delete
               </h3>
-              <p className="text-center text-gray-500 mb-6">
-                Are you sure you want to delete the event {eventToDelete.title}?
-                This action cannot be undone.
+              <p className="text-sm text-gray-600 mb-4">
+                Are you sure you want to delete the event &quot;
+                {eventToDelete.title}&quot;? This action cannot be undone.
               </p>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
@@ -2684,7 +2831,7 @@ export default function Events() {
                       <span>Deleting...</span>
                     </>
                   ) : (
-                    <span>Delete Event</span>
+                    <span>Delete</span>
                   )}
                 </button>
               </div>
@@ -2696,20 +2843,16 @@ export default function Events() {
       {/* Bulk Delete Confirmation Modal */}
       {isBulkDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-                <Trash2 className="h-6 w-6 text-red-600" />
-              </div>
-              <h3 className="text-lg font-medium text-center text-gray-900 mb-2">
-                Bulk Delete Events
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Confirm Bulk Delete
               </h3>
-              <p className="text-center text-gray-500 mb-6">
-                Are you sure you want to delete{" "}
-                <span className="font-medium">{selectedEvents.length}</span>{" "}
-                selected events? This action cannot be undone.
+              <p className="text-sm text-gray-600 mb-4">
+                Are you sure you want to delete the selected{" "}
+                {selectedEvents.length} events? This action cannot be undone.
               </p>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setIsBulkDeleteModalOpen(false)}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
@@ -2727,7 +2870,7 @@ export default function Events() {
                       <span>Deleting...</span>
                     </>
                   ) : (
-                    <span>Delete Selected</span>
+                    <span>Delete</span>
                   )}
                 </button>
               </div>
@@ -2739,25 +2882,21 @@ export default function Events() {
       {/* Bulk Cancel Confirmation Modal */}
       {isBulkCancelModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-orange-100 rounded-full mb-4">
-                <Ban className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-medium text-center text-gray-900 mb-2">
-                Cancel Events
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Confirm Bulk Cancel
               </h3>
-              <p className="text-center text-gray-500 mb-6">
-                Are you sure you want to cancel{" "}
-                <span className="font-medium">{selectedEvents.length}</span>{" "}
-                selected events? This will mark them as cancelled.
+              <p className="text-sm text-gray-600 mb-4">
+                Are you sure you want to cancel the selected{" "}
+                {selectedEvents.length} events?
               </p>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setIsBulkCancelModalOpen(false)}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
                 >
-                  No, Keep Events
+                  Cancel
                 </button>
                 <button
                   onClick={() => performBulkAction("cancel")}
@@ -2770,7 +2909,7 @@ export default function Events() {
                       <span>Cancelling...</span>
                     </>
                   ) : (
-                    <span>Yes, Cancel Events</span>
+                    <span>Cancel</span>
                   )}
                 </button>
               </div>
@@ -2782,21 +2921,16 @@ export default function Events() {
       {/* Bulk Restore Confirmation Modal */}
       {isBulkRestoreModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full mb-4">
-                <RefreshCw className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="text-lg font-medium text-center text-gray-900 mb-2">
-                Restore Events
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Confirm Bulk Restore
               </h3>
-              <p className="text-center text-gray-500 mb-6">
-                Are you sure you want to restore{" "}
-                <span className="font-medium">{selectedEvents.length}</span>{" "}
-                selected events? This will recalculate their status based on
-                dates.
+              <p className="text-sm text-gray-600 mb-4">
+                Are you sure you want to restore the selected{" "}
+                {selectedEvents.length} events?
               </p>
-              <div className="flex justify-center gap-3">
+              <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setIsBulkRestoreModalOpen(false)}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
@@ -2804,7 +2938,7 @@ export default function Events() {
                   Cancel
                 </button>
                 <button
-                  onClick={performBulkRestore}
+                  onClick={() => performBulkRestore()}
                   disabled={bulkActionLoading}
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center"
                 >
@@ -2814,7 +2948,7 @@ export default function Events() {
                       <span>Restoring...</span>
                     </>
                   ) : (
-                    <span>Yes, Restore Events</span>
+                    <span>Restore</span>
                   )}
                 </button>
               </div>

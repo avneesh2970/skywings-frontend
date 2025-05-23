@@ -2,9 +2,32 @@
 
 import { useState, useEffect, useRef } from "react"
 import axios from "axios"
-import { Calendar, MapPin, Tag, Star, Search, Filter, X, ArrowLeft, ArrowRight, Clock, ExternalLink, CalendarCheck, CalendarX, CalendarOff, ChevronDown, ChevronUp, Users, Bookmark, Share2, Info } from 'lucide-react'
+import {
+  Calendar,
+  MapPin,
+  Tag,
+  Star,
+  Search,
+  Filter,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Clock,
+  ExternalLink,
+  CalendarCheck,
+  CalendarX,
+  CalendarOff,
+  Users,
+  Bookmark,
+  Share2,
+  Info,
+  Check,
+  Loader2,
+} from "lucide-react"
 import EventDetailsModal from "./EventDetailsModal"
 import { motion, AnimatePresence } from "framer-motion"
+import { Dialog, Transition } from "@headlessui/react"
+import { Fragment } from "react"
 
 export default function Event() {
   const [events, setEvents] = useState([])
@@ -43,6 +66,22 @@ export default function Event() {
   const [currentPastPage, setCurrentPastPage] = useState(1)
   const [pastEventsPerPage, setPastEventsPerPage] = useState(4)
   const [totalPastPages, setTotalPastPages] = useState(1)
+
+  // Registration form states
+  const [isRegistrationFormOpen, setIsRegistrationFormOpen] = useState(false)
+  const [registrationEvent, setRegistrationEvent] = useState(null)
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    willAttend: "yes",
+    numberOfGuests: 1,
+    comment: "",
+  })
+  const [formErrors, setFormErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [submitError, setSubmitError] = useState("")
 
   const filterRef = useRef(null)
   const categoryFilterRef = useRef(null)
@@ -232,6 +271,106 @@ export default function Event() {
     setIsModalOpen(true)
   }
 
+  // Registration form handlers
+  const openRegistrationForm = (event) => {
+    setRegistrationEvent(event)
+    setIsRegistrationFormOpen(true)
+    // Reset form state
+    setFormData({
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      willAttend: "yes",
+      numberOfGuests: 1,
+      comment: "",
+    })
+    setFormErrors({})
+    setSubmitSuccess(false)
+    setSubmitError("")
+  }
+
+  const closeRegistrationForm = () => {
+    setIsRegistrationFormOpen(false)
+    setRegistrationEvent(null)
+  }
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+
+    // Clear error for this field when user types
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }))
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required"
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required"
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid"
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required"
+    }
+
+    if (formData.willAttend === "yes" && (formData.numberOfGuests < 1 || formData.numberOfGuests > 10)) {
+      newErrors.numberOfGuests = "Number of guests must be between 1 and 10"
+    }
+
+    setFormErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitError("")
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/events/${registrationEvent._id}/register`,
+        {
+          ...formData,
+          eventId: registrationEvent._id,
+        },
+      )
+
+      setSubmitSuccess(true)
+      setFormData({
+        fullName: "",
+        email: "",
+        phoneNumber: "",
+        willAttend: "yes",
+        numberOfGuests: 1,
+        comment: "",
+      })
+    } catch (error) {
+      console.error("Registration error:", error)
+      setSubmitError(error.response?.data?.message || "Failed to register. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const EventSkeleton = () => (
     <div className="bg-white rounded-xl overflow-hidden shadow-md animate-pulse">
       <div className="h-48 bg-gray-200"></div>
@@ -253,6 +392,11 @@ export default function Event() {
   // Event card component to avoid repetition
   const EventCard = ({ event }) => {
     const [isHovered, setIsHovered] = useState(false)
+
+    const handleRegisterClick = (e) => {
+      e.preventDefault()
+      openRegistrationForm(event)
+    }
 
     return (
       <motion.div
@@ -317,20 +461,20 @@ export default function Event() {
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <button
+            {/* <button
               className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
               aria-label="Bookmark event"
               title="Bookmark event"
             >
               <Bookmark className="h-4 w-4 text-gray-700" />
-            </button>
-            <button
+            </button> */}
+            {/* <button
               className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
               aria-label="Share event"
               title="Share event"
             >
               <Share2 className="h-4 w-4 text-gray-700" />
-            </button>
+            </button> */}
           </motion.div>
         </div>
 
@@ -386,20 +530,17 @@ export default function Event() {
               View Details
             </motion.button>
 
-            {event.registrationUrl &&
-              (event.calculatedStatus === "upcoming" || event.calculatedStatus === "ongoing") &&
+            {(event.calculatedStatus === "upcoming" || event.calculatedStatus === "ongoing") &&
               event.calculatedStatus !== "cancelled" && (
-                <motion.a
-                  href={event.registrationUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <motion.button
+                  onClick={handleRegisterClick}
                   className="flex items-center gap-1 px-3 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors duration-300 text-sm font-medium"
                   whileHover={{ backgroundColor: "#eff6ff", scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   Register
                   <ExternalLink className="h-3 w-3" />
-                </motion.a>
+                </motion.button>
               )}
           </div>
         </motion.div>
@@ -419,7 +560,7 @@ export default function Event() {
         <span className="text-blue-500">{icon}</span>
         <span className="ml-2">{title}</span>
         <span className="ml-2 text-sm bg-opacity-20 px-2 py-0.5 rounded-full text-gray-900 border-2 border-blue-500">
-        {count}
+          {count}
         </span>
       </h2>
       {/* <button
@@ -654,7 +795,9 @@ export default function Event() {
                 }`}
               >
                 <Star className="h-4 w-4" />
-                <span>{filterFeatured === "true" ? "Featured" : filterFeatured === "false" ? "Not Featured" : "Featured"}</span>
+                <span>
+                  {filterFeatured === "true" ? "Featured" : filterFeatured === "false" ? "Not Featured" : "Featured"}
+                </span>
                 {filterFeatured !== "" && (
                   <button
                     onClick={(e) => {
@@ -1028,8 +1171,239 @@ export default function Event() {
           formatDate={formatDate}
           getStatusBadge={getStatusBadge}
           apiUrl={import.meta.env.VITE_API_URL}
+          onRegister={openRegistrationForm}
         />
       )}
+
+      {/* Registration Form Modal */}
+      <Transition appear show={isRegistrationFormOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={closeRegistrationForm}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
+                  <div className="relative">
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 py-6 px-6">
+                      <Dialog.Title as="h3" className="text-xl font-bold text-white">
+                        {submitSuccess ? "Registration Successful" : "Register for Event"}
+                      </Dialog.Title>
+                      <p className="text-blue-100 mt-1">
+                        {submitSuccess ? "Thank you for registering!" : `${registrationEvent?.title || "Event"}`}
+                      </p>
+                      <button
+                        onClick={closeRegistrationForm}
+                        className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm p-1.5 rounded-full hover:bg-white/30 transition-colors"
+                        aria-label="Close modal"
+                      >
+                        <X className="h-5 w-5 text-white" />
+                      </button>
+                    </div>
+
+                    <div className="p-6">
+                      {submitSuccess ? (
+                        <div className="text-center py-8">
+                          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                            <Check className="h-8 w-8 text-green-600" />
+                          </div>
+                          <h4 className="text-xl font-semibold text-gray-900 mb-2">Registration Complete!</h4>
+                          <p className="text-gray-600 mb-6">
+                            Your registration has been confirmed.
+                          </p>
+                          <motion.button
+                            onClick={closeRegistrationForm}
+                            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-colors font-medium shadow-md"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            Close
+                          </motion.button>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleFormSubmit} className="space-y-4">
+                          {submitError && (
+                            <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">{submitError}</div>
+                          )}
+
+                          <div>
+                            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                              Full Name *
+                            </label>
+                            <input
+                              type="text"
+                              id="fullName"
+                              name="fullName"
+                              value={formData.fullName}
+                              onChange={handleFormChange}
+                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                formErrors.fullName ? "border-red-500" : "border-gray-300"
+                              }`}
+                              placeholder="Enter your full name"
+                            />
+                            {formErrors.fullName && <p className="mt-1 text-sm text-red-600">{formErrors.fullName}</p>}
+                          </div>
+
+                          <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                              Email Address *
+                            </label>
+                            <input
+                              type="email"
+                              id="email"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleFormChange}
+                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                formErrors.email ? "border-red-500" : "border-gray-300"
+                              }`}
+                              placeholder="Enter your email address"
+                            />
+                            {formErrors.email && <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>}
+                          </div>
+
+                          <div>
+                            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                              Phone Number *
+                            </label>
+                            <input
+                              type="tel"
+                              id="phoneNumber"
+                              name="phoneNumber"
+                              value={formData.phoneNumber}
+                              onChange={handleFormChange}
+                              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                formErrors.phoneNumber ? "border-red-500" : "border-gray-300"
+                              }`}
+                              placeholder="Enter your phone number"
+                            />
+                            {formErrors.phoneNumber && (
+                              <p className="mt-1 text-sm text-red-600">{formErrors.phoneNumber}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Will You Attend? *</label>
+                            <div className="flex gap-4">
+                              <label className="inline-flex items-center">
+                                <input
+                                  type="radio"
+                                  name="willAttend"
+                                  value="yes"
+                                  checked={formData.willAttend === "yes"}
+                                  onChange={handleFormChange}
+                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="ml-2 text-gray-700">Yes</span>
+                              </label>
+                              <label className="inline-flex items-center">
+                                <input
+                                  type="radio"
+                                  name="willAttend"
+                                  value="no"
+                                  checked={formData.willAttend === "no"}
+                                  onChange={handleFormChange}
+                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="ml-2 text-gray-700">No</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          {formData.willAttend === "yes" && (
+                            <div>
+                              <label htmlFor="numberOfGuests" className="block text-sm font-medium text-gray-700 mb-1">
+                                Number of Guests (including yourself) *
+                              </label>
+                              <input
+                                type="number"
+                                id="numberOfGuests"
+                                name="numberOfGuests"
+                                min="1"
+                                max="10"
+                                value={formData.numberOfGuests}
+                                onChange={handleFormChange}
+                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                  formErrors.numberOfGuests ? "border-red-500" : "border-gray-300"
+                                }`}
+                              />
+                              {formErrors.numberOfGuests && (
+                                <p className="mt-1 text-sm text-red-600">{formErrors.numberOfGuests}</p>
+                              )}
+                            </div>
+                          )}
+
+                          <div>
+                            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+                              Comment (Optional)
+                            </label>
+                            <textarea
+                              id="comment"
+                              name="comment"
+                              rows="3"
+                              value={formData.comment}
+                              onChange={handleFormChange}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Any special requests or comments?"
+                            ></textarea>
+                          </div>
+
+                          <div className="flex justify-end gap-3 pt-4">
+                            <motion.button
+                              type="button"
+                              onClick={closeRegistrationForm}
+                              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              disabled={isSubmitting}
+                            >
+                              Cancel
+                            </motion.button>
+                            <motion.button
+                              type="submit"
+                              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-colors font-medium shadow-md flex items-center justify-center min-w-[100px]"
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              disabled={isSubmitting}
+                            >
+                              {isSubmitting ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Submitting...
+                                </>
+                              ) : (
+                                "Register"
+                              )}
+                            </motion.button>
+                          </div>
+                        </form>
+                      )}
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   )
 }

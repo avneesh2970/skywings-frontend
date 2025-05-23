@@ -19,8 +19,8 @@ import img108 from "../../assets/products/img108.jpg"
 import img109 from "../../assets/products/img109.jpg"
 import img110 from "../../assets/products/img110.jpg"
 
-import { MdArrowOutward, MdAccessTime, MdCalendarMonth } from "react-icons/md"
-import { Link } from "react-router-dom"
+import { MdArrowOutward, MdAccessTime, MdCalendarMonth, MdVisibility } from "react-icons/md"
+import { useNavigate } from "react-router-dom"
 import { useEffect, useState, useMemo } from "react"
 import axios from "axios"
 import { motion, AnimatePresence } from "framer-motion"
@@ -112,6 +112,7 @@ const Cont10 = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [imageLoadingStates, setImageLoadingStates] = useState({})
   const postsPerPage = 9
+  const navigate = useNavigate()
 
   // Helper function to strip HTML tags
   function stripHtmlTags(html) {
@@ -134,6 +135,40 @@ const Cont10 = () => {
     }))
   }
 
+  // Function to increment view count
+  const incrementViewCount = async (postId) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || ""
+      await axios.put(`${apiUrl}/api/blog/posts/${postId}/view`)
+      console.log(`View count incremented for post ${postId}`)
+
+      // Update the local state to reflect the view count change
+      setDynamicPosts((prevPosts) =>
+        prevPosts.map((post) => (post.id === postId ? { ...post, views: (post.views || 0) + 1 } : post)),
+      )
+    } catch (error) {
+      console.error("Error incrementing view count:", error)
+    }
+  }
+
+  // Handle post click
+  const handlePostClick = (e, article) => {
+    e.preventDefault() // Prevent default navigation for all articles
+
+    if (article.isDynamic) {
+      // For dynamic posts, increment view count first
+      incrementViewCount(article.id)
+
+      // Navigate to article page after a small delay to ensure the request is sent
+      setTimeout(() => {
+        navigate(`/article/${article.id}`, { state: article })
+      }, 100)
+    } else {
+      // For static posts, navigate directly
+      navigate(`/article/${article.id}`, { state: article })
+    }
+  }
+
   const staticArticles = [
     {
       id: 1,
@@ -144,6 +179,7 @@ const Cont10 = () => {
       title: "Busted No Show Reasons ",
       description:
         'I met with an accident!", "My best friend is hospitalized", "I am unwell", "My grandparent expired", "important meeting at office scheduled and I got the update last night", either..',
+      isDynamic: false, // Add this line
     },
     {
       id: 2,
@@ -154,6 +190,7 @@ const Cont10 = () => {
       title: "The One Thing Every Employer Wants to See On Your Resume",
       description:
         "It's tough out there in the job market. And it may be getting tougher if you are following the news. You are It's tough ..",
+      isDynamic: false, // Add this line
     },
     {
       id: 3,
@@ -164,6 +201,7 @@ const Cont10 = () => {
       title: "How to create a culture of leadership",
       description:
         "Culture is a composition of 'Intellectual Activity'. In this competitive world, a key factor behind a company's success, apart from .",
+      isDynamic: false, // Add this line
     },
     {
       id: 4,
@@ -174,6 +212,7 @@ const Cont10 = () => {
       title: "Basic questions asked in any job Interview",
       description:
         "It's a well known fact that looking at a candidate's past behaviour is the best way to predict their future",
+      isDynamic: false, // Add this line
     },
     {
       id: 5,
@@ -184,6 +223,7 @@ const Cont10 = () => {
       title: "How College Placement Cells Can Improve Student Employability ",
       description:
         "A college's placement cell plays a crucial role in shaping the future of students by connecting them with....",
+      isDynamic: false, // Add this line
     },
     {
       id: 6,
@@ -194,6 +234,7 @@ const Cont10 = () => {
       title: "Internship Programs: Why They Are Essential for Career Growth ",
       description:
         "India is home to one of the world's largest and youngest workforces, yet many industries face a severe skill ...",
+      isDynamic: false, // Add this line
     },
     {
       id: 7,
@@ -204,6 +245,7 @@ const Cont10 = () => {
       title: " Skill Gap in India: How to Bridge It Through Training & Recruitment ",
       description:
         "Skill Gap in India: How to Bridge It Through Training & Recruitment Introduction: The Growing Skill Gap in ..",
+      isDynamic: false, // Add this line
     },
     {
       id: 8,
@@ -214,6 +256,7 @@ const Cont10 = () => {
       title: "How to Optimize Your Resume for ATS  ",
       description:
         "Applicant Tracking Systems (ATS). ATS is an AI-driven resume screening tool used by companies to filter...",
+      isDynamic: false, // Add this line
     },
     {
       id: 9,
@@ -224,6 +267,7 @@ const Cont10 = () => {
       title: "How Staffing Companies Can Improve Diversity & Inclusion Hiring  ",
       description:
         "Introduction: The Growing Importance of Diversity & Inclusion in Hiring Diversity and inclusion (D&I) are...",
+      isDynamic: false, // Add this line
     },
     {
       id: 10,
@@ -234,6 +278,7 @@ const Cont10 = () => {
       title: "How Pre-Placement Offers (PPOs) Are Changing Campus Hiring",
       description:
         "Introduction: The Rise of Pre-Placement Offers (PPOs) in India Campus hiring has long been the primary ...",
+      isDynamic: false, // Add this line
     },
     {
       id: 11,
@@ -244,6 +289,7 @@ const Cont10 = () => {
       title: "Top Challenges in the Staffing Industry and How to Overcome Them",
       description:
         "Introduction: Why Staffing is More Challenging Than Ever The staffing industry  plays a crucial role...",
+      isDynamic: false, // Add this line
     },
     {
       id: 12,
@@ -254,6 +300,7 @@ const Cont10 = () => {
       title: "The Role of Recruitment Agencies in India's Growing Job Market",
       description:
         "Introduction: Why Recruitment Agencies Are More Important Than Ever India's job market is experiencing...",
+      isDynamic: false, // Add this line
     },
     {
       id: 13,
@@ -264,6 +311,7 @@ const Cont10 = () => {
       title: "How AI is Revolutionizing Talent Acquisition & the Staffing Industry",
       description:
         "Introduction: The Role of AI in Modern Recruitment The recruitment industry is undergoing a massive...",
+      isDynamic: false, // Add this line
     },
     {
       id: 14,
@@ -274,6 +322,7 @@ const Cont10 = () => {
       title: "Understanding Whitepapers: A Comprehensive Guide for Businesses",
       description:
         "In the fast-paced world of digital content, businesses are constantly searching for ways to establish...",
+      isDynamic: false, // Add this line
     },
     {
       id: 15,
@@ -284,6 +333,7 @@ const Cont10 = () => {
       title: "Competency Mapping: Unlocking Potential for Organizational Success",
       description:
         "In today's dynamic and competitive market, businesses, especially in India, face the challenge of...",
+      isDynamic: false, // Add this line
     },
     {
       id: 16,
@@ -293,6 +343,7 @@ const Cont10 = () => {
       jobtype: "W2 & C2C",
       title: "Understanding W2 and C2C Employment Arrangements",
       description: "When engaging with staffing or recruitment agencies, prospective employees often encounter two...",
+      isDynamic: false, // Add this line
     },
     {
       id: 17,
@@ -302,6 +353,7 @@ const Cont10 = () => {
       jobtype: "Freshers",
       title: "How to source freshers",
       description: "Sourcing freshers for sales roles can be quite effective when using a multi-channel approach....",
+      isDynamic: false, // Add this line
     },
     {
       id: 18,
@@ -312,6 +364,7 @@ const Cont10 = () => {
       title: "Closing the Skill Gap: How FreelanceRecruiter.in Supports Workforce Readiness",
       description:
         "The Rise of Freelance Recruiters in India: Why More Companies Are Turning to Gig Talent for Hiring The ",
+      isDynamic: false, // Add this line
     },
     {
       id: 19,
@@ -321,6 +374,7 @@ const Cont10 = () => {
       jobtype: "FreelanceRecruiter.",
       title: "How can I become Freelance Recruiter",
       description: "Becoming a freelance recruiter can be a great career path if you have strong networking and... ",
+      isDynamic: false, // Add this line
     },
   ]
 
@@ -373,8 +427,11 @@ const Cont10 = () => {
           signal: controller.signal,
         })
 
+        // Filter out draft posts - only show published posts
+        const publishedPosts = response.data.filter((post) => post.status === "published")
+
         // Format the dynamic posts to match the structure of static posts
-        const formattedPosts = response.data.map((post) => ({
+        const formattedPosts = publishedPosts.map((post) => ({
           id: post._id,
           title: post.title,
           // Strip HTML tags from the content for the description
@@ -388,11 +445,15 @@ const Cont10 = () => {
           jobtype: post.category || "Blog",
           image: post.featuredImage,
           content: post.content,
+          status: post.status,
+          views: post.views || 0,
+          likes: post.likes || 0,
           isDynamic: true,
         }))
 
         setDynamicPosts(formattedPosts)
-        console.log("Successfully fetched", formattedPosts.length, "dynamic posts")
+        console.log("Successfully fetched", formattedPosts.length, "published posts")
+        console.log("Filtered out", response.data.length - formattedPosts.length, "draft posts")
       } catch (err) {
         if (err.name !== "AbortError") {
           console.error("Error fetching blog posts:", err)
@@ -587,7 +648,8 @@ const Cont10 = () => {
                 custom={index}
                 layout
               >
-                <Link to={`/article/${article.id}`} state={article} className="block h-full">
+                {/* Use onClick instead of Link for dynamic posts to increment view count */}
+                <div onClick={(e) => handlePostClick(e, article)} className="block h-full cursor-pointer">
                   <div className="bg-white overflow-hidden h-full rounded-xl border border-gray-100 flex flex-col shadow-sm hover:shadow-xl transition-all duration-300">
                     <div className="overflow-hidden relative h-52">
                       {/* Image loading indicator */}
@@ -619,8 +681,8 @@ const Cont10 = () => {
                     </div>
 
                     <div className="p-6 relative flex-grow">
-                      {/* Date and reading time */}
-                      <div className="flex items-center gap-4 mb-3 text-gray-500 text-sm">
+                      {/* Date, reading time, and views */}
+                      <div className="flex items-center gap-4 mb-3 text-gray-500 text-sm flex-wrap">
                         <div className="flex items-center">
                           <MdCalendarMonth className="mr-1" />
                           {formattedDate}
@@ -629,6 +691,12 @@ const Cont10 = () => {
                           <MdAccessTime className="mr-1" />
                           {readingTime} min read
                         </div>
+                        {article.isDynamic && (
+                          <div className="flex items-center">
+                            <MdVisibility className="mr-1" />
+                            {article.views || 0} views
+                          </div>
+                        )}
                       </div>
 
                       {/* Title */}
@@ -652,7 +720,7 @@ const Cont10 = () => {
                       </motion.div>
                     </div>
                   </div>
-                </Link>
+                </div>
               </motion.div>
             )
           })}
