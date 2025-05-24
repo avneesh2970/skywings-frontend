@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useParams, useLocation } from "react-router-dom";
@@ -26,28 +24,58 @@ const ArticleDetails = () => {
   const [loading, setLoading] = useState(!location.state);
   const [error, setError] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
-  const [likes, setLikes] = useState(article?.likes || 0)
+  const [likes, setLikes] = useState(article?.likes || 0);
   const [isLiking, setIsLiking] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [heartColor, setHeartColor] = useState("text-gray-500");
+  const [isHeartClicked, setIsHeartClicked] = useState(false);
+  // Add this near the top of your component
+  // console.log("ArticleDetails - ID:", id, "Location state:", location.state);
 
-   // Add this near the top of your component
-  console.log("ArticleDetails - ID:", id, "Location state:", location.state)
+  // On mount, check if heart was clicked before
+  useEffect(() => {
+    const heartFromSessionStorage = sessionStorage.getItem("heartClicked");
+    if (heartFromSessionStorage === "true") {
+      setIsHeartClicked(true);
+      setHeartColor("fill-red-500");
+    }
+  }, []);
+
+  // Whenever isHeartClicked changes, update sessionStorage & color
+  useEffect(() => {
+    if (isHeartClicked) {
+      sessionStorage.setItem("heartClicked", "true");
+      setHeartColor("fill-red-500");
+    } else {
+      sessionStorage.setItem("heartClicked", "false");
+      setHeartColor("fill-gray-500");
+    }
+  }, [isHeartClicked]);
+
   // Initialize likes count when article loads
-useEffect(() => {
-  if (article) {
-    setLikes(article.likes || 0);  // Remove the undefined check and default to 0
-  }
-}, [article]);
+  useEffect(() => {
+    if (article) {
+      setLikes(article.likes || 0); // Remove the undefined check and default to 0
+    }
+  }, [article]);
 
   const incrementLikesCount = async (postId) => {
     if (isLiking) return; // Prevent multiple rapid clicks
+    const heartFromSessionStorage = sessionStorage.getItem("heartClicked");
+    let likeType;
+    if (heartFromSessionStorage === "true") {
+      likeType = "unlike";
+    } else {
+      likeType = "like";
+    }
 
     setIsLiking(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || "";
       const response = await axios.put(
-        `${apiUrl}/api/blog/posts/${postId}/like`
+        `${apiUrl}/api/blog/posts/${postId}/like`,
+        { likeType }
       );
 
       if (response.data.success) {
@@ -60,6 +88,11 @@ useEffect(() => {
       setIsLiking(false);
     }
   };
+
+  function handleHeartClick(id) {
+    incrementLikesCount(id);
+    setIsHeartClicked((prev) => !prev);
+  }
 
   // Share functionality
   const shareUrl = window.location.href;
@@ -133,36 +166,36 @@ useEffect(() => {
             isDynamic: false,
             likes: 0,
             views: 0,
-          }
-          setArticle(staticArticle)
-          setLikes(0)
-        } else {
-        const response = await axios.get(`/api/blog/posts/${id}`);
-        if (response.data) {
-          const formattedArticle = {
-            id: response.data._id,
-            title: response.data.title,
-            description: response.data.content.substring(0, 150) + "...",
-            author: response.data.author || "Admin",
-            date: new Date(response.data.createdAt).toLocaleDateString(
-              "en-US",
-              {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              }
-            ),
-            jobtype: response.data.category || "Blog",
-            image: response.data.featuredImage,
-            content: response.data.content,
-            likes: response.data.likes || 0,
-            views: response.data.views || 0,
-            isDynamic: true,
           };
-          setArticle(formattedArticle);
-          setLikes(formattedArticle.likes);
+          setArticle(staticArticle);
+          setLikes(0);
+        } else {
+          const response = await axios.get(`/api/blog/posts/${id}`);
+          if (response.data) {
+            const formattedArticle = {
+              id: response.data._id,
+              title: response.data.title,
+              description: response.data.content.substring(0, 150) + "...",
+              author: response.data.author || "Admin",
+              date: new Date(response.data.createdAt).toLocaleDateString(
+                "en-US",
+                {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                }
+              ),
+              jobtype: response.data.category || "Blog",
+              image: response.data.featuredImage,
+              content: response.data.content,
+              likes: response.data.likes || 0,
+              views: response.data.views || 0,
+              isDynamic: true,
+            };
+            setArticle(formattedArticle);
+            setLikes(formattedArticle.likes);
+          }
         }
-      }
       } catch (err) {
         console.error("Error fetching article:", err);
         setError("Failed to load article. Please try again later.");
@@ -271,7 +304,7 @@ useEffect(() => {
           <div className="flex items-center gap-6">
             {/* Likes */}
             <button
-              onClick={() => incrementLikesCount(id)}
+              onClick={() => handleHeartClick(id)}
               disabled={isLiking}
               className={`flex items-center gap-2 transition-colors ${
                 isLiking ? "opacity-70" : "hover:text-red-500"
@@ -279,8 +312,9 @@ useEffect(() => {
             >
               <Heart
                 size={18}
+                // onClick={() => setIsHeartClicked((prev)=>!prev)}
                 className={`${isLiking ? "animate-pulse" : ""} ${
-                  likes > 0 ? "fill-red-500 text-red-500" : ""
+                  likes > 0 ? `${heartColor} text-gray-500` : ""
                 }`}
               />
               <span className="font-medium">{likes}</span>

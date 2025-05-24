@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, Link, useLocation } from "react-router-dom"
-import { MdArrowBack, MdAccessTime, MdPerson } from "react-icons/md"
-import axios from "axios"
-import mountain from "../../assets/products/image(10).png"
-import tech from "../../assets/products/image(11).png"
-import desktop from "../../assets/products/image(3).png"
-import sigleman from "../../assets/products/image(4).png"
-import concentration from "../../assets/products/image(5).png"
-import podcast from "../../assets/products/image(6).png"
+import { useState, useEffect } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
+import { MdArrowBack, MdAccessTime, MdPerson } from "react-icons/md";
+import axios from "axios";
+import mountain from "../../assets/products/image(10).png";
+import tech from "../../assets/products/image(11).png";
+import desktop from "../../assets/products/image(3).png";
+import sigleman from "../../assets/products/image(4).png";
+import concentration from "../../assets/products/image(5).png";
+import podcast from "../../assets/products/image(6).png";
 
 // Calculate reading time based on content length
 export const calculateReadingTime = (content) => {
   // Average reading speed is about 200-250 words per minute
-  const wordsPerMinute = 225
+  const wordsPerMinute = 225;
 
   // Count words in the content
-  const wordCount = content.trim().split(/\s+/).length
+  const wordCount = content.trim().split(/\s+/).length;
 
   // Calculate reading time in minutes
-  let readingTime = Math.ceil(wordCount / wordsPerMinute)
+  let readingTime = Math.ceil(wordCount / wordsPerMinute);
 
   // Ensure minimum reading time is 1 minute
-  readingTime = readingTime < 1 ? 1 : readingTime
+  readingTime = readingTime < 1 ? 1 : readingTime;
 
-  return readingTime
-}
+  return readingTime;
+};
 
 // Extract text content from HTML string
 export const extractTextFromHTML = (html) => {
-  if (!html) return ""
+  if (!html) return "";
 
   // If we're in a browser environment
   if (typeof document !== "undefined") {
     // Create a temporary div to hold the HTML content
-    const tempDiv = document.createElement("div")
-    tempDiv.innerHTML = html
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
     // Get the text content (strips HTML tags)
-    return tempDiv.textContent || tempDiv.innerText || ""
+    return tempDiv.textContent || tempDiv.innerText || "";
   }
 
   // Simple fallback for non-browser environments
-  return html.replace(/<[^>]*>/g, "")
-}
+  return html.replace(/<[^>]*>/g, "");
+};
 
 // Export the extended articles data for use in the news list component
 export const articlesExtended = [
@@ -53,7 +53,8 @@ export const articlesExtended = [
     author: "Alec Whitten",
     date: "17 Jan 2022",
     title: "Bill Walsh leadership lessons",
-    description: "Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?",
+    description:
+      "Like to know the secrets of transforming a 2-14 team into a 3x Super Bowl winning Dynasty?",
     tags: ["Leadership", "Management"],
     content: `
       <p>Bill Walsh is a towering figure in the history of the NFL. His advanced leadership transformed the San Francisco 49ers from the worst team in football to a legendary dynasty.</p>
@@ -84,7 +85,8 @@ export const articlesExtended = [
     author: "Demi Wilkinson",
     date: "16 Jan 2022",
     title: "PM mental models",
-    description: "Mental models are simple expressions of complex processes or relationships.",
+    description:
+      "Mental models are simple expressions of complex processes or relationships.",
     tags: ["Product", "Research", "Frameworks"],
     content: `
       <p>Mental models are frameworks, worldviews, representations, or explanations of how something works. They're how we simplify complexity, why we consider some things more relevant than others, and how we reason.</p>
@@ -126,7 +128,8 @@ export const articlesExtended = [
     author: "Candice Wu",
     date: "15 Jan 2022",
     title: "What is Wireframing?",
-    description: "Introduction to Wireframing and its Principles. Learn from the best in the industry.",
+    description:
+      "Introduction to Wireframing and its Principles. Learn from the best in the industry.",
     tags: ["Design", "Research"],
     content: `
       <p>Wireframing is a crucial early step in the design process that helps establish the basic structure of a page before visual design and content are added.</p>
@@ -175,7 +178,8 @@ export const articlesExtended = [
     author: "Natali Craig",
     date: "14 Jan 2022",
     title: "How collaboration makes us better designers",
-    description: "Collaboration can make our teams stronger, and our individual designs better.",
+    description:
+      "Collaboration can make our teams stronger, and our individual designs better.",
     tags: ["Design", "Research"],
     content: `
       <p>Design is inherently collaborative. Even when we work alone, we're designing for others, considering their needs, preferences, and feedback. But true collaboration—working directly with others throughout the design process—can elevate our work to new heights.</p>
@@ -216,7 +220,8 @@ export const articlesExtended = [
     author: "Drew Cano",
     date: "13 Jan 2022",
     title: "Our top 10 Javascript frameworks to use",
-    description: "JavaScript frameworks make development easy with extensive features and functionalities.",
+    description:
+      "JavaScript frameworks make development easy with extensive features and functionalities.",
     tags: ["Software Development", "Tools", "SaaS"],
     content: `
       <p>JavaScript frameworks have revolutionized web development, making it easier to build complex, interactive applications. With so many options available, choosing the right framework for your project can be challenging. Here's our list of the top 10 JavaScript frameworks to consider in 2022.</p>
@@ -261,7 +266,8 @@ export const articlesExtended = [
     author: "Orlando Diggs",
     date: "12 Jan 2022",
     title: "Podcast: Creating a better CX Community",
-    description: "Starting a community doesn't need to be complicated, but how do you get started?",
+    description:
+      "Starting a community doesn't need to be complicated, but how do you get started?",
     tags: ["Podcasts", "Customer Success"],
     content: `
       <p>In this episode of our podcast, we explore the art and science of building customer experience communities that drive engagement, loyalty, and business growth.</p>
@@ -299,7 +305,8 @@ export const articlesExtended = [
     author: "Natali Craig",
     date: "14 Jan 2022",
     title: "How collaboration makes us better designers",
-    description: "Collaboration can make our teams stronger, and our individual designs better.",
+    description:
+      "Collaboration can make our teams stronger, and our individual designs better.",
     tags: ["Design", "Research"],
     content: `
       <p>Design is inherently collaborative. Even when we work alone, we're designing for others, considering their needs, preferences, and feedback. But true collaboration—working directly with others throughout the design process—can elevate our work to new heights.</p>
@@ -340,7 +347,8 @@ export const articlesExtended = [
     author: "Drew Cano",
     date: "13 Jan 2022",
     title: "Our top 10 Javascript frameworks to use",
-    description: "JavaScript frameworks make development easy with extensive features and functionalities.",
+    description:
+      "JavaScript frameworks make development easy with extensive features and functionalities.",
     tags: ["Software Development", "Tools", "SaaS"],
     content: `
       <p>JavaScript frameworks have revolutionized web development, making it easier to build complex, interactive applications. With so many options available, choosing the right framework for your project can be challenging. Here's our list of the top 10 JavaScript frameworks to consider in 2022.</p>
@@ -385,7 +393,8 @@ export const articlesExtended = [
     author: "Orlando Diggs",
     date: "12 Jan 2022",
     title: "Podcast: Creating a better CX Community",
-    description: "Starting a community doesn't need to be complicated, but how do you get started?",
+    description:
+      "Starting a community doesn't need to be complicated, but how do you get started?",
     tags: ["Podcasts", "Customer Success"],
     content: `
       <p>In this episode of our podcast, we explore the art and science of building customer experience communities that drive engagement, loyalty, and business growth.</p>
@@ -417,108 +426,143 @@ export const articlesExtended = [
     `,
     relatedArticles: [6, 4, 2],
   },
-]
+];
 
 export default function NewsDetail() {
-  const { pathname } = useLocation()
-  const location = useLocation()
-  const { id } = useParams()
-  const [dynamicArticle, setDynamicArticle] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [readingTime, setReadingTime] = useState(null)
+  const { pathname } = useLocation();
+  const location = useLocation();
+  const { id } = useParams();
+  const [dynamicArticle, setDynamicArticle] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [readingTime, setReadingTime] = useState(null);
 
   // Check if this is a dynamic article from the API using state
-  const isDynamic = location.state?.isDynamic
+  const isDynamic = location.state?.isDynamic;
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [pathname])
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  useEffect(() => {
+    try {
+      (async () => {
+        const response = await axios.patch(
+          `${import.meta.env.VITE_API_URL}/api/news/update-views/${id}`
+        );
+      })();
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  }, []);
 
   // Fetch dynamic article if needed
   useEffect(() => {
     if (isDynamic) {
       const fetchArticle = async () => {
         try {
-          setLoading(true)
-          console.log("Fetching dynamic article with ID:", id)
+          setLoading(true);
+          console.log("Fetching dynamic article with ID:", id);
 
-          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/news/${id}`)
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/news/${id}`
+          );
 
           // Calculate reading time based on full content
-          const articleReadingTime = calculateReadingTime(extractTextFromHTML(response.data.content))
+          const articleReadingTime = calculateReadingTime(
+            extractTextFromHTML(response.data.content)
+          );
 
-          setReadingTime(articleReadingTime)
+          setReadingTime(articleReadingTime);
 
           setDynamicArticle({
             ...response.data,
-            image: response.data.image ? `${import.meta.env.VITE_API_URL}${response.data.image}` : null,
+            image: response.data.image
+              ? `${import.meta.env.VITE_API_URL}${response.data.image}`
+              : null,
             date: new Date(response.data.date).toLocaleDateString("en-US", {
               day: "numeric",
               month: "short",
               year: "numeric",
             }),
-          })
+          });
         } catch (err) {
-          console.error("Error fetching article:", err)
-          setError("Failed to load article")
+          console.error("Error fetching article:", err);
+          setError("Failed to load article");
         } finally {
-          setLoading(false)
+          setLoading(false);
         }
-      }
+      };
 
-      fetchArticle()
+      fetchArticle();
     } else {
       // For static articles, calculate reading time from the content
-      const staticArticle = articlesExtended.find((article) => article.id === Number.parseInt(id))
+      const staticArticle = articlesExtended.find(
+        (article) => article.id === Number.parseInt(id)
+      );
 
       if (staticArticle) {
-        const articleReadingTime = calculateReadingTime(extractTextFromHTML(staticArticle.content))
-        setReadingTime(articleReadingTime)
+        const articleReadingTime = calculateReadingTime(
+          extractTextFromHTML(staticArticle.content)
+        );
+        setReadingTime(articleReadingTime);
       }
     }
-  }, [id, isDynamic])
+  }, [id, isDynamic]);
 
   // For static articles, find the article based on the ID
-  const staticArticle = !isDynamic ? articlesExtended.find((article) => article.id === Number.parseInt(id)) : null
+  const staticArticle = !isDynamic
+    ? articlesExtended.find((article) => article.id === Number.parseInt(id))
+    : null;
 
   // Use either the dynamic or static article
-  const article = isDynamic ? dynamicArticle : staticArticle
+  const article = isDynamic ? dynamicArticle : staticArticle;
 
   // Find related articles (only for static articles)
   const relatedArticles =
     !isDynamic && staticArticle?.relatedArticles
-      ? staticArticle.relatedArticles.map((relId) => articlesExtended.find((a) => a.id === relId))
-      : []
+      ? staticArticle.relatedArticles.map((relId) =>
+          articlesExtended.find((a) => a.id === relId)
+        )
+      : [];
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
-    )
+    );
   }
 
   if (error || !article) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">Article not found</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            Article not found
+          </h1>
           <p className="mt-4 text-gray-600">
-            {error || "The article you're looking for doesn't exist or has been removed."}
+            {error ||
+              "The article you're looking for doesn't exist or has been removed."}
           </p>
-          <Link to="/news" className="mt-6 inline-flex items-center text-purple-700 hover:text-purple-900">
+          <Link
+            to="/news"
+            className="mt-6 inline-flex items-center text-purple-700 hover:text-purple-900"
+          >
             <MdArrowBack className="mr-2" /> Back to News
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
-        <Link to="/news" className="inline-flex items-center text-purple-700 hover:text-purple-900 mb-6 font-medium">
+        <Link
+          to="/news"
+          className="inline-flex items-center text-purple-700 hover:text-purple-900 mb-6 font-medium"
+        >
           <MdArrowBack className="mr-2" /> Back to News
         </Link>
 
@@ -529,9 +573,9 @@ export default function NewsDetail() {
               alt={article.title}
               className="w-full h-full object-cover"
               onError={(e) => {
-                console.error("Image failed to load:", article.image)
-                e.target.src = "/placeholder.svg"
-                e.target.onerror = null // Prevent infinite loop
+                console.error("Image failed to load:", article.image);
+                e.target.src = "/placeholder.svg";
+                e.target.onerror = null; // Prevent infinite loop
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end">
@@ -547,7 +591,9 @@ export default function NewsDetail() {
                       </span>
                     ))}
                 </div>
-                <h1 className="text-2xl md:text-4xl font-bold mb-2 text-white">{article.title}</h1>
+                <h1 className="text-2xl md:text-4xl font-bold mb-2 text-white">
+                  {article.title}
+                </h1>
               </div>
             </div>
           </div>
@@ -581,7 +627,9 @@ export default function NewsDetail() {
 
         {!isDynamic && relatedArticles.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Related Articles</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Related Articles
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedArticles.map(
                 (relatedArticle) =>
@@ -598,9 +646,12 @@ export default function NewsDetail() {
                           alt={relatedArticle.title}
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                           onError={(e) => {
-                            console.error("Image failed to load:", relatedArticle.image)
-                            e.target.src = "/placeholder.svg"
-                            e.target.onerror = null // Prevent infinite loop
+                            console.error(
+                              "Image failed to load:",
+                              relatedArticle.image
+                            );
+                            e.target.src = "/placeholder.svg";
+                            e.target.onerror = null; // Prevent infinite loop
                           }}
                         />
                       </div>
@@ -608,16 +659,20 @@ export default function NewsDetail() {
                         <p className="text-sm text-purple-600 mb-2">
                           {relatedArticle.author} • {relatedArticle.date}
                         </p>
-                        <h3 className="text-lg font-semibold mb-2">{relatedArticle.title}</h3>
-                        <p className="text-gray-600 text-sm line-clamp-2">{relatedArticle.description}</p>
+                        <h3 className="text-lg font-semibold mb-2">
+                          {relatedArticle.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {relatedArticle.description}
+                        </p>
                       </div>
                     </Link>
-                  ),
+                  )
               )}
             </div>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

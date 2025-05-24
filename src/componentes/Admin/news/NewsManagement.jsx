@@ -23,6 +23,7 @@ import {
   Check,
   ChevronRight,
   Tag,
+  Eye,
 } from "lucide-react"
 import { AppContext } from "../../../context/AppContext"
 import { Link } from "react-router-dom"
@@ -356,7 +357,7 @@ const NewsManagement = () => {
     const selectedNews = news.filter((item) => selectedItems.includes(item._id))
 
     // Create CSV content
-    let csvContent = "Title,Description,Author,Date,Status,Category,Tags\n"
+    let csvContent = "Title,Description,Author,Date,Status,Category,Views,Tags\n"
 
     selectedNews.forEach((item) => {
       // Clean up description to avoid CSV issues
@@ -369,7 +370,7 @@ const NewsManagement = () => {
       const tags = item.tags ? item.tags.join("; ") : ""
 
       // Add row to CSV
-      csvContent += `"${item.title}","${cleanDescription}","${item.author}","${formattedDate}","${item.status}","${item.category || "general"}","${tags}"\n`
+      csvContent += `"${item.title}","${cleanDescription}","${item.author}","${formattedDate}","${item.status}","${item.category || "general"}","${item.views || 0}","${tags}"\n`
     })
 
     // Create download link
@@ -726,13 +727,13 @@ const NewsManagement = () => {
         </div>
       ) : (
         <>
-          {/* Desktop Table View - Hidden on mobile */}
-          <div className="hidden md:block bg-white shadow-md rounded-lg overflow-hidden">
+          {/* Desktop Table View - Multiple breakpoints for better responsiveness */}
+          <div className="hidden xl:block bg-white shadow-md rounded-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-3 py-3 text-left">
+                    <th scope="col" className="px-2 py-3 text-left w-8">
                       <div className="flex items-center">
                         <input
                           type="checkbox"
@@ -744,37 +745,43 @@ const NewsManagement = () => {
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       Title
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
                     >
                       Author
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
                     >
                       Date
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
                     >
                       Status
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
                     >
                       Category
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16"
+                    >
+                      Views
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
                     >
                       Actions
                     </th>
@@ -786,7 +793,7 @@ const NewsManagement = () => {
                       key={item._id}
                       className={`hover:bg-gray-50 ${selectedItems.includes(item._id) ? "bg-blue-50" : ""}`}
                     >
-                      <td className="px-3 py-4 whitespace-nowrap">
+                      <td className="px-2 py-4 whitespace-nowrap w-8">
                         <div className="flex items-center">
                           <input
                             type="checkbox"
@@ -796,7 +803,7 @@ const NewsManagement = () => {
                           />
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 py-4">
                         <div className="flex items-center">
                           {item.image && (
                             <div className="flex-shrink-0 h-10 w-10 mr-3">
@@ -807,16 +814,25 @@ const NewsManagement = () => {
                               />
                             </div>
                           )}
-                          <div className="text-sm font-medium text-gray-900 truncate max-w-xs">{item.title}</div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate max-w-xs">{item.title}</div>
+                            {item.description && (
+                              <div className="text-sm text-gray-500 truncate max-w-xs">
+                                {item.description.length > 40
+                                  ? `${item.description.substring(0, 40)}...`
+                                  : item.description}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{item.author}</div>
+                      <td className="px-2 py-4 whitespace-nowrap w-20">
+                        <div className="text-sm text-gray-500 truncate">{item.author}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-2 py-4 whitespace-nowrap w-24">
                         <div className="text-sm text-gray-500">{new Date(item.date).toLocaleDateString()}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-2 py-4 whitespace-nowrap w-24">
                         <div className="relative" ref={(el) => (statusDropdownRefs.current[item._id] = el)}>
                           <button
                             onClick={() => setStatusDropdownOpen(statusDropdownOpen === item._id ? null : item._id)}
@@ -830,7 +846,7 @@ const NewsManagement = () => {
                             {statusUpdateLoading && statusDropdownOpen === item._id ? (
                               <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                             ) : null}
-                            {item.status === "published" ? "Published" : "Draft"}
+                            {item.status === "published" ? "Pub" : "Draft"}
                             <ChevronDown className="h-3 w-3 ml-1" />
                           </button>
 
@@ -866,7 +882,7 @@ const NewsManagement = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-2 py-4 whitespace-nowrap w-24">
                         <div className="relative" ref={(el) => (categoryDropdownRefs.current[item._id] = el)}>
                           <button
                             onClick={() => setCategoryDropdownOpen(categoryDropdownOpen === item._id ? null : item._id)}
@@ -884,7 +900,7 @@ const NewsManagement = () => {
                             {categoryUpdateLoading && categoryDropdownOpen === item._id ? (
                               <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                             ) : null}
-                            {item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : "General"}
+                            {item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1, 3) : "Gen"}
                             <ChevronDown className="h-3 w-3 ml-1" />
                           </button>
 
@@ -946,30 +962,207 @@ const NewsManagement = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
+                      <td className="px-2 py-4 whitespace-nowrap w-16">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Eye className="h-4 w-4 mr-1 text-gray-400" />
+                          <span className="text-xs">{item.views || 0}</span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-4 whitespace-nowrap text-right text-sm font-medium w-20">
+                        <div className="flex items-center justify-end space-x-1">
                           <Link
                             to={`/admin/dashboard/news/edit/${item._id}`}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-blue-600 hover:text-blue-900 p-1"
+                            title="Edit"
                           >
-                            <Edit className="h-5 w-5" />
+                            <Edit size={14} />
                             <span className="sr-only">Edit</span>
                           </Link>
                           <button
                             onClick={() => handleDeleteNews(item._id)}
-                            className={`${
+                            className={`p-1 ${
                               confirmDelete === item._id
                                 ? "text-red-600 hover:text-red-900"
                                 : "text-gray-600 hover:text-gray-900"
                             }`}
+                            title="Delete"
                           >
-                            <Trash2 className="h-5 w-5" />
+                            <Trash2 size={14} />
                             <span className="sr-only">Delete</span>
                           </button>
                         </div>
-                        {confirmDelete === item._id && (
-                          <div className="text-xs text-red-600 mt-1">Click again to confirm</div>
-                        )}
+                        {confirmDelete === item._id && <div className="text-xs text-red-600 mt-1">Click again</div>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Tablet Table View - Simplified for medium screens */}
+          <div className="hidden md:block xl:hidden bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-2 py-3 text-left w-8">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          checked={selectedItems.length === news.length && news.length > 0}
+                          onChange={toggleSelectAll}
+                        />
+                      </div>
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Title & Author
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
+                    >
+                      Status
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16"
+                    >
+                      Views
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-20"
+                    >
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {news.map((item) => (
+                    <tr
+                      key={item._id}
+                      className={`hover:bg-gray-50 ${selectedItems.includes(item._id) ? "bg-blue-50" : ""}`}
+                    >
+                      <td className="px-2 py-4 whitespace-nowrap w-8">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            checked={selectedItems.includes(item._id)}
+                            onChange={() => toggleSelectItem(item._id)}
+                          />
+                        </div>
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="flex items-center">
+                          {item.image && (
+                            <div className="flex-shrink-0 h-10 w-10 mr-3">
+                              <img
+                                className="h-10 w-10 rounded-md object-cover"
+                                src={`${import.meta.env.VITE_API_URL}${item.image}`}
+                                alt={item.title}
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate">{item.title}</div>
+                            <div className="text-sm text-gray-500 flex items-center gap-2">
+                              <span className="truncate">{item.author}</span>
+                              <span>•</span>
+                              <span>{new Date(item.date).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-2 py-4 whitespace-nowrap w-20">
+                        <div className="relative" ref={(el) => (statusDropdownRefs.current[`tablet-${item._id}`] = el)}>
+                          <button
+                            onClick={() =>
+                              setStatusDropdownOpen(
+                                statusDropdownOpen === `tablet-${item._id}` ? null : `tablet-${item._id}`,
+                              )
+                            }
+                            className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
+                              item.status === "published"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                            disabled={statusUpdateLoading}
+                          >
+                            {statusUpdateLoading && statusDropdownOpen === `tablet-${item._id}` ? (
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            ) : null}
+                            {item.status === "published" ? "Pub" : "Draft"}
+                            <ChevronDown className="h-3 w-3 ml-1" />
+                          </button>
+
+                          {statusDropdownOpen === `tablet-${item._id}` && (
+                            <div className="absolute z-10 mt-1 w-36 bg-white rounded-md shadow-lg border border-gray-200">
+                              <div className="py-1">
+                                <button
+                                  onClick={() => handleStatusUpdate(item._id, "published")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    item.status === "published"
+                                      ? "bg-green-50 text-green-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={statusUpdateLoading}
+                                >
+                                  {item.status === "published" && <Check className="h-4 w-4 mr-2" />}
+                                  Published
+                                </button>
+                                <button
+                                  onClick={() => handleStatusUpdate(item._id, "draft")}
+                                  className={`flex items-center w-full px-4 py-2 text-sm text-left ${
+                                    item.status === "draft"
+                                      ? "bg-yellow-50 text-yellow-700 font-medium"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                  disabled={statusUpdateLoading}
+                                >
+                                  {item.status === "draft" && <Check className="h-4 w-4 mr-2" />}
+                                  Draft
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-2 py-4 whitespace-nowrap w-16">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Eye className="h-4 w-4 mr-1 text-gray-400" />
+                          <span className="text-xs">{item.views || 0}</span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-4 whitespace-nowrap text-right text-sm font-medium w-20">
+                        <div className="flex items-center justify-end space-x-1">
+                          <Link
+                            to={`/admin/dashboard/news/edit/${item._id}`}
+                            className="text-blue-600 hover:text-blue-900 p-1"
+                            title="Edit"
+                          >
+                            <Edit size={14} />
+                            <span className="sr-only">Edit</span>
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteNews(item._id)}
+                            className={`p-1 ${
+                              confirmDelete === item._id
+                                ? "text-red-600 hover:text-red-900"
+                                : "text-gray-600 hover:text-gray-900"
+                            }`}
+                            title="Delete"
+                          >
+                            <Trash2 size={14} />
+                            <span className="sr-only">Delete</span>
+                          </button>
+                        </div>
+                        {confirmDelete === item._id && <div className="text-xs text-red-600 mt-1">Click again</div>}
                       </td>
                     </tr>
                   ))}
@@ -1007,7 +1200,7 @@ const NewsManagement = () => {
                   )}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-gray-900 break-words">{item.title}</h3>
-                    <div className="flex items-center gap-1 mt-1">
+                    <div className="flex items-center gap-1 mt-1 flex-wrap">
                       <div className="relative" ref={(el) => (statusDropdownRefs.current[`mobile-${item._id}`] = el)}>
                         <button
                           onClick={() =>
@@ -1151,19 +1344,24 @@ const NewsManagement = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2 text-sm text-gray-600 mt-3">
+                <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mt-3">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    <span className="break-words">{item.author}</span>
+                    <span className="break-words truncate">{item.author}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                    <span>{new Date(item.date).toLocaleDateString()}</span>
+                    <span className="truncate">{new Date(item.date).toLocaleDateString()}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                    <span>{item.views || 0} views</span>
                   </div>
 
                   {item.description && (
-                    <div className="flex items-start gap-2 mt-1">
+                    <div className="flex items-start gap-2 col-span-2 mt-1">
                       <FileText className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-gray-500 line-clamp-2 break-words">{item.description}</p>
                     </div>
