@@ -13,6 +13,7 @@ import EventsDisplay from "./EventsCards";
 import Contact from "./contactForm/Contact";
 import BlogDisplay from "./BlogsCards";
 import NewsDisplay from "./NewsCards";
+import Gallery from "../gallary/Gallary";
 
 const Cont5 = () => {
   const clientTestimonials = [
@@ -995,6 +996,7 @@ const Cont5 = () => {
           "freelancer"
         )}
       </div>
+      <Gallery />
       <Contact />
       <FAQAccordion />
       <Newslettr />
