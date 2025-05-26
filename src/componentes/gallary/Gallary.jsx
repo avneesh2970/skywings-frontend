@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const Gallery = memo(function Gallery({ onNavigateToGallery }) {
+const Gallery = memo(function Gallery() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
-
+  const navigate = useNavigate();
   // Memoized static data with shorter descriptions
   const allImages = useMemo(
     () => [
@@ -55,7 +56,6 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
 
   // Stable effect dependencies
   useEffect(() => {
-    console.log("Gallery mounted - should only run once");
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
@@ -94,9 +94,6 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
   const handleCloseModal = useCallback(() => {
     setSelectedImage(null);
   }, []);
-
-  // Controlled logging to debug parent re-renders
-  console.log("Gallery render:", { imagesCount: previewImages.length });
 
   if (!isLoaded) {
     return (
@@ -182,8 +179,9 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
 
           {/* Explore Gallery Button */}
           <div className="text-center">
-            <Link
-              to="/gallery"
+            <button
+              onClick={() => navigate("/gallery")}
+              //   to="/gallery"
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
               <span className="mr-2">Explore Full Gallery</span>
@@ -200,7 +198,7 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
                   d="M17 8l4 4m0 0l-4 4m4-4H3"
                 />
               </svg>
-            </Link>
+            </button>
           </div>
         </div>
       </section>

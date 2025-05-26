@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Link } from "react-router-dom";
 
-const GalleryPage = memo(function GalleryPage({ onNavigateBack }) {
+const GalleryPage = memo(function GalleryPage() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -112,7 +112,6 @@ const GalleryPage = memo(function GalleryPage({ onNavigateBack }) {
 
   // Stable effect dependencies
   useEffect(() => {
-    console.log("GalleryPage mounted");
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);

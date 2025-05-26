@@ -1,60 +1,77 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Link, useLocation } from "react-router-dom"
-import { Home, FileText, Calendar, Mail, Users, Settings, Menu, X, Upload, Bell, Newspaper } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Home,
+  FileText,
+  Calendar,
+  Mail,
+  Users,
+  Settings,
+  Menu,
+  X,
+  Upload,
+  Bell,
+  Newspaper,
+  GalleryVertical,
+} from "lucide-react";
 
 function Sidebar({ user }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const sidebarRef = useRef(null)
-  const location = useLocation()
-  const [newsExpanded, setNewsExpanded] = useState(false)
-  const [settingsExpanded, setSettingsExpanded] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const sidebarRef = useRef(null);
+  const location = useLocation();
+  const [newsExpanded, setNewsExpanded] = useState(false);
+  const [settingsExpanded, setSettingsExpanded] = useState(false);
 
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
     function handleClickOutside(event) {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && isOpen) {
-        setIsOpen(false)
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target) &&
+        isOpen
+      ) {
+        setIsOpen(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isOpen])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
     if (window.innerWidth < 768) {
-      setIsOpen(false)
+      setIsOpen(false);
     }
-  }, [location.pathname])
+  }, [location.pathname]);
 
   // Prevent body scroll when sidebar is open on mobile
   useEffect(() => {
     if (isOpen && window.innerWidth < 768) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto"
+      document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = "auto"
-    }
-  }, [isOpen])
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
   // Fixed isActive function to only highlight the exact path or its direct children
   const isActive = (path) => {
     // For the dashboard home route, only be active if it's exactly /admin/dashboard
     if (path === "/admin/dashboard") {
-      return location.pathname === "/admin/dashboard"
+      return location.pathname === "/admin/dashboard";
     }
 
     // For other routes, check if the current path starts with this path
-    return location.pathname.startsWith(path)
-  }
+    return location.pathname.startsWith(path);
+  };
 
   const navItems = [
     { path: "/admin/dashboard", icon: <Home size={20} />, label: "Dashboard" },
@@ -68,11 +85,36 @@ function Sidebar({ user }) {
         { path: "/admin/dashboard/news/create", label: "Add News" },
       ],
     },
-    { path: "/admin/dashboard/blogs", icon: <FileText size={20} />, label: "Blog" },
-    { path: "/admin/dashboard/events", icon: <Calendar size={20} />, label: "Events" },
-    { path: "/admin/dashboard/contact-us", icon: <Mail size={20} />, label: "Contact Us" },
-    { path: "/admin/dashboard/resumes", icon: <Upload size={20} />, label: "Resumes" },
-    { path: "/admin/dashboard/newsletter", icon: <Bell size={20} />, label: "Newsletter" },
+    {
+      path: "/admin/dashboard/blogs",
+      icon: <FileText size={20} />,
+      label: "Blog",
+    },
+    {
+      path: "/admin/dashboard/events",
+      icon: <Calendar size={20} />,
+      label: "Events",
+    },
+    {
+      path: "/admin/dashboard/contact-us",
+      icon: <Mail size={20} />,
+      label: "Contact Us",
+    },
+    {
+      path: "/admin/dashboard/resumes",
+      icon: <Upload size={20} />,
+      label: "Resumes",
+    },
+    {
+      path: "/admin/dashboard/newsletter",
+      icon: <Bell size={20} />,
+      label: "Newsletter",
+    },
+    {
+      path: "/admin/dashboard/gallery",
+      icon: <GalleryVertical size={20} />,
+      label: "Gallery",
+    },
     {
       path: "/admin/dashboard/settings",
       icon: <Settings size={20} />,
@@ -83,7 +125,7 @@ function Sidebar({ user }) {
         { path: "/admin/dashboard/settings/security", label: "Security" },
       ],
     },
-  ]
+  ];
 
   return (
     <>
@@ -110,7 +152,11 @@ function Sidebar({ user }) {
       <div
         ref={sidebarRef}
         className={`fixed md:sticky top-0 left-0 h-screen bg-white shadow-lg flex flex-col transition-all duration-300 ease-in-out z-50 
-          ${isOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full md:translate-x-0"}`}
+          ${
+            isOpen
+              ? "w-64 translate-x-0"
+              : "w-64 -translate-x-full md:translate-x-0"
+          }`}
       >
         {/* Logo area */}
         <div className="flex items-center justify-between p-4 border-b">
@@ -140,9 +186,9 @@ function Sidebar({ user }) {
                     <button
                       onClick={() => {
                         if (item.label === "News") {
-                          setNewsExpanded(!newsExpanded)
+                          setNewsExpanded(!newsExpanded);
                         } else if (item.label === "Settings") {
-                          setSettingsExpanded(!settingsExpanded)
+                          setSettingsExpanded(!settingsExpanded);
                         }
                       }}
                       className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-md transition-colors ${
@@ -152,14 +198,25 @@ function Sidebar({ user }) {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>{item.icon}</span>
+                        <span
+                          className={
+                            isActive(item.path)
+                              ? "text-blue-600"
+                              : "text-gray-500"
+                          }
+                        >
+                          {item.icon}
+                        </span>
                         <span>{item.label}</span>
                       </div>
-                      {isActive(item.path) && <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>}
+                      {isActive(item.path) && (
+                        <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
+                      )}
                     </button>
 
                     {/* Submenu */}
-                    {(item.label === "News" && newsExpanded) || (item.label === "Settings" && settingsExpanded) ? (
+                    {(item.label === "News" && newsExpanded) ||
+                    (item.label === "Settings" && settingsExpanded) ? (
                       <div className="pl-10 space-y-1 mt-1">
                         {item.submenu.map((subItem) => (
                           <Link
@@ -170,7 +227,9 @@ function Sidebar({ user }) {
                                 ? "bg-purple-50 text-blue-700 font-medium"
                                 : "text-gray-700 hover:bg-gray-100"
                             }`}
-                            onClick={() => window.innerWidth < 768 && setIsOpen(false)}
+                            onClick={() =>
+                              window.innerWidth < 768 && setIsOpen(false)
+                            }
                           >
                             <span className="text-sm">{subItem.label}</span>
                           </Link>
@@ -182,13 +241,23 @@ function Sidebar({ user }) {
                   <Link
                     to={item.path}
                     className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
-                      isActive(item.path) ? "bg-purple-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-100"
+                      isActive(item.path)
+                        ? "bg-purple-50 text-blue-700 font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                     onClick={() => window.innerWidth < 768 && setIsOpen(false)}
                   >
-                    <span className={isActive(item.path) ? "text-blue-600" : "text-gray-500"}>{item.icon}</span>
+                    <span
+                      className={
+                        isActive(item.path) ? "text-blue-600" : "text-gray-500"
+                      }
+                    >
+                      {item.icon}
+                    </span>
                     <span>{item.label}</span>
-                    {isActive(item.path) && <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>}
+                    {isActive(item.path) && (
+                      <span className="ml-auto w-1.5 h-5 bg-blue-600 rounded-full"></span>
+                    )}
                   </Link>
                 )}
               </div>
@@ -203,8 +272,12 @@ function Sidebar({ user }) {
               <Users size={20} className="text-gray-600" />
             </div>
             <div>
-              <p className="font-medium text-sm">{user?.email?.split("@")[0] || "Admin"}</p>
-              <p className="text-xs text-gray-500">{user?.email || "admin@example.com"}</p>
+              <p className="font-medium text-sm">
+                {user?.email?.split("@")[0] || "Admin"}
+              </p>
+              <p className="text-xs text-gray-500">
+                {user?.email || "admin@example.com"}
+              </p>
             </div>
           </div>
         </div>
@@ -213,7 +286,7 @@ function Sidebar({ user }) {
       {/* Spacer for mobile to account for the fixed sidebar button */}
       <div className="h-16 md:hidden" />
     </>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;

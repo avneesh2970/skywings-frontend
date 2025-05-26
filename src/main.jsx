@@ -43,6 +43,7 @@ import EditNewsPage from "./componentes/Admin/news/EditNewsPage";
 import SecuritySettings from "./componentes/Admin/SecuritySettings";
 import { Toaster } from "react-hot-toast";
 import GalleryPage from "./componentes/gallary/GalleryPage";
+import GalleryDashboard from "./componentes/Admin/gallery/GalleryDashboard";
 
 const router = createBrowserRouter([
   {
@@ -108,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/dashboard/events",
         element: <Events />,
+      },
+      {
+        path: "/admin/dashboard/gallery",
+        element: <GalleryDashboard />,
       },
       {
         path: "/admin/dashboard/events/new",
