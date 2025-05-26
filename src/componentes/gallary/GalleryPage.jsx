@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { Link } from "react-router-dom";
 
-const Gallery = memo(function Gallery({ onNavigateToGallery }) {
+const GalleryPage = memo(function GalleryPage({ onNavigateBack }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Memoized static data with shorter descriptions
+  // All images for the full gallery page
   const allImages = useMemo(
     () => [
       {
@@ -46,16 +46,73 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
         title: "Architecture",
         description: "Modern design",
       },
+      {
+        id: 7,
+        url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&h=600&fit=crop",
+        title: "Starry Night",
+        description: "Night sky",
+      },
+      {
+        id: 8,
+        url: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600&fit=crop",
+        title: "City Street",
+        description: "Urban traffic",
+      },
+      {
+        id: 9,
+        url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop",
+        title: "Ocean Waves",
+        description: "Crashing waves",
+      },
+      {
+        id: 10,
+        url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=500&fit=crop",
+        title: "Urban Garden",
+        description: "City oasis",
+      },
+      {
+        id: 11,
+        url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=700&fit=crop",
+        title: "Autumn Forest",
+        description: "Colorful leaves",
+      },
+      {
+        id: 12,
+        url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=900&fit=crop",
+        title: "Bridge View",
+        description: "Modern bridge",
+      },
+      {
+        id: 13,
+        url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+        title: "Sunset Valley",
+        description: "Golden hour",
+      },
+      {
+        id: 14,
+        url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+        title: "Misty Woods",
+        description: "Morning fog",
+      },
+      {
+        id: 15,
+        url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
+        title: "Canyon View",
+        description: "Red rocks",
+      },
+      {
+        id: 16,
+        url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&h=600&fit=crop",
+        title: "Crystal Lake",
+        description: "Clear waters",
+      },
     ],
     []
   );
 
-  // Show only first 6 images for preview
-  const previewImages = useMemo(() => allImages.slice(0, 6), [allImages]);
-
   // Stable effect dependencies
   useEffect(() => {
-    console.log("Gallery mounted - should only run once");
+    console.log("GalleryPage mounted");
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
@@ -86,7 +143,7 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
     };
   }, [selectedImage]);
 
-  // Memoized handlers to prevent re-creation
+  // Memoized handlers
   const handleImageClick = useCallback((image) => {
     setSelectedImage(image);
   }, []);
@@ -94,9 +151,6 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
   const handleCloseModal = useCallback(() => {
     setSelectedImage(null);
   }, []);
-
-  // Controlled logging to debug parent re-renders
-  console.log("Gallery render:", { imagesCount: previewImages.length });
 
   if (!isLoaded) {
     return (
@@ -110,30 +164,13 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
   }
 
   // Memoized Gallery Card Component
-  const GalleryCard = memo(function GalleryCard({ image, index }) {
+  const GalleryCard = memo(function GalleryCard({ image }) {
     return (
       <div
-        className={`
-          group relative cursor-pointer overflow-hidden rounded-2xl shadow-lg bg-white
-          transition-all duration-300 hover:shadow-2xl hover:-translate-y-1
-          ${index === 0 ? "md:col-span-2 md:row-span-2" : ""}
-          ${index === 1 ? "md:col-span-2" : ""}
-          ${index === 2 ? "lg:col-span-2" : ""}
-        `}
+        className="group relative cursor-pointer overflow-hidden rounded-2xl shadow-lg bg-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
         onClick={() => handleImageClick(image)}
       >
-        <div
-          className={`
-            relative 
-            ${
-              index === 0
-                ? "h-80 md:h-full"
-                : index === 1
-                ? "h-64 md:h-full"
-                : "h-64"
-            }
-          `}
-        >
+        <div className="relative h-64">
           <img
             src={image.url || "/placeholder.svg"}
             alt={image.title}
@@ -141,10 +178,9 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
             loading="lazy"
           />
 
-          {/* Gradient overlay that's always visible but gets darker on hover */}
+          {/* Hover Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/80 group-hover:via-black/40 transition-all duration-300">
-            {/* Content that appears on hover */}
-            <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <h3 className="text-lg font-bold mb-1 text-white">
                 {image.title}
               </h3>
@@ -159,51 +195,47 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
   });
 
   return (
-    <div className="min-h-screen">
-      {/* Preview Gallery */}
-      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6">
-              Media Gallery
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 gap-6">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+              Complete Gallery
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Discover our collection of stunning visuals and memorable moments
+            <p className="text-gray-600">
+              Explore our complete collection of {allImages.length} images
             </p>
           </div>
 
-          {/* Featured Gallery Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-16">
-            {previewImages.map((image, index) => (
-              <GalleryCard key={image.id} image={image} index={index} />
-            ))}
-          </div>
-
-          {/* Explore Gallery Button */}
-          <div className="text-center">
-            <Link
-              to="/gallery"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          <Link
+            to="/"
+            className="flex items-center px-6 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-all duration-300 hover:scale-105 shadow-lg"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <span className="mr-2">Explore Full Gallery</span>
-              <svg
-                className="w-5 h-5 transition-transform duration-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </Link>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16l-4-4m0 0l4-4m-4 4h18"
+              />
+            </svg>
+            Back to Home
+          </Link>
         </div>
-      </section>
+
+        {/* Gallery Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {allImages.map((image) => (
+            <GalleryCard key={image.id} image={image} />
+          ))}
+        </div>
+      </div>
 
       {/* Simple Image Modal */}
       {selectedImage && (
@@ -248,4 +280,4 @@ const Gallery = memo(function Gallery({ onNavigateToGallery }) {
   );
 });
 
-export default Gallery;
+export default GalleryPage;

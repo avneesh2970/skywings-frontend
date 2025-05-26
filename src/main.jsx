@@ -42,6 +42,7 @@ import CreateNewsPage from "./componentes/Admin/news/CreateNewsPage";
 import EditNewsPage from "./componentes/Admin/news/EditNewsPage";
 import SecuritySettings from "./componentes/Admin/SecuritySettings";
 import { Toaster } from "react-hot-toast";
+import GalleryPage from "./componentes/gallary/GalleryPage";
 
 const router = createBrowserRouter([
   {
@@ -71,6 +72,7 @@ const router = createBrowserRouter([
       { path: "/policy", element: <PrivacyPolicy /> },
       { path: "/article/:id", element: <ArticleDetails /> },
       { path: "/disclaimer", element: <Disclaimer /> },
+      { path: "/gallery", element: <GalleryPage /> },
     ],
   },
   {
