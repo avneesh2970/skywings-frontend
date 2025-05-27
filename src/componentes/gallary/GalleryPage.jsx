@@ -59,6 +59,10 @@ const GalleryPage = memo(function GalleryPage() {
     []
   );
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Load images on component mount and when filters change
   useEffect(() => {
     fetchGalleryImages(currentPage, searchTerm, selectedCategory);
