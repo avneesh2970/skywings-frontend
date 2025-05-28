@@ -149,11 +149,12 @@ function Contact() {
       } is required`;
     } else if (name === "email" && !/^\S+@\S+\.\S+$/.test(value)) {
       errorMessage = "Please enter a valid email address";
-    } else if (
-      name === "contact" &&
-      !/^\d{10,15}$/.test(value.replace(/[^0-9]/g, ""))
-    ) {
-      errorMessage = "Please enter a valid contact number (10-15 digits)";
+    } else if (name === "contact") {
+      if (!/^\d+$/.test(value)) {
+        errorMessage = "Contact number should contain only digits";
+      } else if (value.length !== 10) {
+        errorMessage = "Contact number must be exactly 10 digits";
+      }
     }
 
     return errorMessage;
@@ -388,7 +389,8 @@ function Contact() {
                         href="mailto:career@assuredjob.com"
                         className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
                       >
-                        <span className="font-semibold">c</span>areer@assuredjob.com
+                        <span className="font-semibold">c</span>
+                        areer@assuredjob.com
                       </a>
                     </motion.div>
 
