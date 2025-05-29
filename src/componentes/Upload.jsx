@@ -31,6 +31,8 @@ function Upload() {
       errors.email = "Email is invalid";
     if (!formData.contactNumber.trim())
       errors.contactNumber = "Contact number is required";
+    else if (!/^\d{10}$/.test(formData.contactNumber))
+      errors.contactNumber = "Contact number must be exactly 10 digits";
     if (!formData.jobAppliedFor.trim())
       errors.jobAppliedFor = "Job title is required";
     if (!formData.state.trim()) errors.state = "State is required";
@@ -77,6 +79,12 @@ function Upload() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Only allow digits for contact number
+    if (name === "contactNumber" && value !== "" && !/^\d+$/.test(value)) {
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Clear error for this field if it exists
@@ -175,7 +183,7 @@ function Upload() {
 
   return (
     <>
-      <div className="bg-blue-50 min-h-screen flex justify-center items-center">
+      <div className="mb-4 bg-blue-50 min-h-screen flex justify-center items-center">
         <div className="container mx-auto p-6 md:p-12 flex flex-col md:flex-row bg-white shadow-lg rounded-lg">
           {/* Left Image Section */}
           <div
