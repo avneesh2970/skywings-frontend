@@ -137,18 +137,18 @@ function Upload() {
       );
 
       // Also send email notification using EmailJS
-      const serviceId = import.meta.env.VITE_SERVICE_ID;
-      const templateId = import.meta.env.VITE_TEMPLATE_ID1;
-      const publicKey = import.meta.env.VITE_PUBLIC_KEY;
+      // const serviceId = import.meta.env.VITE_SERVICE_ID;
+      // const templateId = import.meta.env.VITE_TEMPLATE_ID1;
+      // const publicKey = import.meta.env.VITE_PUBLIC_KEY;
 
-      const emailData = {
-        ...formData,
-        resumeFileName: fileName,
-      };
+      // const emailData = {
+      //   ...formData,
+      //   resumeFileName: fileName,
+      // };
 
-      await emailjs.send(serviceId, templateId, emailData, {
-        publicKey,
-      });
+      // await emailjs.send(serviceId, templateId, emailData, {
+      //   publicKey,
+      // });
 
       toast.success("Your resume has been submitted successfully!");
 
