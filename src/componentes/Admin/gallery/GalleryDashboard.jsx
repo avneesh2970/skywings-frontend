@@ -28,6 +28,8 @@ import {
   Upload,
   Grid,
   List,
+  FileImage,
+  AlertCircle,
 } from "lucide-react"
 
 export default function GalleryDashboard() {
@@ -67,8 +69,9 @@ export default function GalleryDashboard() {
     featured: false,
     isActive: true,
   })
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [imagePreview, setImagePreview] = useState("")
+  // Updated for bulk upload
+  const [selectedImages, setSelectedImages] = useState([]) // Changed from selectedImage to selectedImages array
+  const [imagePreviews, setImagePreviews] = useState([]) // Changed from imagePreview to imagePreviews array
   const [formErrors, setFormErrors] = useState({})
   const [isEditing, setIsEditing] = useState(false)
   const [editingItemId, setEditingItemId] = useState(null)
@@ -82,6 +85,11 @@ export default function GalleryDashboard() {
     "product",
     "other",
   ])
+
+  // Bulk upload progress state
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadingFiles, setUploadingFiles] = useState([])
+  const [isDragOver, setIsDragOver] = useState(false)
 
   // Bulk actions state
   const [selectedItems, setSelectedItems] = useState([])
@@ -97,6 +105,7 @@ export default function GalleryDashboard() {
   const modalRef = useRef(null)
   const dropdownRefs = useRef({})
   const bulkActionRef = useRef(null)
+  const fileInputRef = useRef(null) // Added for bulk upload
 
   // Debounce search term
   useEffect(() => {
@@ -279,9 +288,11 @@ export default function GalleryDashboard() {
       featured: false,
       isActive: true,
     })
-    setSelectedImage(null)
-    setImagePreview("")
+    setSelectedImages([]) // Reset for bulk upload
+    setImagePreviews([]) // Reset for bulk upload
     setFormErrors({})
+    setUploadProgress(0)
+    setUploadingFiles([])
     setIsModalOpen(true)
   }
 
@@ -297,9 +308,11 @@ export default function GalleryDashboard() {
       featured: item.featured,
       isActive: item.isActive,
     })
-    setSelectedImage(null)
-    setImagePreview(item.imageUrl ? `${import.meta.env.VITE_API_URL}${item.imageUrl}` : "")
+    setSelectedImages([]) // Reset for editing
+    setImagePreviews([item.imageUrl ? `${import.meta.env.VITE_API_URL}${item.imageUrl}` : ""]) // Show existing image
     setFormErrors({})
+    setUploadProgress(0)
+    setUploadingFiles([])
     setIsModalOpen(true)
     setActiveDropdown(null)
   }
@@ -317,28 +330,69 @@ export default function GalleryDashboard() {
     }
   }
 
-  // Handle image change
+  // Validate file type and size
+  const validateFile = (file) => {
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
+    const maxSize = 10 * 1024 * 1024 // 10MB
+
+    if (!validTypes.includes(file.type)) {
+      return `${file.name}: Only JPEG, JPG, PNG, WEBP, and GIF files are allowed`
+    }
+
+    if (file.size > maxSize) {
+      return `${file.name}: File size exceeds 10MB limit`
+    }
+
+    return null
+  }
+
+  // Handle multiple image selection
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("Image size exceeds 10MB limit")
-        e.target.value = ""
-        return
+    const files = Array.from(e.target.files)
+    processSelectedFiles(files)
+  }
+
+  // Process selected files (used by both file input and drag & drop)
+  const processSelectedFiles = (files) => {
+    if (files.length === 0) return
+
+    const errors = []
+    const validFiles = []
+    const previews = []
+
+    files.forEach((file) => {
+      const error = validateFile(file)
+      if (error) {
+        errors.push(error)
+      } else {
+        validFiles.push(file)
+        previews.push({
+          file,
+          url: URL.createObjectURL(file),
+          name: file.name,
+          size: file.size,
+        })
       }
+    })
 
-      const fileType = file.type
-      const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
+    if (errors.length > 0) {
+      toast.error(`Some files were rejected:\n${errors.join("\n")}`)
+    }
 
-      if (!validTypes.includes(fileType)) {
-        toast.error("Only JPEG, JPG, PNG, WEBP, and GIF files are allowed")
-        e.target.value = ""
-        return
+    if (validFiles.length > 0) {
+      if (isEditing) {
+        // For editing, only allow single file
+        setSelectedImages([validFiles[0]])
+        setImagePreviews([previews[0]])
+        if (validFiles.length > 1) {
+          toast.warning("Only one image can be selected when editing")
+        }
+      } else {
+        // For adding new items, allow multiple files
+        setSelectedImages(validFiles)
+        setImagePreviews(previews)
+        toast.success(`${validFiles.length} image(s) selected for upload`)
       }
-
-      setSelectedImage(file)
-      const previewUrl = URL.createObjectURL(file)
-      setImagePreview(previewUrl)
 
       if (formErrors.image) {
         setFormErrors((prev) => ({ ...prev, image: undefined }))
@@ -346,22 +400,61 @@ export default function GalleryDashboard() {
     }
   }
 
+  // Handle drag and drop
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    setIsDragOver(false)
+
+    const files = Array.from(e.dataTransfer.files)
+    processSelectedFiles(files)
+  }
+
+  // Remove selected image
+  const removeSelectedImage = (index) => {
+    const newImages = selectedImages.filter((_, i) => i !== index)
+    const newPreviews = imagePreviews.filter((_, i) => i !== index)
+
+    // Revoke object URL to prevent memory leaks
+    if (imagePreviews[index]?.url) {
+      URL.revokeObjectURL(imagePreviews[index].url)
+    }
+
+    setSelectedImages(newImages)
+    setImagePreviews(newPreviews)
+  }
+
   // Validate form
   const validateForm = () => {
     const errors = {}
-    if (!formData.title.trim()) errors.title = "Title is required"
-    if (!formData.description.trim()) errors.description = "Description is required"
-    if (!formData.category.trim()) errors.category = "Category is required"
 
-    if (!isEditing && !selectedImage && !imagePreview) {
-      errors.image = "Image is required"
+    if (isEditing) {
+      // For editing, validate single item fields
+      if (!formData.title.trim()) errors.title = "Title is required"
+      if (!formData.description.trim()) errors.description = "Description is required"
+      if (!formData.category.trim()) errors.category = "Category is required"
+    } else {
+      // For bulk upload, images are required but individual titles/descriptions are not
+      if (selectedImages.length === 0) {
+        errors.image = "At least one image is required"
+      }
+      if (!formData.category.trim()) errors.category = "Category is required"
     }
 
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
-  // Submit form
+  // Submit form (handles both single edit and bulk upload)
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -371,21 +464,23 @@ export default function GalleryDashboard() {
     }
 
     setFormSubmitting(true)
+    setUploadProgress(0)
 
     try {
-      const submitFormData = new FormData()
-
-      Object.keys(formData).forEach((key) => {
-        if (formData[key] !== "") {
-          submitFormData.append(key, formData[key])
-        }
-      })
-
-      if (selectedImage) {
-        submitFormData.append("image", selectedImage)
-      }
-
       if (isEditing) {
+        // Handle single item edit
+        const submitFormData = new FormData()
+
+        Object.keys(formData).forEach((key) => {
+          if (formData[key] !== "") {
+            submitFormData.append(key, formData[key])
+          }
+        })
+
+        if (selectedImages.length > 0) {
+          submitFormData.append("image", selectedImages[0])
+        }
+
         await axios.patch(`${import.meta.env.VITE_API_URL}/api/gallery/${editingItemId}`, submitFormData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -393,12 +488,52 @@ export default function GalleryDashboard() {
         })
         toast.success("Gallery item updated successfully!")
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/gallery`, submitFormData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+        // Handle bulk upload
+        const uploadPromises = selectedImages.map(async (image, index) => {
+          const submitFormData = new FormData()
+
+          // Use individual title/description if provided, otherwise use base form data
+          submitFormData.append("title", formData.title || `Image ${index + 1}`)
+          submitFormData.append("description", formData.description || `Uploaded image ${index + 1}`)
+          submitFormData.append("category", formData.category)
+          submitFormData.append("tags", formData.tags)
+          submitFormData.append("featured", formData.featured)
+          submitFormData.append("isActive", formData.isActive)
+          submitFormData.append("image", image)
+
+          return axios.post(`${import.meta.env.VITE_API_URL}/api/gallery`, submitFormData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress: (progressEvent) => {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+              setUploadingFiles((prev) => prev.map((file) => (file.index === index ? { ...file, progress } : file)))
+            },
+          })
         })
-        toast.success("Gallery item created successfully!")
+
+        // Initialize uploading files state
+        setUploadingFiles(
+          selectedImages.map((image, index) => ({
+            index,
+            name: image.name,
+            progress: 0,
+            status: "uploading",
+          })),
+        )
+
+        // Execute all uploads
+        const results = await Promise.allSettled(uploadPromises)
+
+        const successful = results.filter((result) => result.status === "fulfilled").length
+        const failed = results.filter((result) => result.status === "rejected").length
+
+        if (successful > 0) {
+          toast.success(`Successfully uploaded ${successful} image(s)!`)
+        }
+        if (failed > 0) {
+          toast.error(`Failed to upload ${failed} image(s)`)
+        }
       }
 
       setIsModalOpen(false)
@@ -408,6 +543,8 @@ export default function GalleryDashboard() {
       toast.error(error.response?.data?.message || "Failed to save gallery item. Please try again later.")
     } finally {
       setFormSubmitting(false)
+      setUploadProgress(0)
+      setUploadingFiles([])
     }
   }
 
@@ -812,13 +949,13 @@ export default function GalleryDashboard() {
             <span>Export CSV</span>
           </button>
 
-          {/* Add Item Button */}
+          {/* Add Item Button - Updated text for bulk upload */}
           <button
             onClick={openAddItemModal}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
-            <span>Add Image</span>
+            <span>Add Images</span>
           </button>
         </div>
       </div>
@@ -1369,13 +1506,13 @@ export default function GalleryDashboard() {
         </>
       )}
 
-      {/* Add/Edit Modal */}
+      {/* Add/Edit Modal - Updated for bulk upload */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+          <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex justify-between items-center border-b p-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                {isEditing ? "Edit Gallery Item" : "Add New Gallery Item"}
+                {isEditing ? "Edit Gallery Item" : "Add New Gallery Items"}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="h-5 w-5" />
@@ -1383,42 +1520,44 @@ export default function GalleryDashboard() {
             </div>
 
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-130px)]">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                      formErrors.title ? "border-red-300 focus:ring-red-500" : "focus:ring-purple-500"
-                    }`}
-                    placeholder="Enter image title"
-                  />
-                  {formErrors.title && <p className="mt-1 text-sm text-red-600">{formErrors.title}</p>}
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Form fields for bulk upload */}
+                {!isEditing && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-medium text-blue-900 mb-1">Bulk Upload Mode</h4>
+                        <p className="text-sm text-blue-700">
+                          You can upload multiple images at once. The title and description will be used as defaults for
+                          all images, or you can leave them empty to auto-generate based on filenames.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                      formErrors.description ? "border-red-300 focus:ring-red-500" : "focus:ring-purple-500"
-                    }`}
-                    placeholder="Enter image description"
-                  />
-                  {formErrors.description && <p className="mt-1 text-sm text-red-600">{formErrors.description}</p>}
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {isEditing ? "Title" : "Default Title"} {isEditing && <span className="text-red-500">*</span>}
+                    </label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                        formErrors.title ? "border-red-300 focus:ring-red-500" : "focus:ring-purple-500"
+                      }`}
+                      placeholder={isEditing ? "Enter image title" : "Enter default title (optional)"}
+                    />
+                    {formErrors.title && <p className="mt-1 text-sm text-red-600">{formErrors.title}</p>}
+                    {!isEditing && (
+                      <p className="mt-1 text-xs text-gray-500">Leave empty to auto-generate titles from filenames</p>
+                    )}
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Category <span className="text-red-500">*</span>
@@ -1439,56 +1578,146 @@ export default function GalleryDashboard() {
                     </select>
                     {formErrors.category && <p className="mt-1 text-sm text-red-600">{formErrors.category}</p>}
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                    <input
-                      type="text"
-                      name="tags"
-                      value={formData.tags}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      placeholder="Enter tags separated by commas"
-                    />
-                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Image {!isEditing && <span className="text-red-500">*</span>}
+                    {isEditing ? "Description" : "Default Description"}{" "}
+                    {isEditing && <span className="text-red-500">*</span>}
                   </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                      formErrors.description ? "border-red-300 focus:ring-red-500" : "focus:ring-purple-500"
+                    }`}
+                    placeholder={isEditing ? "Enter image description" : "Enter default description (optional)"}
+                  />
+                  {formErrors.description && <p className="mt-1 text-sm text-red-600">{formErrors.description}</p>}
+                  {!isEditing && (
+                    <p className="mt-1 text-xs text-gray-500">Leave empty to auto-generate descriptions</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                  <input
+                    type="text"
+                    name="tags"
+                    value={formData.tags}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter tags separated by commas"
+                  />
+                </div>
+
+                {/* Image Upload Section - Updated for bulk upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isEditing ? "Image" : "Images"} {!isEditing && <span className="text-red-500">*</span>}
+                  </label>
+
+                  {/* Drag and Drop Area */}
                   <div
-                    className={`border-2 border-dashed rounded-lg p-4 ${
-                      formErrors.image ? "border-red-300 bg-red-50" : "border-gray-300 hover:border-purple-500"
-                    } transition-colors cursor-pointer`}
-                    onClick={() => document.getElementById("imageInput").click()}
+                    className={`border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer ${
+                      formErrors.image
+                        ? "border-red-300 bg-red-50"
+                        : isDragOver
+                          ? "border-purple-500 bg-purple-50"
+                          : "border-gray-300 hover:border-purple-500"
+                    }`}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                   >
                     <input
+                      ref={fileInputRef}
                       type="file"
-                      id="imageInput"
                       className="hidden"
                       accept="image/jpeg,image/png,image/webp,image/gif"
+                      multiple={!isEditing}
                       onChange={handleImageChange}
                     />
-                    {imagePreview ? (
-                      <div className="flex flex-col items-center">
-                        <img
-                          src={imagePreview || "/placeholder.svg"}
-                          alt="Preview"
-                          className="h-40 object-contain mb-2"
-                        />
-                        <p className="text-sm text-gray-500">Click to change image</p>
+
+                    {imagePreviews.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {imagePreviews.map((preview, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={preview.url || preview}
+                                alt={`Preview ${index + 1}`}
+                                className="w-full h-24 object-cover rounded border"
+                              />
+                              {!isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    removeSelectedImage(index)
+                                  }}
+                                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              )}
+                              {preview.name && <p className="text-xs text-gray-500 mt-1 truncate">{preview.name}</p>}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600">
+                            {isEditing ? "Click to change image" : `${imagePreviews.length} image(s) selected`}
+                          </p>
+                          {!isEditing && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Click to add more images or drag & drop additional files
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center">
-                        <Upload className="h-12 w-12 text-gray-400 mb-2" />
-                        <p className="text-sm text-gray-500">Click to upload image</p>
-                        <p className="text-xs text-gray-400 mt-1">JPEG, PNG, WEBP, GIF (max 10MB)</p>
+                        <Upload className="h-12 w-12 text-gray-400 mb-4" />
+                        <p className="text-sm text-gray-600 mb-2">
+                          {isEditing ? "Click to upload image" : "Click to upload images or drag & drop"}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          JPEG, PNG, WEBP, GIF (max 10MB each)
+                          {!isEditing && " • Multiple files supported"}
+                        </p>
                       </div>
                     )}
                   </div>
                   {formErrors.image && <p className="mt-1 text-sm text-red-600">{formErrors.image}</p>}
                 </div>
+
+                {/* Upload Progress */}
+                {uploadingFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-gray-700">Upload Progress</h4>
+                    {uploadingFiles.map((file, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <FileImage className="h-4 w-4 text-gray-400" />
+                        <div className="flex-1">
+                          <div className="flex justify-between text-xs text-gray-600 mb-1">
+                            <span className="truncate">{file.name}</span>
+                            <span>{file.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div
+                              className="bg-purple-600 h-1.5 rounded-full transition-all duration-300"
+                              style={{ width: `${file.progress}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-4">
                   <div className="flex items-center">
@@ -1499,7 +1728,9 @@ export default function GalleryDashboard() {
                       onChange={handleInputChange}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
-                    <label className="ml-2 block text-sm text-gray-700">Featured image</label>
+                    <label className="ml-2 block text-sm text-gray-700">
+                      {isEditing ? "Featured image" : "Mark as featured"}
+                    </label>
                   </div>
 
                   <div className="flex items-center">
@@ -1531,10 +1762,14 @@ export default function GalleryDashboard() {
                 {formSubmitting ? (
                   <>
                     <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                    <span>Saving...</span>
+                    <span>{isEditing ? "Updating..." : "Uploading..."}</span>
                   </>
                 ) : (
-                  <span>{isEditing ? "Update" : "Create"}</span>
+                  <span>
+                    {isEditing
+                      ? "Update"
+                      : `Upload ${selectedImages.length > 0 ? `${selectedImages.length} Image${selectedImages.length > 1 ? "s" : ""}` : "Images"}`}
+                  </span>
                 )}
               </button>
             </div>
