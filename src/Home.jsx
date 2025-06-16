@@ -1,4 +1,4 @@
-// import Cont1 from "./componentes/Home/cont1";
+import Cont1 from "./componentes/Home/cont1";
 import Cont2 from "./componentes/Home/cont2";
 import Cont3 from "./componentes/Home/cont3";
 import Cont4 from "./componentes/Home/cont4";
