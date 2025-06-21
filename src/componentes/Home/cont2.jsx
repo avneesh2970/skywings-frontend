@@ -564,7 +564,8 @@ function Cont2() {
                       >
                         <div className="">
                           <h3 className="min-h-[52px] max-h-[52px] flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
-                            {job.job_title}
+                            {/* {job.job_title} */}
+                            {job.job_title.length > 45 ? job.job_title.slice(0, 45) + '...' : job.job_title}
                           </h3>
                         </div>
 
