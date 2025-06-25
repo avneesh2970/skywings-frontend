@@ -40,6 +40,7 @@ const cards = [
     description: "Work with recruitment experts and top clients.",
   },
 ];
+
 const scan = [
   {
     name: "linkedin",
@@ -84,10 +85,26 @@ const jobCards = [
 ];
 
 const platFormCard = [
-  { count: "70", platform: "Instagram Followers" },
-  { count: "565", platform: "Facebook Followers" },
-  { count: "10K", platform: "Linkedin Followers" },
-  { count: "600", platform: "YouTube Subscribers" },
+  {
+    count: "70",
+    platform: "Instagram Followers",
+    link: "https://www.instagram.com/assuredjob/ ",
+  },
+  {
+    count: "565",
+    platform: "Facebook Followers",
+    link: "https://www.facebook.com/www.assuredjob.in?rdid=8Q0uNLYzpF0wXPUg&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F15Zrb6ooNt%2F#",
+  },
+  {
+    count: "10K",
+    platform: "Linkedin Followers",
+    link: "https://www.linkedin.com/company/skywings-advisors-pvt-ltd/ ",
+  },
+  {
+    count: "600",
+    platform: "YouTube Subscribers",
+    link: "https://www.youtube.com/@TheAssuredJobChannel ",
+  },
 ];
 
 const Career = () => {
@@ -264,11 +281,15 @@ const Career = () => {
           <div className="flex justify-center w-full px-4 mb-14">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl w-full place-items-center">
               {platFormCard.map((info, index) => (
-                <StatCard
+                <a
                   key={index}
-                  count={info.count}
-                  platform={info.platform}
-                />
+                  href={info.link.trim() !== "" ? info.link : "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <StatCard count={info.count} platform={info.platform} />
+                </a>
               ))}
             </div>
           </div>

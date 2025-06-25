@@ -201,7 +201,7 @@ function EventsDisplay() {
                     </div>
                   )}
 
-                  {event.status && (
+                  {/* {event.status && (
                     <div className="absolute top-2 right-2 z-20">
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-200 ${
@@ -217,7 +217,7 @@ function EventsDisplay() {
                         {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                       </span>
                     </div>
-                  )}
+                  )} */}
                 </div>
 
                 <div className="p-4 flex flex-col flex-grow">
