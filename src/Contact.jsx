@@ -372,7 +372,7 @@ function Contact() {
                   </motion.h3>
 
                   <div className="flex flex-col space-y-3 pl-12">
-                    {/* <motion.div
+                    <motion.div
                       className="flex items-center space-x-3 group"
                       initial={{ x: -30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
@@ -393,7 +393,7 @@ function Contact() {
                         <span className="font-semibold">c</span>
                         areer@assuredjob.com
                       </a>
-                    </motion.div> */}
+                    </motion.div>
 
                     <motion.div
                       className="flex items-center space-x-3 group"
@@ -410,10 +410,10 @@ function Contact() {
                       }}
                     >
                       <a
-                        href="mailto:hr@assurejob.com"
+                        href="mailto:hr@assuredjob.com"
                         className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
                       >
-                        <span className="font-semibold">h</span>r@assurejob.com
+                        <span className="font-semibold">h</span>r@assuredjob.com
                       </a>
                     </motion.div>
                   </div>
