@@ -722,7 +722,7 @@ const GalleryPage = memo(function GalleryPage() {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-10 text-center">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-3 tracking-tight">Image Gallery</h1>
+          <h1 className="text-4xl sm:text-5xl text-gray-900 mb-3 tracking-tight">Media Library</h1>
           <p className="text-lg text-gray-600">
             Explore our collection of {totalItems > 0 ? `${totalItems} stunning images` : "images"}
           </p>

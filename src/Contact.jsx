@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-duplicate-props */
 /* eslint-disable no-unused-vars */
 import Cont5 from "./componentes/Home/cont5";
 import { Mail } from "lucide-react";
@@ -207,34 +208,34 @@ function Contact() {
       );
       toast.success("Enquiry saved successfully!");
 
-      emailjs
-        .send(serviceId, templateId, contactData, {
-          publicKey,
-        })
-        .then(
-          () => {
-            console.log("SUCCESS!");
-            toast.success("Your message has been sent successfully!");
-            // Reset form after success
-            setContactData({
-              name: "",
-              contact: "",
-              email: "",
-              state: "",
-              city: "",
-              enquire: "",
-              enquireDetail: "",
-            });
-            setFormSubmitted(false);
-          },
-          (error) => {
-            console.log("FAILED...", error.text);
-            toast.error("Failed to send message. Please try again later.");
-          }
-        )
-        .finally(() => {
-          setLoading(false); // Make sure loading is set to false after the promise resolves
-        });
+      // emailjs
+      //   .send(serviceId, templateId, contactData, {
+      //     publicKey,
+      //   })
+      //   .then(
+      //     () => {
+      //       console.log("SUCCESS!");
+      //       toast.success("Your message has been sent successfully!");
+      //       // Reset form after success
+      //       setContactData({
+      //         name: "",
+      //         contact: "",
+      //         email: "",
+      //         state: "",
+      //         city: "",
+      //         enquire: "",
+      //         enquireDetail: "",
+      //       });
+      //       setFormSubmitted(false);
+      //     },
+      //     (error) => {
+      //       console.log("FAILED...", error.text);
+      //       toast.error("Failed to send message. Please try again later.");
+      //     }
+      //   )
+      //   .finally(() => {
+      //   });
+      setLoading(false); // Make sure loading is set to false after the promise resolves
     } catch (error) {
       console.log(error);
       toast.error("An error occurred. Please try again.");
@@ -371,11 +372,11 @@ function Contact() {
                   </motion.h3>
 
                   <div className="flex flex-col space-y-3 pl-12">
-                    <motion.div
+                    {/* <motion.div
                       className="flex items-center space-x-3 group"
                       initial={{ x: -30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 1.0, duration: 0.5 }}
+                      // transition={{ delay: 1.0, duration: 0.5 }}
                       whileHover={{ x: 5 }}
                       whileTap={{ x: 2 }}
                       transition={{
@@ -392,13 +393,13 @@ function Contact() {
                         <span className="font-semibold">c</span>
                         areer@assuredjob.com
                       </a>
-                    </motion.div>
+                    </motion.div> */}
 
                     <motion.div
                       className="flex items-center space-x-3 group"
                       initial={{ x: -30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 1.1, duration: 0.5 }}
+                      // transition={{ delay: 1.1, duration: 0.5 }}
                       whileHover={{ x: 5 }}
                       whileTap={{ x: 2 }}
                       transition={{
@@ -441,7 +442,7 @@ function Contact() {
                       className="flex items-center space-x-3 group"
                       initial={{ x: -30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 1.4, duration: 0.5 }}
+                      // transition={{ delay: 1.4, duration: 0.5 }}
                       whileHover={{ x: 5 }}
                       whileTap={{ x: 2 }}
                       transition={{
@@ -463,7 +464,7 @@ function Contact() {
                       className="flex items-center space-x-3 group"
                       initial={{ x: -30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 1.5, duration: 0.5 }}
+                      // transition={{ delay: 1.5, duration: 0.5 }}
                       whileHover={{ x: 5 }}
                       whileTap={{ x: 2 }}
                       transition={{

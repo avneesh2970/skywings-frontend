@@ -82,6 +82,10 @@ export default function GalleryDashboard() {
     "outings",
     "work culture",
     "fun",
+    "award and achievements",
+    "indoor and outdoor activities",
+    "celebrations",
+    "job fairs",
     "other",
   ]);
   // const [categories, setCategories] = useState([

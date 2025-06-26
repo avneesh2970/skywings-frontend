@@ -86,12 +86,12 @@ const jobCards = [
 
 const platFormCard = [
   {
-    count: "70",
+    count: "74",
     platform: "Instagram Followers",
     link: "https://www.instagram.com/assuredjob/ ",
   },
   {
-    count: "565",
+    count: "561",
     platform: "Facebook Followers",
     link: "https://www.facebook.com/www.assuredjob.in?rdid=8Q0uNLYzpF0wXPUg&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F15Zrb6ooNt%2F#",
   },
@@ -101,7 +101,7 @@ const platFormCard = [
     link: "https://www.linkedin.com/company/skywings-advisors-pvt-ltd/ ",
   },
   {
-    count: "600",
+    count: "1",
     platform: "YouTube Subscribers",
     link: "https://www.youtube.com/@TheAssuredJobChannel ",
   },

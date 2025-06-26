@@ -243,7 +243,7 @@ const Gallery = memo(function Gallery() {
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6">
-              Media Gallery
+              Media Library
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Discover our collection of stunning visuals and memorable moments
@@ -268,7 +268,7 @@ const Gallery = memo(function Gallery() {
               onClick={() => navigate("/gallery")}
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
-              <span className="mr-2">Explore Full Gallery</span>
+              <span className="mr-2">Explore Full Library</span>
               <svg
                 className="w-5 h-5 transition-transform duration-300"
                 fill="none"
