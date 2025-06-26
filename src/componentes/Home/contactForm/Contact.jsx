@@ -407,10 +407,10 @@ export default function Contact() {
                       }}
                     >
                       <a
-                        href="mailto:hr@assurejob.com"
+                        href="mailto:hr@assuredjob.com"
                         className="text-gray-600 group-hover:text-blue-600 transition-colors duration-150"
                       >
-                        <span className="font-semibold">h</span>r@assurejob.com
+                        <span className="font-semibold">h</span>r@assuredjob.com
                       </a>
                     </motion.div>
                   </div>
