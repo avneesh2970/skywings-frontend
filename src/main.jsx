@@ -45,6 +45,7 @@ import SecuritySettings from "./componentes/Admin/SecuritySettings";
 import { Toaster } from "react-hot-toast";
 import GalleryPage from "./componentes/gallary/GalleryPage";
 import GalleryDashboard from "./componentes/Admin/gallery/GalleryDashboard";
+import RedirectToVisualCV from "./componentes/redirect/RedirectToVisualCV";
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,7 @@ const router = createBrowserRouter([
       { path: "/article/:id", element: <ArticleDetails /> },
       { path: "/disclaimer", element: <Disclaimer /> },
       { path: "/gallery", element: <GalleryPage /> },
+      { path: "/resume", element: <RedirectToVisualCV /> },
     ],
   },
   {
