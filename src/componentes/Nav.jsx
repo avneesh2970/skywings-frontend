@@ -87,6 +87,7 @@ const Nav = ({ toggle, fun }) => {
         { name: "Events", path: "/events" },
         { name: "News", path: "/news" },
         { name: "Media Gallery", path: "/gallery" },
+        { name: "Build Your Resume", path: "/resume" },
       ],
     },
     {

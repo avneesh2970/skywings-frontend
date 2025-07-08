@@ -11,9 +11,9 @@ function RedirectToVisualCV() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+      {/* <h2 className="text-2xl font-semibold text-gray-800 mb-4">
         Redirecting to VisualCV…
-      </h2>
+      </h2> */}
 
       <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
 

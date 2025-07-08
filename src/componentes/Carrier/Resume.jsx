@@ -16,9 +16,9 @@ function Resume() {
           Create a perfect resume <span className="ml-2 ">In just 5 min</span>
           <p className='text-zinc-300 pt-4 text-lg w-6/12'>Hotel receptionist answering the phone.create a perfect resume in 5 minutes. getting the right set of information on resume increases the chances of selection very much</p>
           <button>
-            <div className='gap-3.5 mt-14 text-base text-white items-center bg-blue-500 px-4 py-1 rounded-lg flex cursor-pointer' onClick={() => window.open('https://visualcv.partnerlinks.io/gyn1e45wlxz0', '_blank')} >
-            {<Play className='w-8 h-8 p-2 border  rounded-full border-white e' />}
-            <p>Play the video</p>
+            <div className='gap-3.5 mt-14 text-base text-white items-center bg-blue-500 px-4 py-2 rounded-lg flex cursor-pointer' onClick={() => window.open('https://visualcv.partnerlinks.io/gyn1e45wlxz0', '_blank')} >
+            {/* {<Play className='w-8 h-8 p-2 border  rounded-full border-white e' />} */}
+            <p>Build Your Resume</p>
             </div>
           </button>
         </h3>
