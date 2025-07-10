@@ -87,7 +87,7 @@ const Nav = ({ toggle, fun }) => {
         { name: "Events", path: "/events" },
         { name: "News", path: "/news" },
         { name: "Media Gallery", path: "/gallery" },
-        { name: "Build Your Resume", path: "/resume" },
+        { name: "Build Your Resume", path: "https://visualcv.partnerlinks.io/gyn1e45wlxz0" },
       ],
     },
     {
