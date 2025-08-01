@@ -341,11 +341,11 @@ const JobDetails = () => {
                 </div>
 
                 <div className="mt-4 text-gray-600 space-y-2">
-                  <div className="">
+                  {/* <div className="">
                     <h3 className="min-h-[52px] max-h-[52px] flex items-center break-words text-base sm:text-lg lg:text-lg font-semibold min-clamp-2-lines max-clamp-2-lines">
                       {relatedJob.job_title}
                     </h3>
-                  </div>
+                  </div> */}
                   <p className="flex items-center space-x-2">
                     <MdLocationOn />
                     <span>
