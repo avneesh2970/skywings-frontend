@@ -396,9 +396,9 @@ const JobDetails = () => {
         <div className="bg-white w-full md:w-6/12 p-6 rounded-lg shadow-lg">
           <div>
             <h2 className="text-2xl font-bold text-purple-600">{job.job_title || job.title}</h2>
-            <p className="mt-2 text-gray-700">
+            {/* <p className="mt-2 text-gray-700">
               <strong>Company:</strong> {job.client || job.company || "Not specified"}
-            </p>
+            </p> */}
             <p className="text-gray-700">
               <strong>Location:</strong>{" "}
               {job.location || job.city || job.states || job.country || "Location not specified"}
