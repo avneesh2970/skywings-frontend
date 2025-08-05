@@ -103,6 +103,11 @@ const Nav = ({ toggle, fun }) => {
           path: "https://www.freelanceRecruiter.in/",
           external: true,
         },
+        {
+          name: "Tripsnthrills.com",
+          path: "https://tripsnthrills.com/",
+          external: true,
+        },
       ],
     },
   ];
